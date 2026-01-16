@@ -2,7 +2,9 @@ import express, { urlencoded } from "express";
 import {} from "dotenv/config";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import { connectDB } from "./src/controllers/models/validators/middlewares/routes/utils/configs/db.config.js";
+import { connectDB } from "./src/configs/db.config.js";
+import { ErrorMiddlware } from "./src/middlewares/error.middleware.js";
+import { ResponseMiddleware } from "./src/middlewares/response.middleware.js";
 const app = express();
 
 // Middleware configuration
@@ -15,14 +17,13 @@ app.use(
 );
 app.use(urlencoded({ extended: true }));
 app.use(cookieParser());
-
-
+app.use(ResponseMiddleware)
 // Routes
 
 // DB Connection
 connectDB();
 // Error Middleware
-
+app.use(ErrorMiddlware);
 // Server listen
 app.listen(process.env.PORT, () =>
   console.log(`Server listening at port ${process.env.PORT}`),
