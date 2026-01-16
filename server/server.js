@@ -2,6 +2,7 @@ import express, { urlencoded } from "express";
 import {} from "dotenv/config";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import { connectDB } from "./src/controllers/models/validators/middlewares/routes/utils/configs/db.config.js";
 const app = express();
 
 // Middleware configuration
@@ -19,7 +20,7 @@ app.use(cookieParser());
 // Routes
 
 // DB Connection
-
+connectDB();
 // Error Middleware
 
 // Server listen
