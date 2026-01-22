@@ -1,13 +1,16 @@
+export const ResponseMiddleware = (req, res, next) => {
+  res.respond = function (statusCode, message = "Success", data = null) {
+    const responseBody = {
+      success: statusCode >= 200 && statusCode < 300,
+      message,
+    };
 
-export const ResponseMiddleware = (req, res, next)=>{
-    res.respond = function(statusCode, message = "Success", resources){
-        const body = {
-            success: statusCode >=200 && statusCode<300,
-            message
-        };
-        if(resources && typeof resources === "object"){
-            Object.assign(body, resources);
-        }
-        next();
+    if (data && typeof data === "object") {
+      responseBody.data = data;
     }
-}
+
+    return res.status(statusCode).json(responseBody);
+  };
+
+  next();
+};
