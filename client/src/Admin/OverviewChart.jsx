@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 function OverviewChart() {
   const [chartData, setChartData] = useState([]);
-
-
   const loadChartData = () => {
     const orders = JSON.parse(localStorage.getItem("Orders")) || [];
-
     const grouped = {};
-
     orders.forEach((order) => {
       if (!grouped[order.date]) {
         grouped[order.date] = {
@@ -26,15 +29,12 @@ function OverviewChart() {
   };
 
   useEffect(() => {
-    
     loadChartData();
 
-    
     const interval = setInterval(() => {
       loadChartData();
     }, 2000);
 
-    
     const handleOrdersUpdate = () => loadChartData();
     window.addEventListener("ordersUpdated", handleOrdersUpdate);
 
