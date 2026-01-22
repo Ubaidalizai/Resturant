@@ -6,25 +6,23 @@ import { connectDB } from "./src/configs/db.config.js";
 import { ErrorMiddlware } from "./src/middlewares/error.middleware.js";
 import { ResponseMiddleware } from "./src/middlewares/response.middleware.js";
 const app = express();
+// Route Import 
+import userAuthRouter from "./src/routes/userAuth.routes.js";
 
 // Middleware configuration
 app.use(express.json({ limit: "16kb" }));
-app.use(
-  cors({
-    origin: ["http:localhost:5173"],
-    credentials: true,
-  }),
-);
+app.use(cors({origin: ['http://localhost:5173'], credentials: true}));
 app.use(urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(ResponseMiddleware)
 // Routes
-
+app.use('/api/v1/user-auth/', userAuthRouter);
+app.get('/api/v1/user', (req, res)=>res.send("Hello"))
 // DB Connection
 connectDB();
 // Error Middleware
 app.use(ErrorMiddlware);
 // Server listen
 app.listen(process.env.PORT, () =>
-  console.log(`Server listening at port ${process.env.PORT}`),
+  console.log(`Server listening at port ${process.env.PORT} http://localhost:4000`),
 );
