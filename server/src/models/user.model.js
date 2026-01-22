@@ -14,15 +14,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    refreshToken: {
-      type: String,
-      required: true,
-    },
+    refreshToken: String,
     resetPasswordToken: String,
     resetPasswordExpire: Date,
     isEmailVarified: {
       type: String,
-      required: true,
+      default: false
     },
     varificationCode: Number,
     varificationCodeExpire: Date,

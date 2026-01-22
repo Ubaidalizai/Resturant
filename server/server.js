@@ -25,6 +25,6 @@ app.use(ErrorMiddlware);
 // Server listen
 app.listen(process.env.PORT, () =>
   console.log(
-    `Server listening at port ${process.env.PORT} http://localhost:4000`,
+    `Server listening at port ${process.env.PORT}`,
   ),
 );
