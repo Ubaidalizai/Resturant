@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema(
     resetPasswordExpire: Date,
     isEmailVarified: {
       type: String,
-      default: false
+      default: false,
     },
     varificationCode: Number,
     varificationCodeExpire: Date,
