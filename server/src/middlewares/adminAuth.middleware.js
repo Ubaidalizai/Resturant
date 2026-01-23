@@ -10,6 +10,6 @@ export const adminAuthMiddleware = (req, res, next) => {
         req.admin = decoded.email;
         next();
     } catch (error) {
-        return res.status(401).json({ message: "Unauthorized: Invalid token" });
+        return res.respond(401, "Unauthorized: Invalid token");
     }
 };    
