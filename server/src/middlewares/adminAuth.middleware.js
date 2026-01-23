@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { ErrorHandler } from '../utils/errorHandler.utils.js';
+import ErrorHandler from '../utils/errorHandler.util.js';
 export const adminAuthMiddleware = (req, res, next) => {
     const {adminToken} = req.cookies;
     if (!adminToken) {

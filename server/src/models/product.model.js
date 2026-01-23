@@ -14,8 +14,12 @@ const productSchema  = new mongoose.Schema({
         required: true
     },
     image:{
-        type: Number, 
+        type: String, 
         required: true
+    },
+    isDeleted: {
+        type: Boolean,
+        default: false
     }
 }, {timestamps: true});
 
