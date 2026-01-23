@@ -20,7 +20,9 @@ app.use(cors({ origin: ["http://localhost:5173"], credentials: true }));
 app.use(urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(ResponseMiddleware);
-
+app.get('/api/test', (req, res)=>{
+  res.send("API is working");
+})
 // Routes
 app.use("/api/v1/user-auth/", userAuthRouter);
 app.use('/api/v1/admin/', adminRouter);
