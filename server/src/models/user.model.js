@@ -14,15 +14,6 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    refreshToken: String,
-    resetPasswordToken: String,
-    resetPasswordExpire: Date,
-    isEmailVarified: {
-      type: String,
-      default: false,
-    },
-    varificationCode: Number,
-    varificationCodeExpire: Date,
   },
   { timestamps: true },
 );
