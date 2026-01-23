@@ -9,7 +9,8 @@ import { ResponseMiddleware } from "./src/middlewares/response.middleware.js";
 // Route Import
 import userAuthRouter from "./src/routes/userAuth.routes.js";
 import adminRouter from "./src/routes/adminAuth.routes.js";
-import ProductRouter from "./src/routes/product.routes.js";
+import FoodRouter from "./src/routes/food.routes.js";
+import tableRouter from "./src/routes/table.routes.js";
 
 const app = express();
 
@@ -23,7 +24,8 @@ app.use(ResponseMiddleware);
 // Routes
 app.use("/api/v1/user-auth/", userAuthRouter);
 app.use('/api/v1/admin/', adminRouter);
-app.use('/api/v1/products/', ProductRouter);
+app.use('/api/v1/foods/', FoodRouter);
+app.use('/api/v1/tables/', tableRouter);
 
 // DB Connection
 connectDB();
