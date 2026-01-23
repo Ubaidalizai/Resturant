@@ -8,6 +8,7 @@ import { ResponseMiddleware } from "./src/middlewares/response.middleware.js";
 const app = express();
 // Route Import
 import userAuthRouter from "./src/routes/userAuth.routes.js";
+import adminRouter from "./src/routes/adminAuth.routes.js";
 
 // Middleware configuration
 app.use(express.json({ limit: "16kb" }));
@@ -17,7 +18,7 @@ app.use(cookieParser());
 app.use(ResponseMiddleware);
 // Routes
 app.use("/api/v1/user-auth/", userAuthRouter);
-
+app.use('/api/v1/admin/', adminRouter)
 // DB Connection
 connectDB();
 // Error Middleware
