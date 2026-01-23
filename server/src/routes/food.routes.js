@@ -6,8 +6,8 @@ import {upload} from '../configs/multer.config.js';
 import { foodValidation } from '../validators/food.validator.js';
 import { addFood, deleteFood, getFoods } from '../controllers/food.controller.js';
 
-FoodRouter.post('/add', foodValidation, validationMiddleware, upload.single('image'), addFood);
+FoodRouter.post('/add',upload.single('image'), foodValidation, validationMiddleware,  addFood);
 FoodRouter.get('/all', getFoods);
 FoodRouter.delete('/delete/:productId', deleteFood);
 
-export default FoodRouter;
+export default FoodRouter;  
