@@ -38,7 +38,8 @@ delete
 /api/v1/foods/delete/:foodId  -------> delte the food 
 get
 /api/v1/foods/all              -----> Get all the foods
-
+put
+/api/v1/foods/update/foodID    ----> Update the Food.....     name, catagory, image File, price   ---> Should be multi/part data
 
 # Order APIs
 post
@@ -60,4 +61,3 @@ delete
 /api/v1/menues/delete/menueID -----> Delete the menueID
 put
 /api/v1/menues/update/menueId  -----> Update the menue 
-
