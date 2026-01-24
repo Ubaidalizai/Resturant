@@ -10,4 +10,4 @@ FoodRouter.post('/add',upload.single('image'), foodValidation, validationMiddlew
 FoodRouter.get('/all', getFoods);
 FoodRouter.delete('/delete/:productId', deleteFood);
 
-export default FoodRouter;  
+export default FoodRouter;            

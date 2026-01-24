@@ -4,6 +4,7 @@ import { Table } from "../models/table.model.js";
 // Add new table
 const addTable = asyncHandler(async (req, res)=>{
     const { tableNumber, capacity } = req.body;
+    // Add the error if table al
     const newTable = await Table.create({ tableNumber, capacity });
     res.respond(201, "Table added successfully", newTable);
 });

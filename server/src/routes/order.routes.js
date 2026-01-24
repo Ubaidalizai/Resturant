@@ -6,8 +6,8 @@ import { userAuthMiddleware } from '../middlewares/userAuth.middleware.js';
 const OrderRouter = express.Router();
 
 OrderRouter.get('/all', getOrders);
-OrderRouter.post('/add', userAuthMiddleware,  orderValidation, validationMiddleware, addOrder);
-OrderRouter.delete('/delete/:orderId', userAuthMiddleware, deleteOrder)
-OrderRouter.put('/update/:orderId', userAuthMiddleware,  updateOrder);
+OrderRouter.post('/add',  orderValidation, validationMiddleware, addOrder);
+OrderRouter.delete('/delete/:orderId',  deleteOrder)
+OrderRouter.put('/update/:orderId',  updateOrder);
 
 export default OrderRouter;
