@@ -17,7 +17,7 @@ export const registerUser = asyncHandler(async (req, res, next)=>{
     const refreshToken = generateRefreshToken(user.id);
     // Store refresh token in DB
     user.refreshToken = refreshToken;
-    await User.save();
+    await user.save();
     // Sent token to client 
     sentTokenToClient('accessToken', accessToken, res);
     sentTokenToClient('refreshToken', refreshToken, res);
@@ -26,7 +26,6 @@ export const registerUser = asyncHandler(async (req, res, next)=>{
 
 // Handle Login
 export const loginUser = asyncHandler(async (req, res, next)=>{
-    console.lg("Test")
     const {email, password} = req.body;
     // Check email in DB
     const userFound = await User.findOne({email});
@@ -48,7 +47,6 @@ export const loginUser = asyncHandler(async (req, res, next)=>{
 
 // Handle Logout
 export const logoutUser = (req, res)=>{
-    return res.status(200).json({success: false})
     res.clearCookie("sellerAccToken", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
