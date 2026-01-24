@@ -19,3 +19,12 @@ export const deleteMenue = asyncHandler(async (req, res) => {
   res.respond(200, "Menue deleted successfully");
 });
 
+// Update the menue
+export const updateMenue = asyncHandler(async (req, res) => {
+  const { menueId } = req.params;
+  const { name, catagory } = req.body;
+  const updatedMenue = await Menue.findByIdAndUpdate(
+    menueId,
+    { name, catagory });
+  res.respond(200, "Menue updated successfully", updatedMenue);
+});

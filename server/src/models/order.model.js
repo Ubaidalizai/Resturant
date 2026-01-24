@@ -7,7 +7,7 @@ const orderSchema = new mongoose.Schema(
     },
     items: [
       {
-        Food: String,
+        food: String,
         foodId: { type: mongoose.Types.ObjectId, ref: "Food" },
       },
     ],
@@ -16,7 +16,11 @@ const orderSchema = new mongoose.Schema(
     tableId: {
       type: mongoose.Types.ObjectId,
       ref: "Table",
-    }
+    },
+    isPaid: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true },
 );
