@@ -6,12 +6,15 @@ import { sentTokenToClient } from "../utils/sentTokenToClient.util.js";
 
 // Handle register 
 export const registerUser = asyncHandler(async (req, res, next)=>{
-    const {name, email, password} = req.body;
+    const {name, email, password, phone, address} = req.body;
+    // Image is handled by multer middleware
+    const image = req.file ? req.file.buffer.toString('base64') : null;
+    
     // Check does email exist
     const userFound = await User.findOne({email});
     if(userFound)return next(new ErrorHandler(400, 'Email already exists'));
     // Register a new user in DB
-    const user = await User.create({name, email, password});
+    const user = await User.create({name, email, password, phone, address, image});
     // Generate tokens 
     const accessToken = generateAccessToken(user.id);
     const refreshToken = generateRefreshToken(user.id);
