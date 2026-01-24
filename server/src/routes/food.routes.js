@@ -4,7 +4,7 @@ import { validationMiddleware } from '../middlewares/validationsHandler.utils.js
 import { adminAuthMiddleware } from '../middlewares/adminAuth.middleware.js';
 import {upload} from '../configs/multer.config.js';
 import { foodValidation } from '../validators/food.validator.js';
-import { addFood, deleteFood, getFoods } from '../controllers/food.controller.js';
+import { addFood, deleteFood, getFoods, updateFood } from '../controllers/food.controller.js';
 
 FoodRouter.post('/add',upload.single('image'), foodValidation, validationMiddleware,  addFood);
 FoodRouter.get('/all', getFoods);
