@@ -6,6 +6,11 @@ export const addFood = asyncHandler(async (req, res)=>{
     const {name, catagory, price } = req.body;
     // Base64 of Image                                                                                                                                                                      
     const image = req.file.buffer.toString('base64');
+    // If the food already exists
+    const existingFood = await Food.findOne({ name });
+    if(existingFood){
+        return res.respond(400, "Food item with this name already exists");
+    }
     const newFood = await Food.create({ name, catagory, price, image });
     res.respond(201, "Product added successfully", newFood);
 });
