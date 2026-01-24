@@ -14,6 +14,14 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    refreshToken: {
+      type: String,
+      default: null,
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    }
   },
   { timestamps: true },
 );
