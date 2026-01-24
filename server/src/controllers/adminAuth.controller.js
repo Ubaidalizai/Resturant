@@ -14,6 +14,10 @@ export const handleAdminLogin = asyncHandler(async (req, res, next)=>{
     res.respond(200, "Admin logged in successfully")
 });
 
+export const verifyAdmin = asyncHandler(async (req, res, next)=>{
+    res.respond(200, "Admin verified successfully")
+});
+
 export const handleAdminLogout = asyncHandler(async (req, res)=>{
     res.clearCookie('adminToken');
     res.respond(200, "Admin logged out successfully");

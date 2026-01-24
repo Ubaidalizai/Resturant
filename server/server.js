@@ -30,6 +30,7 @@ app.use('/api/v1/admin/', adminRouter);
 app.use('/api/v1/foods/', FoodRouter);
 app.use('/api/v1/tables/', tableRouter);
 app.use('/api/v1/menues/', MenueRouter);
+
 // DB Connection
 connectDB();
 // Error Middleware
