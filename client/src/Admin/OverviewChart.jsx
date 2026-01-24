@@ -59,7 +59,7 @@ function OverviewChart() {
           <Line
             type="monotone"
             dataKey="revenue"
-            stroke="#facc15"
+            stroke="#facc90"
             strokeWidth={3}
             name="Revenue ($)"
           />

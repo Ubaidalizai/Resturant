@@ -41,14 +41,14 @@ function Welcome() {
 
         <button
           onClick={handleOrderNow}
-          className="mt-4 bg-yellow-600 text-white font-bold px-8 py-4 rounded-full text-lg shadow-xl animate-bounce hover:shadow-amber-300 scale-105 transition-all duration-300"
+          className="mt-4 bg-yellow-600 text-white font-bold px-8 py-4 rounded-full text-lg shadow-xl animate-bounce hover:shadow-amber-300 scale-105 transition-all duration-300 cursor-pointer"
         >
           Order Now
         </button>
 
         <button
           onClick={() => navigate("/login")}
-          className="text-white"
+          className="text-white cursor-pointer"
         >
           Login
         </button>
