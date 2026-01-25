@@ -195,7 +195,7 @@ function OrderHistory() {
             <div className="flex gap-4">
               <button
                 onClick={() => setModal(null)}
-                className="w-full bg-yellow-100 py-2 rounded-2xl font-bold text-black cursor-pointer"
+                className="w-full bg-yellow-600 py-2 rounded-2xl font-bold text-white cursor-pointer"
               >
                 Cancel
               </button>
@@ -218,9 +218,15 @@ function OrderHistory() {
       {foodModal && selectedOrder && (
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
           <div className="bg-white w-full max-w-3xl p-6 rounded-3xl shadow-2xl">
-            <h2 className="text-2xl font-bold text-center text-yellow-600 mb-4">
+            <div className="flex flex-row w-full justify-between mb-4">
+            <h2 className="text-2xl font-bold text-center text-yellow-600">
               Food Details
             </h2>
+             <button onClick={() => { setFoodModal(false); setSelectedOrder(null) }}
+              className="top-4 right-4 font-bold text-yellow-600 text-xl cursor-pointer">
+              X
+            </button>
+            </div>
             <table className="w-full text-center text-black">
               <thead className="bg-yellow-100">
                 <tr>
@@ -243,16 +249,6 @@ function OrderHistory() {
                 ))}
               </tbody>
             </table>
-
-            <button
-              onClick={() => {
-                setFoodModal(false);
-                setSelectedOrder(null);
-              }}
-              className="mt-4 w-full bg-yellow-100 py-2 rounded-2xl font-bold text-black cursor-pointer hover:scale-105 transition-transform"
-            >
-              Close
-            </button>
           </div>
         </div>
       )}

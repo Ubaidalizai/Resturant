@@ -21,6 +21,9 @@ function FoodDataStorage() {
   const [image, setImage] = useState("");
   const [enterFoodData, setEnterFoodData] = useState(() => foodDataStorage());
   const [search, setSearch] = useState("");
+  const [modal, setModal] = useState(null);
+  const [selectedFood, setSelectedFood] = useState(null);
+
 
   useEffect(() => {
     localStorage.setItem("FoodData", JSON.stringify(enterFoodData));
@@ -52,10 +55,7 @@ function FoodDataStorage() {
     localStorage.setItem("FoodData", JSON.stringify(updateFoods));
   };
 
-  const [modal, setModal] = useState(null);
-  const [selectedFood, setSelectedFood] = useState(null);
-
-  const openEditModal = (food) => {
+   const openEditModal = (food) => {
     setSelectedFood(food);
     setName(food.name);
     setPrice(food.price);
@@ -68,6 +68,7 @@ function FoodDataStorage() {
     setCategory("");
     setImage("");
   };
+
 
   const openRemoveModal = (food) => {
     setSelectedFood(food);
@@ -86,11 +87,6 @@ function FoodDataStorage() {
 
     setModal(null);
     setSelectedFood(null);
-
-    setName("");
-    setPrice("");
-    setCategory("");
-    setImage("");
 
     if (name === "" || price === "" || category === "" || image === "") {
       toast.warn("Please fill the all blanks");
@@ -121,7 +117,7 @@ function FoodDataStorage() {
         placeholder="Search food by name..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="w-full max-w-4xl border-2 border-yellow-600 rounded-xl px-4 py-3 text-black"
+        className="w-full max-w-4xl border-2 border-yellow-600 rounded-xl px-4 py-3 text-black focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full max-w-5xl">
@@ -143,7 +139,7 @@ function FoodDataStorage() {
 
             <div className="flex space-x-4 mt-4">
               <AiOutlineEdit
-                className="text-blue-600 cursor-pointer text-xl"
+                className="text-yellow-600 cursor-pointer text-xl"
                 onClick={() => openEditModal(food)}
               />
               <AiOutlineDelete
@@ -163,7 +159,7 @@ function FoodDataStorage() {
           <div className="bg-white rounded-3xl p-8 w-full max-w-md relative shadow-2xl z-10">
             <button
               onClick={() => setModal(null)}
-              className="absolute top-4 right-4 font-bold text-black text-xl cursor-pointer"
+              className="absolute top-4 right-4 font-bold text-yellow-600 text-xl cursor-pointer"
             >
               X
             </button>
@@ -180,7 +176,7 @@ function FoodDataStorage() {
                   placeholder="Food Name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="border-2 border-yellow-600 rounded-xl px-4 py-3 w-full"
+                  className="border-2 border-yellow-600 rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
                 />
 
                 <input
@@ -188,13 +184,13 @@ function FoodDataStorage() {
                   placeholder="$Price"
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
-                  className="border-2 border-yellow-600 rounded-xl px-4 py-3 w-full"
+                  className="border-2 border-yellow-600 rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
                 />
 
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="border-2 border-yellow-600 rounded-xl px-4 py-3 w-full"
+                  className="border-2 border-yellow-600 rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
                 >
                   <option value="">Select Category</option>
                   <option value="Breakfast">Breakfast</option>
@@ -224,33 +220,34 @@ function FoodDataStorage() {
               </form>
             )}
 
-            {/* EDIT MODAL */}
-            {modal === "edit" && (
+            {/* EDIT MODAL */} 
+            
+            {modal === "edit" && selectedFood &&(
               <div className="space-y-4 text-black">
-                <h2 className="text-2xl font-bold text-blue-600 text-center">
+                <h2 className="text-2xl font-bold text-yellow-600 text-center">
                   Edit Food
                 </h2>
 
                 <input
                   type="text"
-                  placeholder="Name"
+                  placeholder= {selectedFood.name}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="border-2 border-blue-600 rounded-xl px-4 py-3 w-full"
+                  className="border-2 border-yellow-600 rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
                 />
 
                 <input
                   type="number"
-                  placeholder="$Price"
+                  placeholder= { '$' + selectedFood.price}
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
-                  className="border-2 border-blue-600 rounded-xl px-4 py-3 w-full"
+                  className="border-2 border-yellow-600 rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
                 />
 
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="border-2 border-blue-600 rounded-xl px-4 py-3 w-full"
+                  className="border-2 border-yellow-600 rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
                 >
                   <option value="">Select Category</option>
                   <option value="Breakfast">Breakfast</option>
@@ -259,8 +256,8 @@ function FoodDataStorage() {
                 </select>
 
                 {/* IMAGE UPLOAD (EDIT) */}
-                <label className="w-full border-2 border-dashed border-blue-600 rounded-xl px-4 py-3 text-center cursor-pointer flex items-center justify-center hover:bg-blue-50 transition">
-                  <span className="font-semibold text-blue-600">Upload New Image</span>
+                <label className="w-full border-2 border-dashed border-yellow-600 rounded-xl px-4 py-3 text-center cursor-pointer flex items-center justify-center hover:bg-yellow-50 transition">
+                  <span className="font-semibold text-yellow-600">Upload New Image</span>
                   <input
                     type="file"
                     accept="image/*"
@@ -270,15 +267,15 @@ function FoodDataStorage() {
                     }
                   />
                 </label>
-
                 <button
                   onClick={updateFood}
-                  className="bg-blue-600 text-white font-bold py-3 rounded-xl w-full cursor-pointer hover:scale-105 transition"
+                  className="bg-yellow-600 text-white font-bold py-3 rounded-xl w-full cursor-pointer hover:scale-105 transition"
                 >
                   Update Food
                 </button>
               </div>
-            )}
+                   )}
+
 
             {/* REMOVE MODAL */}
             {modal === "remove" && selectedFood && (
@@ -286,13 +283,13 @@ function FoodDataStorage() {
                 <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl space-y-5">
                   <h2 className="text-2xl font-bold text-red-500 text-center">Delete Order</h2>
                   <p className="text-center text-black">
-                    Are you sure you want to delete order on{" "}
+                    Are you sure you want to delete order on {" "}
                     <span className="font-bold">{selectedFood.name}</span>?
                   </p>
                   <div className="flex gap-4">
                     <button
                       onClick={() => setModal(null)}
-                      className="w-full bg-gray-300 py-3 rounded-xl font-bold hover:bg-gray-400"
+                      className="w-full bg-yellow-600 py-3 rounded-xl font-bold hover:scale-105 transition"
                     >
                       Cancel
                     </button>

@@ -57,7 +57,7 @@ function Tables() {
               key={t.number}
               onClick={() => setSelectedTable(t)}
               className={`cursor-pointer bg-white p-6 rounded-2xl shadow-lg border-2 transform hover:scale-105 transition duration-300 ${
-                isOccupied ? "border-yellow-600" : "border-green-500"
+                isOccupied ? "border-yellow-600" : "border-green-500 , blur-[0.9px]"
               }`}
             >
               <h2 className="text-2xl font-bold text-center text-yellow-600">
@@ -79,10 +79,17 @@ function Tables() {
       {selectedTable && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
           <div className="bg-white w-full max-w-3xl rounded-2xl p-6 shadow-2xl overflow-y-auto max-h-[80vh]">
-            <h2 className="text-3xl font-bold text-yellow-600 text-center mb-6">
+            <div className="flex flex-row w-full mb-6 justify-between">
+            <h2 className="text-3xl font-bold text-yellow-600">
               Table {selectedTable.number}
             </h2>
-
+             <button
+              onClick={() => setSelectedTable(null)}
+              className="top-4 right-4 font-bold text-yellow-600 text-xl cursor-pointer"
+            >
+              X
+            </button>
+            </div>
             {selectedTable.orders.length === 0 && (
               <p className="text-center text-gray-500 font-semibold py-10">
                 No orders yet.
@@ -101,7 +108,7 @@ function Tables() {
                       Customer {i + 1}
                     </h3>
 
-                    {/* ✅ Delivered Checkmark per customer */}
+                    {/*  Delivered Checkmark per customer */}
                     <div className="flex items-center gap-2">
                       <input
                         type="checkbox"
@@ -153,13 +160,6 @@ function Tables() {
                 </div>
               ))}
             </div>
-
-            <button
-              onClick={() => setSelectedTable(null)}
-              className="w-full mt-6 bg-gray-200 text-gray-800 py-2 rounded-xl hover:bg-gray-300 transition-colors"
-            >
-              Close
-            </button>
           </div>
         </div>
       )}
