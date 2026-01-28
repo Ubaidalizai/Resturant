@@ -29,4 +29,4 @@ const updateTable = asyncHandler(async (req, res) => {
     )      
     res.respond(200, "Table updated successfully", updatedTable);
 });
-export { addTable, getTables, deleteTable };
+export { addTable, getTables, deleteTable, updateTable };
