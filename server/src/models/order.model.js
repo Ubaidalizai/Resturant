@@ -7,12 +7,16 @@ const orderSchema = new mongoose.Schema(
     },
     items: [
       {
-        product: String,
-        productId: { type: mongoose.Types.ObjectId, ref: "Product" },
+        Food: String,
+        foodId: { type: mongoose.Types.ObjectId, ref: "Food" },
       },
     ],
     quantity: { type: Number, required: true },
     amount: { type: Number, required: true },
+    tableId: {
+      type: mongoose.Types.ObjectId,
+      ref: "Table",
+    }
   },
   { timestamps: true },
 );
