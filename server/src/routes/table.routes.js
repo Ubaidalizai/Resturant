@@ -9,4 +9,5 @@ import {addTable, deleteTable, getTables} from '../controllers/table.controller.
 tableRouter.post('/add', tableValidation, validationMiddleware, addTable);
 tableRouter.get('/all', getTables);
 tableRouter.delete('/delete/:tableId', deleteTable);
+tableRouter.put('/update/:tableId', updateTable);
 export default tableRouter
