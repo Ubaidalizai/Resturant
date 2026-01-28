@@ -11,6 +11,7 @@ import userAuthRouter from "./src/routes/userAuth.routes.js";
 import adminRouter from "./src/routes/adminAuth.routes.js";
 import FoodRouter from "./src/routes/food.routes.js";
 import tableRouter from "./src/routes/table.routes.js";
+import MenueRouter from "./src/routes/menue.routes.js";
 
 const app = express();
 
@@ -28,7 +29,7 @@ app.use("/api/v1/user-auth/", userAuthRouter);
 app.use('/api/v1/admin/', adminRouter);
 app.use('/api/v1/foods/', FoodRouter);
 app.use('/api/v1/tables/', tableRouter);
-
+app.use('/api/v1/menues/', MenueRouter);
 // DB Connection
 connectDB();
 // Error Middleware
