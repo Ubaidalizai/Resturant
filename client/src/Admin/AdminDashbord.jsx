@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { AiOutlineMenu, AiOutlineTable, AiOutlineAppstore, AiOutlineHistory } from "react-icons/ai";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBurger } from '@fortawesome/free-solid-svg-icons';
+import { faBurger, faGears } from '@fortawesome/free-solid-svg-icons';
 import Tables from "./Tables";
 import OrderHistory from "./OrderHistory";
 import FoodDataStorage from './FoodDataStorage';
 import Logo from '../../public/logo.jpg';
 import OverviewChart from "./OverviewChart";
+import AdminPanel from './AdminPanel';
 
 function AdminDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -85,6 +86,15 @@ function AdminDashboard() {
           </div>
 
           <div
+            onClick={() => setActiveMenu("AdminPanel")}
+            className={`flex items-center gap-3 font-semibold py-2 px-4 rounded cursor-pointer hover:bg-yellow-50 ${
+              activeMenu === "AdminPanel" ? "bg-yellow-100" : ""
+            }`}>
+            <FontAwesomeIcon icon={faGears} />
+            <span>Admin Panel</span>
+          </div>
+
+          <div
             onClick={() => setActiveMenu("Foods")}
             className={`flex items-center gap-3 font-semibold py-2 px-4 rounded cursor-pointer hover:bg-yellow-50 ${
               activeMenu === "Foods" ? "bg-yellow-100" : ""
@@ -124,12 +134,12 @@ function AdminDashboard() {
 
               <div className="col-span-4 flex flex-row w-full justify-center space-x-[30px]">
                 <div className="bg-white rounded-3xl shadow-2xl p-6 flex flex-col items-center hover:scale-105 transition-transform">
-                  <h3 className="text-gray-500 font-semibold">Last Monthe Orders</h3>
+                  <h3 className="text-gray-500 font-semibold">This Monthe Orders</h3>
                   <p className="text-yellow-600 text-3xl font-bold mt-2">{monthOrders.length}</p>
                 </div>
 
                 <div className="bg-white rounded-3xl shadow-2xl p-6 flex flex-col items-center hover:scale-105 transition-transform">
-                  <h3 className="text-gray-500 font-semibold">Last Week Orders</h3>
+                  <h3 className="text-gray-500 font-semibold">This Week Orders</h3>
                   <p className="text-yellow-600 text-3xl font-bold mt-2">{weekOrders.length}</p>
                 </div>
 
@@ -151,7 +161,7 @@ function AdminDashboard() {
               </div>
             </div>
           )}
-
+          {activeMenu === "AdminPanel" && <AdminPanel />}
           {activeMenu === "Tables" && <Tables />}
           {activeMenu === "OrderHistory" && <OrderHistory />}
           {activeMenu === "Foods" && <FoodDataStorage />}
