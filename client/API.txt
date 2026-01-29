@@ -5,9 +5,9 @@ Login the Admin
 
 #User Login and register 
 post
-/api/v1/user-auth/register/ --------> name, email, password
+/api/v1/user/register/ --------> name, email, password
 post
-/api/v1/user-auth/login/   ---------> email, password
+/api/v1/user/login/   ---------> email, password
 
 # Tables Routes
 post

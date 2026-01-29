@@ -25,7 +25,7 @@ app.get('/api/test', (req, res)=>{
   res.send("API is working");
 })
 // Routes
-app.use("/api/v1/user-auth/", userAuthRouter);
+app.use("/api/v1/user/", userAuthRouter);
 app.use('/api/v1/admin/', adminRouter);
 app.use('/api/v1/foods/', FoodRouter);
 app.use('/api/v1/tables/', tableRouter);
@@ -34,6 +34,11 @@ app.use('/api/v1/menues/', MenueRouter);
 connectDB();
 // Error Middleware
 app.use(ErrorMiddlware);
+
+// 404 Handling 
+app.use((req, res) => {
+  res.respond(404, 'Route not found');
+});
 
 // Server listen
 app.listen(process.env.PORT, () =>
