@@ -2,6 +2,8 @@ import { body } from "express-validator";
 
 // Order validations 
 export const orderValidation = [
+    body("userId")
+    .isMongoId().withMessage("Invalid user ID"),
     body("items")
     .notEmpty().withMessage("Items cannot be empty"),
     body("quantity")

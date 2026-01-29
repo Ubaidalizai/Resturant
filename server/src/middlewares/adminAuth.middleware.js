@@ -7,7 +7,7 @@ export const adminAuthMiddleware = (req, res, next) => {
     }
     try {
         const decoded = jwt.verify(adminToken, process.env.REFRESH_TOKEN_SECRET);
-        req.admin = decoded;
+        req.admin = decoded.email;
         next();
     } catch (error) {
         return res.status(401).json({ message: "Unauthorized: Invalid token" });

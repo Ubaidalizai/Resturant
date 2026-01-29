@@ -20,5 +20,13 @@ const deleteTable = asyncHandler(async (req, res)=>{
     await Table.findByIdAndDelete(tableId);
     res.respond(200, "Table deleted successfully");
 });
-
-export { addTable, getTables, deleteTable };
+const updateTable = asyncHandler(async (req, res) => {
+    const { tableId } = req.params;
+    const { tableNumber, capacity, isOccopied } = req.body;
+    const updatedTable = await Table.findByIdAndUpdate(
+        tableId,
+        { tableNumber, capacity, isOccopied }
+    )      
+    res.respond(200, "Table updated successfully", updatedTable);
+});
+export { addTable, getTables, deleteTable, updateTable };
