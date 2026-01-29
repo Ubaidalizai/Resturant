@@ -15,10 +15,10 @@ import AdminDashboard from './Admin/AdminDashbord';
 
 export const ItemsContext = createContext();
 function App() {
-  const login = { userName: 'afghan', password: '123' };
+
   const [isAuth, setIsAuth] = useState(false);
   return (
-    <ItemsContext.Provider value={{ login, isAuth, setIsAuth }}>
+    <ItemsContext.Provider value={{  isAuth, setIsAuth }}>
        
       <ToastContainer
         position="top-right"

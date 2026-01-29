@@ -2,38 +2,46 @@ import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ItemsContext } from "../App";
 import { toast } from "react-toastify";
-import RestaurantLoader from'./RestaurantLoader';
+import RestaurantLoader from './RestaurantLoader';
+import axios from 'axios';
 
 function SignUp() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const { login, setIsAuth } = useContext(ItemsContext);
+  const { setIsAuth } = useContext(ItemsContext); 
   const navigate = useNavigate();
   
-  const handleLogin = () => {
- 
+  const handleLogin = async () => {
     if (username === '' || password === '') {
       toast.warn('Please fill the blanks');
       return;
     }
 
-
-    if (username !== login.userName || password !== login.password) {
-      toast.error('Invalid Username or Password');
-      return;
-    }
-
-
     setLoading(true);
 
-    setTimeout(() => {
+    try {
+      const response = await axios.post("http://localhost:4000/api/v1/admin/login", {
+      email: 'admin@gmail.com',
+      password: 'admin@1234'
+        });
+
+        console.log(response.data);
+      if (response.data.success) {
+        setIsAuth(true);
+        toast.success('Welcome Back!');
+        navigate('/admin');
+      } else {
+        toast.error(response.data.message || 'Invalid Username or Password');
+      }
+
+    } catch (err) {
+      console.error(err);
+      toast.error('Something went wrong. Try again!');
+    } finally {
       setLoading(false);
-      setIsAuth(true);
-      toast.success('Welcome Back!');
-      navigate('/admin');
-    }, 2000); 
+    }
   };
 
   return (
@@ -52,14 +60,14 @@ function SignUp() {
         <div className="flex flex-col space-y-6">
           <input
             type="text"
-            placeholder="Username: afghan"
+            placeholder="Username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             className="w-full border-2 border-yellow-600 rounded-xl px-5 py-3 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
           />
           <input
             type="password"
-            placeholder="Password: 123"
+            placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full border-2 border-yellow-600 rounded-xl px-5 py-3 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
