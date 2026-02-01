@@ -18,6 +18,7 @@ export const registerUser = asyncHandler(async (req, res, next)=>{
     // Store refresh token in DB
     user.refreshToken = refreshToken;
     await user.save();
+    console.log(user);
     // Sent token to client 
     sentTokenToClient('accessToken', accessToken, res);
     sentTokenToClient('refreshToken', refreshToken, res);
@@ -59,3 +60,11 @@ export const logoutUser = (req, res)=>{
     });
     res.respond(200, 'Logged out successfully')
 }
+
+// Verify the user 
+export const verifyUser = asyncHandler(async (req, res, next)=>{
+    const user = req.userId;
+    const userFound = await User.findById(user).select('-password -refreshToken -__v -createdAt -updatedAt');
+    if(!userFound)return next(new ErrorHandler(404, 'User not found'));
+    res.respond(200, 'User verified successfully', {user: userFound});
+});
