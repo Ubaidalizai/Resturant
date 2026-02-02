@@ -9,5 +9,5 @@ import { addFood, deleteFood, getFoods } from '../controllers/food.controller.js
 FoodRouter.post('/add',upload.single('image'), foodValidation, validationMiddleware,  addFood);
 FoodRouter.get('/all', getFoods);
 FoodRouter.delete('/delete/:productId', deleteFood);
-
+FoodRouter.put('/update/:productId', upload.single('image'), foodValidation, validationMiddleware, updateFood);
 export default FoodRouter;            
