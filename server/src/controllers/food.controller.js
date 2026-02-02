@@ -4,7 +4,7 @@ import {Food} from '../models/food.model.js';
 export const addFood = asyncHandler(async (req, res)=>{
     // Add the product to DB
     const {name, catagory, price } = req.body;
-    // Base64 of Image 
+    // Base64 of Image                                                                                                                                                                      
     const image = req.file.buffer.toString('base64');
     const newFood = await Food.create({ name, catagory, price, image });
     res.respond(201, "Product added successfully", newFood);

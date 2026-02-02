@@ -1,15 +1,26 @@
 # Admin API
 Login the Admin
-/api/v1/admin/login
-/api/v1/admin/logout
+post
+/api/v1/admin/login/     ----------> email, password
+get
+/api/v1/admin/logout/   -------------> Logout the admin
+get
+/ email 
 
 #User Login and register 
 post
 /api/v1/user/register/ --------> name, email, password
 post
 /api/v1/user/login/   ---------> email, password
+get
+/api/v1/user/all/ -------> Get all the user 
+get
+/api/v1/user/single/id  ------> Get only one user 
+delete
+/api/v1/user/delete/userid   -------> Delete one user 
 
-# Tables Routes
+
+# Tables APIs
 post
 /api/v1/tables/add     -----> tableNumber, capacity, 
 put
@@ -20,10 +31,33 @@ get
 /api/v1/tables/all  ---> Get all tables
 
 
-#Food Routes 
+#Food APIs
 post
 /api/v1/foods/add ------> name, catagory, image File, price   ---> Should be multi/part data
 delete
 /api/v1/foods/delete/:foodId  -------> delte the food 
 get
 /api/v1/foods/all              -----> Get all the foods
+
+
+# Order APIs
+post
+/api/v1/orders/add    -------> items [{food, foodId}, {}], quantity, amount, tableId
+get 
+/api/v1/orders/all    -------> Get all orders
+delete
+/api/v1/orders/delete/orderId  -------> Delete the Order
+put
+/api/v1/orders/update/orderId      --------> Update the order 
+
+
+# Menue APIs
+post
+/api/v1/menues/add       ----------> name, catagory
+get
+/api/v1/menues/all     --------> Get all menues
+delete
+/api/v1/menues/delete/menueID -----> Delete the menueID
+put
+/api/v1/menues/update/menueId  -----> Update the menue 
+
