@@ -85,3 +85,7 @@ Method: put
 /api/v1/expenses/update/expenseId -----> title, catagoryId, amount, expensesDate, note
 Method: delete
 /api/v1/expenses/delete/expenseId -----> Delete the expenses
+Method: get
+/api/v1/expenses/report?startDate&endDate  --------> Give the report of expenses from start date until end date in query
+Method: get
+/api/v1/expenses/report

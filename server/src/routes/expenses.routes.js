@@ -1,5 +1,5 @@
 import express from 'express';
-import { addExpense, deleteExpense, getAllExpenses, updateExpense } from '../controllers/expense.controller.js';
+import { addExpense, deleteExpense, getAllExpenses, getExpensesByCatagory, getExpensesByDateRange, updateExpense } from '../controllers/expense.controller.js';
 import { expensesValidations } from '../validators/expenses.validator.js';
 import { validationMiddleware } from '../middlewares/validationsHandler.utils.js';
 const expensesRouter = express.Router();
@@ -7,4 +7,6 @@ expensesRouter.post('/add', expensesValidations, validationMiddleware,  addExpen
 expensesRouter.get('/all', getAllExpenses);
 expensesRouter.put('/update/:id', updateExpense);
 expensesRouter.delete('/delete/:id', deleteExpense);
+expensesRouter.get('/report', getExpensesByDateRange);
+expensesRouter.get('/id', getExpensesByCatagory)
 export default expensesRouter;

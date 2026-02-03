@@ -67,3 +67,4 @@ export const getExpensesByCatagory = asyncHandler(async(req, res)=>{
     }
     res.respond(200, "Expenses retrieved successfully", expenses);
 });
+
