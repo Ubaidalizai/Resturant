@@ -8,11 +8,13 @@ import {
 import { validationMiddleware } from "../middlewares/validationsHandler.utils.js";
 import { registerValidations } from "../validators/userAuth.validator.js";
 import { userAuthMiddleware } from "../middlewares/userAuth.middleware.js";
+import { upload } from "../configs/multer.config.js";
 
 const userAuthRouter = express.Router();
 
 userAuthRouter.post(
   "/register",
+  upload.single('image'),
   registerValidations,
   validationMiddleware,
   registerUser,

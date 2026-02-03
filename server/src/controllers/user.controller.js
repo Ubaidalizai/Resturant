@@ -3,7 +3,7 @@ import { asyncHandler } from "../utils/asyncHandler.util.js";
 
 // Get all the user
 export const getAllUser = asyncHandler(async (req, res) => {
-    const users = await User.find({ isDeleted: false }).select(['name', 'email', 'createdAt']);
+    const users = await User.find({ isDeleted: false }).select(['name', 'email', 'phone', 'address', 'image', 'createdAt']);
     res.respond(200, "Users fetched successfully", users);
 });
 

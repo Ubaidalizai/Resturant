@@ -10,6 +10,17 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    phone: {
+      type: String,
+    },
+    image: {
+      type: String, // Base64 string
+      default: null,
+    },
+    address: {
+      type: String,
+      default: null,
+    },
     password: {
       type: String,
       required: true,
@@ -18,6 +29,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    
     isDeleted: {
       type: Boolean,
       default: false,
