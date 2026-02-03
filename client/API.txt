@@ -1,63 +1,87 @@
+
 # Admin API
 Login the Admin
-post
+Method: post
 /api/v1/admin/login/     ----------> email, password
-get
+Method: get
 /api/v1/admin/logout/   -------------> Logout the admin
 get
 / email 
 
 #User Login and register 
-post
+Method: post
 /api/v1/user/register/ --------> name, email, password
-post
+Method: post
 /api/v1/user/login/   ---------> email, password
-get
+Method: get
 /api/v1/user/all/ -------> Get all the user 
-get
+Method: get
 /api/v1/user/single/id  ------> Get only one user 
-delete
+Method: delete
 /api/v1/user/delete/userid   -------> Delete one user 
 
 
 # Tables APIs
-post
+Method: post
 /api/v1/tables/add     -----> tableNumber, capacity, 
-put
+Method: put
 /api/v1/tables/update/:tableId  ----> isOccupied, tableNumber, 
-delete
+Method: delete
 /api/v1/tables/delete/:tableId
-get
+Method: get
 /api/v1/tables/all  ---> Get all tables
 
 
 #Food APIs
-post
+Method: post
 /api/v1/foods/add ------> name, catagory, image File, price   ---> Should be multi/part data
-delete
+Method: delete
 /api/v1/foods/delete/:foodId  -------> delte the food 
-get
+Method: get
 /api/v1/foods/all              -----> Get all the foods
 put
 /api/v1/foods/update/foodID    ----> Update the Food.....     name, catagory, image File, price   ---> Should be multi/part data
 
 # Order APIs
-post
+Method: post
 /api/v1/orders/add    -------> items [{food, foodId}, {}], quantity, amount, tableId
-get 
+Method: get 
 /api/v1/orders/all    -------> Get all orders
-delete
+Method: delete
 /api/v1/orders/delete/orderId  -------> Delete the Order
-put
+Method: put
 /api/v1/orders/update/orderId      --------> Update the order 
 
 
 # Menue APIs
-post
+Method: post
 /api/v1/menues/add       ----------> name, catagory
-get
+Method: get
 /api/v1/menues/all     --------> Get all menues
-delete
+Method: delete
 /api/v1/menues/delete/menueID -----> Delete the menueID
-put
+Method: put
 /api/v1/menues/update/menueId  -----> Update the menue 
+
+
+# Expenses Catagory APIs
+Method: post
+/api/v1/expenseCatagories/add  -------> name, description
+Method: get
+/api/v1/expenseCatagories/all -------> Get all the expenses catagory
+Method: put
+/api/v1/expenseCatagories/update/catagoryId -----> name, description ----> Update the catagory
+Method: delete
+/api/v1/expenseCatagories/delete/catagoryId -----> Delete the expenses
+
+
+
+# Expenses APIs
+Method: post 
+/api/v1/expenses/add  -------->  title, catagoryId, amount, expensesDate, note
+Method: get
+/api/v1/expenses/all --------> Get all the expenses
+Method: put
+/api/v1/expenses/update/expenseId -----> title, catagoryId, amount, expensesDate, note
+Method: delete
+/api/v1/expenses/delete/expenseId -----> Delete the expenses
