@@ -21,7 +21,6 @@ export const registerUser = asyncHandler(async (req, res, next)=>{
     // Store refresh token in DB
     user.refreshToken = refreshToken;
     await user.save();
-    console.log(user);
     // Sent token to client 
     sentTokenToClient('accessToken', accessToken, res);
     sentTokenToClient('refreshToken', refreshToken, res);

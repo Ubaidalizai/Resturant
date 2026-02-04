@@ -14,12 +14,10 @@ export const userAuthMiddleware = async (req, res, next) => {
         return next();
     } catch (error) {
         // Check the refresh token
-        console.log("Access token expired, checking refresh token...", error);
     }
   }
   // Check refresh token in DB
   const users = await User.find({});
-  console.log(users);
   const userFound = await User.findOne({ refreshToken });
   console.log(userFound);
   if (!userFound) return next(new ErrorHanlder(401, "Invalid Token...."));

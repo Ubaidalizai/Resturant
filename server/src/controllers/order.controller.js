@@ -20,14 +20,15 @@ export const addOrder = asyncHandler(async (req, res)=>{
 
 // Get all orders
 export const getOrders = asyncHandler(async (req, res)=>{
-    const orders = await Order.find({}).select(['isPaid', 'amount', 'tableId.number', 'userId.name', 'items', 'quantity']);
+    const user = req.userId;
+    const orders = await Order.find({userId: user, isDeleted: false, isPaid: false}).select(['isPaid', 'amount', 'tableId.number', 'userId.name', 'items', 'quantity']);
     res.respond(200, "Orders fetched successfully", orders);
 });
 
 // Get single order 
 export const getOrder = asyncHandler(async (req, res)=>{
     const {orderId} = req.params;
-    const order = await Order.findById(orderId).populate('userId').populate('tableId').populate('items.foodId');
+    const order = await Order.findById(orderId).populate('tableId').populate('items.foodId');
     res.respond(200, "Order fetched successfully", order);
 });
 
