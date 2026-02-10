@@ -30,7 +30,6 @@ Method: delete
 Method: get
 /api/v1/tables/all  ---> Get all tables
 
-
 #Food APIs
 Method: post
 /api/v1/foods/add ------> name, catagory, image File, price   ---> Should be multi/part data
@@ -91,4 +90,11 @@ Method: get
 /api/v1/expenses/report?startDate&endDate  --------> Give the report of expenses from start date until end date in query
 Method: get
 /api/v1/expenses/report
+Method get 
+/api/v1/expenses/today/expenses
 
+
+#Revenue
+/api/v1/revenue/today/     -----> Get the today reveuen
+/api/v1/revenue/last-week/    ------> Get the last week revenue
+/api/v1/revenue/monthly/    ------> Get monthly apis 

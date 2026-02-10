@@ -68,3 +68,37 @@ export const getExpensesByCatagory = asyncHandler(async(req, res)=>{
     res.respond(200, "Expenses retrieved successfully", expenses);
 });
 
+export const getTodayExpenses = async (req, res) => {
+  try {
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const expenses = await Expense.find({
+      expensesDate: {
+        $gte: startOfDay,
+        $lte: endOfDay,
+      },
+    });
+
+    const totalExpenses = expenses.reduce(
+      (sum, exp) => sum + exp.amount,
+      0
+    );
+
+    res.status(200).json({
+      success: true,
+      totalExpenses,
+      count: expenses.length,
+      expenses,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch today expenses",
+    });
+  }
+};
+
