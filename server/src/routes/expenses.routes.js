@@ -1,0 +1,13 @@
+import express from 'express';
+import { addExpense, deleteExpense, getAllExpenses, getExpensesByCatagory, getExpensesByDateRange, getTodayExpenses, updateExpense } from '../controllers/expense.controller.js';
+import { expensesValidations } from '../validators/expenses.validator.js';
+import { validationMiddleware } from '../middlewares/validationsHandler.utils.js';
+const expensesRouter = express.Router();
+expensesRouter.post('/add', expensesValidations, validationMiddleware,  addExpense);
+expensesRouter.get('/all', getAllExpenses);
+expensesRouter.put('/update/:id', updateExpense);
+expensesRouter.delete('/delete/:id', deleteExpense);
+expensesRouter.get('/report', getExpensesByDateRange);
+expensesRouter.get('/id', getExpensesByCatagory);
+expensesRouter.get('/today/expense', getTodayExpenses)
+export default expensesRouter;
