@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 
@@ -6,43 +8,159 @@ function Management() {
   const [activeTab, setActiveTab] = useState("Menus");
   const [modalOpen, setModalOpen] = useState(false);
 
-  const [menus, setMenus] = useState([{ name: "Breakfast", category: "Fast Food" }]);
-  const [tables, setTables] = useState([{ number: "T1", capacity: 4 }, { number: "T2", capacity: 6 }]);
-  const [garsons, setGarsons] = useState([{ username: "John", password: "1234" }]);
+  const [menus, setMenus] = useState([]);
+  const [tables, setTables] = useState([]);
+  const [garsons, setGarsons] = useState([]);
 
-  const [newItem, setNewItem] = useState({ name: "", category: "", username: "", password: "", capacity: "" });
+  const [newItem, setNewItem] = useState({
+    name: "",
+    catagory: "",
+    username: "",
+    email: "",
+    password: "",
+    capacity: "",
+  });
 
-  // Modal open/close
+  // ---------------- FETCH DATA ----------------
+  const fetchMenus = async () => {
+    try {
+      const res = await axios.get("http://localhost:4000/api/v1/menues/all");
+      setMenus(res.data.data || []);
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to load menus");
+    }
+  };
+
+  const fetchTables = async () => {
+    try {
+      const res = await axios.get("http://localhost:4000/api/v1/tables/all");
+      setTables(res.data.data || []);
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response?.data?.message || "Failed to load tables");
+    }
+  };
+
+  const fetchGarsons = async () => {
+    try {
+      const res = await axios.get("http://localhost:4000/api/v1/users/all/");
+      setGarsons(res.data.data || []);
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response?.data?.message || "Failed to load garsons");
+    }
+  };
+
+  useEffect(() => {
+    fetchMenus();
+    fetchTables();
+    fetchGarsons();
+  }, []);
+
+  // ---------------- MODAL ----------------
   const openModal = () => setModalOpen(true);
   const closeModal = () => {
     setModalOpen(false);
-    setNewItem({ name: "", category: "", username: "", password: "", capacity: "" });
+    setNewItem({
+      name: "",
+      catagory: "",
+      username: "",
+      email: "",
+      password: "",
+      capacity: "",
+    });
   };
 
-  // Add new item
-  const handleAdd = () => {
-    if (activeTab === "Menus") {
-      setMenus([...menus, { name: newItem.name, category: newItem.category }]);
-    } else if (activeTab === "Tables") {
-      setTables([...tables, { number: newItem.name, capacity: newItem.capacity }]);
-    } else if (activeTab === "Garsons") {
-      setGarsons([...garsons, { username: newItem.username, password: newItem.password }]);
+  // ---------------- ADD ITEM ----------------
+  const handleAdd = async () => {
+    try {
+      if (activeTab === "Menus") {
+        if (!newItem.name || !newItem.catagory) {
+          toast.error("Please fill all menu fields");
+          return;
+        }
+
+        await axios.post("http://localhost:4000/api/v1/menues/add", {
+          name: newItem.name,
+          catagory: newItem.catagory,
+        });
+
+        toast.success("Menu added successfully");
+        fetchMenus();
+
+      } else if (activeTab === "Tables") {
+        if (!newItem.name || !newItem.capacity) {
+          toast.error("Please fill all table fields");
+          return;
+        }
+
+        await axios.post("http://localhost:4000/api/v1/tables/add", {
+          tableNumber: newItem.name,
+          capacity: Number(newItem.capacity),
+        });
+
+        toast.success("Table added successfully");
+        fetchTables();
+
+      } else if (activeTab === "Garsons") {
+        if (!newItem.name || !newItem.email || !newItem.password) {
+          toast.error("Please fill all garson fields");
+          return;
+        }
+
+        await axios.post("http://localhost:4000/api/v1/user/register/", {
+          name: newItem.name,
+          email: newItem.email,
+          password: newItem.password,
+        });
+
+        toast.success("Garson added successfully");
+        fetchGarsons();
+      }
+
+      setNewItem({
+        name: "",
+        catagory: "",
+        username: "",
+        email: "",
+        password: "",
+        capacity: "",
+      });
+      closeModal();
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response?.data?.message || "Add failed");
     }
-
-    setNewItem({ name: "", category: "", username: "", password: "", capacity: "" });
-    closeModal();
   };
 
-  // Delete item
-  const handleDelete = (index) => {
-    if (activeTab === "Menus") setMenus(menus.filter((_, i) => i !== index));
-    else if (activeTab === "Tables") setTables(tables.filter((_, i) => i !== index));
-    else if (activeTab === "Garsons") setGarsons(garsons.filter((_, i) => i !== index));
+  // ---------------- DELETE ITEM ----------------
+  const handleDelete = async (index, id) => {
+    try {
+      if (activeTab === "Menus") {
+        await axios.delete(`http://localhost:4000/api/v1/menues/delete/${id}`);
+        toast.success("Menu deleted");
+        fetchMenus();
+
+      } else if (activeTab === "Tables") {
+        await axios.delete(`http://localhost:4000/api/v1/tables/delete/${id}`);
+        toast.success("Table deleted");
+        fetchTables();
+
+      } else if (activeTab === "Garsons") {
+        await axios.delete(`http://localhost:4000/api/v1/users/delete/${id}`);
+        toast.success("Garson deleted");
+        fetchGarsons();
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Delete failed");
+    }
   };
 
+  // ---------------- RENDER ----------------
   return (
     <div className="min-h-screen bg-gray-50 p-6">
-      {/* Admin Panel Title */}
       <h1 className="text-4xl font-bold text-yellow-600 mb-6 text-center">Admin Panel</h1>
 
       {/* Tabs */}
@@ -81,52 +199,57 @@ function Management() {
               )}
               {activeTab === "Garsons" && (
                 <>
-                  <th className="py-2 border">Username</th>
+                  <th className="py-2 border">Name</th>
+                  <th className="py-2 border">Email</th>
                   <th className="py-2 border">Password</th>
                   <th className="py-2 border">Actions</th>
                 </>
               )}
             </tr>
           </thead>
+
           <tbody>
             {activeTab === "Menus" &&
-              menus.map((menu, i) => (
-                <tr key={i} className="border-b">
+              menus.map((menu) => (
+                <tr key={menu._id} className="border-b">
                   <td className="py-2 border">{menu.name}</td>
-                  <td className="py-2 border">{menu.category}</td>
+                  <td className="py-2 border">{menu.catagory}</td>
                   <td className="py-2 border">
                     <FontAwesomeIcon
                       icon={faTrash}
                       className="text-red-500 cursor-pointer"
-                      onClick={() => handleDelete(i)}
+                      onClick={() => handleDelete(null, menu._id)}
                     />
                   </td>
                 </tr>
               ))}
+
             {activeTab === "Tables" &&
-              tables.map((t, i) => (
-                <tr key={i} className="border-b">
-                  <td className="py-2 border">{t.number}</td>
-                  <td className="py-2 border">{t.capacity}</td>
+              tables.map((table) => (
+                <tr key={table._id || table.tableNumber} className="border-b">
+                  <td className="py-2 border">{table.tableNumber || table.number}</td>
+                  <td className="py-2 border">{table.capacity}</td>
                   <td className="py-2 border">
                     <FontAwesomeIcon
                       icon={faTrash}
                       className="text-red-500 cursor-pointer"
-                      onClick={() => handleDelete(i)}
+                      onClick={() => handleDelete(null, table._id)}
                     />
                   </td>
                 </tr>
               ))}
+
             {activeTab === "Garsons" &&
-              garsons.map((g, i) => (
-                <tr key={i} className="border-b">
-                  <td className="py-2 border">{g.username}</td>
+              garsons.map((g) => (
+                <tr key={g._id} className="border-b">
+                  <td className="py-2 border">{g.name}</td>
+                  <td className="py-2 border">{g.email}</td>
                   <td className="py-2 border">{g.password}</td>
                   <td className="py-2 border">
                     <FontAwesomeIcon
                       icon={faTrash}
                       className="text-red-500 cursor-pointer"
-                      onClick={() => handleDelete(i)}
+                      onClick={() => handleDelete(null, g._id)}
                     />
                   </td>
                 </tr>
@@ -139,7 +262,7 @@ function Management() {
       <div className="flex justify-center mt-4">
         <button
           className="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700"
-          onClick={() => setModalOpen(true)}
+          onClick={openModal}
         >
           Add {activeTab.slice(0, -1)}
         </button>
@@ -156,7 +279,6 @@ function Management() {
               </button>
             </div>
 
-            {/* Inputs */}
             <div className="flex flex-col md:flex-row gap-4 items-center text-black mb-4">
               {activeTab === "Menus" && (
                 <>
@@ -169,13 +291,14 @@ function Management() {
                   />
                   <input
                     type="text"
-                    placeholder="Category"
+                    placeholder="Catagory"
                     className="border p-2 rounded w-full"
-                    value={newItem.category}
-                    onChange={(e) => setNewItem({ ...newItem, category: e.target.value })}
+                    value={newItem.catagory}
+                    onChange={(e) => setNewItem({ ...newItem, catagory: e.target.value })}
                   />
                 </>
               )}
+
               {activeTab === "Tables" && (
                 <>
                   <input
@@ -194,14 +317,22 @@ function Management() {
                   />
                 </>
               )}
+
               {activeTab === "Garsons" && (
                 <>
                   <input
                     type="text"
-                    placeholder="Username"
+                    placeholder="Name"
                     className="border p-2 rounded w-full"
-                    value={newItem.username}
-                    onChange={(e) => setNewItem({ ...newItem, username: e.target.value })}
+                    value={newItem.name}
+                    onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
+                  />
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    className="border p-2 rounded w-full"
+                    value={newItem.email}
+                    onChange={(e) => setNewItem({ ...newItem, email: e.target.value })}
                   />
                   <input
                     type="password"
@@ -212,6 +343,7 @@ function Management() {
                   />
                 </>
               )}
+
               <button
                 onClick={handleAdd}
                 className="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700"

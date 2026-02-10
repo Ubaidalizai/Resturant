@@ -1,105 +1,121 @@
 import { useEffect, useState } from "react";
 import { AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
 import { toast } from "react-toastify";
-
-const items = [];
-
-const foodDataStorage = () => {
-  const data = localStorage.getItem("FoodData");
-  try {
-    return data ? JSON.parse(data) : items;
-  } catch (err) {
-    console.log(err.message);
-    return items;
-  }
-};
+import axios from "axios";
 
 function FoodDataStorage() {
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
-  const [category, setCategory] = useState("");
-  const [image, setImage] = useState("");
-  const [enterFoodData, setEnterFoodData] = useState(() => foodDataStorage());
+  const [catagory, setCatagory] = useState("");
+  const [image, setImage] = useState(null);
+  const [enterFoodData, setEnterFoodData] = useState([]);
   const [search, setSearch] = useState("");
   const [modal, setModal] = useState(null);
   const [selectedFood, setSelectedFood] = useState(null);
-  
 
+  // Fetch existing foods from backend
   useEffect(() => {
-    localStorage.setItem("FoodData", JSON.stringify(enterFoodData));
-  }, [enterFoodData]);
-
-  const submithandler = (e) => {
-    e.preventDefault();
-    const formData = new FormData();
-    
-    const foodData = {
-      id: Date.now(),
-      name,
-      price,
-      category,
-      image,
+    const fetchFoods = async () => {
+      try {
+        const res = await axios.get("http://localhost:4000/api/v1/foods/all");
+        setEnterFoodData(res.data.data || []);
+      } catch (err) {
+        console.log(err.message);
+        toast.error("Failed to fetch foods");
+      }
     };
+    fetchFoods();
+  }, []);
 
-    setEnterFoodData((pre) => [...pre, { ...foodData }]);
-    toast.success(`${foodData.name} Was added Successfully`);
+  // Add Food
+  const submitHandler = async (e) => {
+    e.preventDefault();
 
-    setName("");
-    setPrice("");
-    setCategory("");
-    setImage("");
-  };
+    if (!name || !price || !catagory || !image) {
+      toast.warn("Please fill all fields and select an image");
+      return;
+    }
 
-  const deletFood = (foodId) => {
-    const updateFoods = enterFoodData.filter((food) => food.id !== foodId);
-    setEnterFoodData(updateFoods);
-    localStorage.setItem("FoodData", JSON.stringify(updateFoods));
-  };
+    try {
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("price", price);
+      formData.append("catagory", catagory); 
+      formData.append("image", image);
 
-   const openEditModal = (food) => {
-    setSelectedFood(food);
-    setName(food.name);
-    setPrice(food.price);
-    setCategory(food.category);
-    setImage(food.image);
-    setModal("edit");
+      const res = await axios.post(
+        "http://localhost:4000/api/v1/foods/add",
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
 
-    setName("");
-    setPrice("");
-    setCategory("");
-    setImage("");
-  };
+      setEnterFoodData((prev) => [...prev, res.data]);
+      toast.success(`${res.data.data.name} was added successfully`);
 
-
-  const openRemoveModal = (food) => {
-    setSelectedFood(food);
-    setModal("remove");
-  };
-
-  const updateFood = () => {
-    const updatedFoods = enterFoodData.map((food) =>
-      food.id === selectedFood.id
-        ? { ...food, name, price, category, image }
-        : food
-    );
-
-    setEnterFoodData(updatedFoods);
-    localStorage.setItem("FoodData", JSON.stringify(updatedFoods));
-
-    setModal(null);
-    setSelectedFood(null);
-
-    if (name === "" || price === "" || category === "" || image === "") {
-      toast.warn("Please fill the all blanks");
-    } else {
-      toast.success("Your Food Was Successfully Updated");
+      setName('');
+      setPrice("");
+      setCatagory("");
+      setImage('null');
+      setModal(null);
+    } catch (err) {
+      console.log(err);
+      toast.error("Failed to add food");
     }
   };
 
-  const filteredFoods = enterFoodData.filter((food) =>
-    food.name.toLowerCase().includes(search.toLowerCase())
-  );
+  // Delete Food
+  const deleteFood = async (foodId) => {
+    try {
+      await axios.delete(`http://localhost:4000/api/v1/foods/delete/${foodId}`);
+      setEnterFoodData((prev) => prev.filter((food) => food._id !== foodId));
+      toast.success("Food deleted successfully");
+    } catch (err) {
+      console.log(err);
+      toast.error("Failed to delete food");
+    }
+  };
 
+  // Update Food
+  const updateFood = async () => {
+    if (!name || !price || !catagory) {
+      toast.warn("Please fill all fields");
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("price", price);
+      formData.append("catagory", catagory);
+      if (image instanceof File) {
+        formData.append("image", image);
+      }
+
+      const res = await axios.put(
+        `http://localhost:4000/api/v1/foods/${selectedFood._id}`,
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
+
+      const updatedFoods = enterFoodData.map((food) =>
+        food._id === selectedFood._id ? res.data : food
+      );
+      setEnterFoodData(updatedFoods);
+      toast.success("Food updated successfully");
+
+      setModal(null);
+      setSelectedFood(null);
+    } catch (err) {
+      console.log(err);
+      toast.error("Failed to update food");
+    }
+  };
+
+  // Safe filter to avoid undefined name errors
+  const filteredFoods = enterFoodData.filter(
+    (food) => food.name && food.name.toLowerCase().includes(search.toLowerCase())
+  );
+  console.log(filteredFoods);
   return (
     <div className="min-h-screen bg-gray-50 p-6 flex flex-col items-center space-y-8">
       <h1 className="text-4xl font-extrabold text-yellow-600 text-center">
@@ -124,7 +140,7 @@ function FoodDataStorage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full max-w-5xl">
         {filteredFoods.map((food) => (
           <div
-            key={food.id}
+            key={food._id}
             className="bg-white rounded-2xl shadow p-6 flex flex-col items-center"
           >
             <img
@@ -134,18 +150,25 @@ function FoodDataStorage() {
             />
             <h2 className="text-xl font-bold text-gray-800">{food.name}</h2>
             <span className="px-4 py-1 rounded-full bg-yellow-100 text-yellow-800 mt-2">
-              {food.category}
+              {food.catagory}
             </span>
             <p className="text-yellow-600 font-bold text-lg mt-2">${food.price}</p>
 
             <div className="flex space-x-4 mt-4">
               <AiOutlineEdit
                 className="text-yellow-600 cursor-pointer text-xl"
-                onClick={() => openEditModal(food)}
+                onClick={() => {
+                  setSelectedFood(food);
+                  setName(food.name);
+                  setPrice(food.price);
+                  setCatagory(food.catagory);
+                  setImage(null); // reset image for editing
+                  setModal("edit");
+                }}
               />
               <AiOutlineDelete
                 className="text-red-500 cursor-pointer text-xl"
-                onClick={() => openRemoveModal(food)}
+                onClick={() => deleteFood(food._id)}
               />
             </div>
           </div>
@@ -156,7 +179,6 @@ function FoodDataStorage() {
       {modal && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="absolute inset-0 backdrop-blur-sm"></div>
-
           <div className="bg-white rounded-3xl p-8 w-full max-w-md relative shadow-2xl z-10">
             <button
               onClick={() => setModal(null)}
@@ -165,9 +187,8 @@ function FoodDataStorage() {
               X
             </button>
 
-            {/* ADD MODAL */}
             {modal === "add" && (
-              <form onSubmit={submithandler} className="space-y-4 text-black">
+              <form onSubmit={submitHandler} className="space-y-4 text-black">
                 <h2 className="text-2xl font-bold text-yellow-600 text-center">
                   Add Food
                 </h2>
@@ -189,8 +210,8 @@ function FoodDataStorage() {
                 />
 
                 <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
+                  value={catagory}
+                  onChange={(e) => setCatagory(e.target.value)}
                   className="border-2 border-yellow-600 rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
                 >
                   <option value="">Select Category</option>
@@ -199,16 +220,13 @@ function FoodDataStorage() {
                   <option value="Drinks">Drinks</option>
                 </select>
 
-                {/* IMAGE UPLOAD (ADD) */}
                 <label className="w-full border-2 border-dashed border-yellow-600 rounded-xl px-4 py-3 text-center cursor-pointer flex items-center justify-center hover:bg-yellow-50 transition">
                   <span className="font-semibold text-yellow-600">Upload Image</span>
                   <input
                     type="file"
                     accept="image/*"
                     hidden
-                    onChange={(e) =>
-                      setImage(URL.createObjectURL(e.target.files[0]))
-                    }
+                    onChange={(e) => setImage(e.target.files[0])}
                   />
                 </label>
 
@@ -221,9 +239,7 @@ function FoodDataStorage() {
               </form>
             )}
 
-            {/* EDIT MODAL */} 
-            
-            {modal === "edit" && selectedFood &&(
+            {modal === "edit" && selectedFood && (
               <div className="space-y-4 text-black">
                 <h2 className="text-2xl font-bold text-yellow-600 text-center">
                   Edit Food
@@ -231,23 +247,21 @@ function FoodDataStorage() {
 
                 <input
                   type="text"
-                  placeholder= {selectedFood.name}
-                  value={name}
+                  placeholder={selectedFood.name}
                   onChange={(e) => setName(e.target.value)}
                   className="border-2 border-yellow-600 rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
                 />
 
                 <input
                   type="number"
-                  placeholder= { '$' + selectedFood.price}
-                  value={price}
+                  placeholder={selectedFood.price}
                   onChange={(e) => setPrice(e.target.value)}
                   className="border-2 border-yellow-600 rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
                 />
 
                 <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
+                  placeholder={selectedFood.catagory}
+                  onChange={(e) => setCatagory(e.target.value)}
                   className="border-2 border-yellow-600 rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
                 >
                   <option value="">Select Category</option>
@@ -256,56 +270,22 @@ function FoodDataStorage() {
                   <option value="Drinks">Drinks</option>
                 </select>
 
-                {/* IMAGE UPLOAD (EDIT) */}
                 <label className="w-full border-2 border-dashed border-yellow-600 rounded-xl px-4 py-3 text-center cursor-pointer flex items-center justify-center hover:bg-yellow-50 transition">
                   <span className="font-semibold text-yellow-600">Upload New Image</span>
                   <input
                     type="file"
                     accept="image/*"
                     hidden
-                    onChange={(e) =>
-                      setImage(URL.createObjectURL(e.target.files[0]))
-                    }
+                    onChange={(e) => setImage(e.target.files[0])}
                   />
                 </label>
+
                 <button
                   onClick={updateFood}
                   className="bg-yellow-600 text-white font-bold py-3 rounded-xl w-full cursor-pointer hover:scale-105 transition"
                 >
                   Update Food
                 </button>
-              </div>
-                   )}
-
-
-            {/* REMOVE MODAL */}
-            {modal === "remove" && selectedFood && (
-              <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
-                <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl space-y-5">
-                  <h2 className="text-2xl font-bold text-red-500 text-center">Delete Order</h2>
-                  <p className="text-center text-black">
-                    Are you sure you want to delete order on {" "}
-                    <span className="font-bold">{selectedFood.name}</span>?
-                  </p>
-                  <div className="flex gap-4">
-                    <button
-                      onClick={() => setModal(null)}
-                      className="w-full bg-yellow-600 py-3 rounded-xl font-bold hover:scale-105 transition"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={() => {
-                        deletFood(selectedFood.id);
-                        toast.success(` ${selectedFood.name} deleted successfully`);
-                        setModal(null);
-                      }}
-                      className="w-full bg-red-500 text-white py-3 rounded-xl font-bold hover:scale-105 transition"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
               </div>
             )}
           </div>

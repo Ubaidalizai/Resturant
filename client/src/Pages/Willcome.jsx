@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import background from "../images/willcome.jpg";
 import RestaurantLoader from'./RestaurantLoader';
+import garsonsLogin from "./garsonsLogin";
 
 function Welcome() {
   const navigate = useNavigate();
@@ -11,7 +12,7 @@ function Welcome() {
     setLoading(true);
 
     setTimeout(() => {
-      navigate("/menus");
+      navigate("/garson-login");
     }, 2000); 
   };
 

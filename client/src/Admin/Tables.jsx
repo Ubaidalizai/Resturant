@@ -1,19 +1,30 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 
 function Tables() {
   const [tables, setTables] = useState([]);
   const [selectedTable, setSelectedTable] = useState(null);
 
   useEffect(() => {
-    const orders = JSON.parse(localStorage.getItem("Orders")) || [];
-    const allTables = [1, 2, 3, 4, 5, 6];
+    const fetchTables = async () => {
+      try {
+        const res = await axios.get("http://localhost:4000/api/v1/tables/all");
+        const backendTables = res.data.data || [];
 
-    const grouped = allTables.map((t) => ({
-      number: t,
-      orders: orders.filter((o) => o.table === String(t)),
-    }));
+        const orders = JSON.parse(localStorage.getItem("Orders")) || [];
 
-    setTables(grouped);
+        const grouped = backendTables.map((t) => ({
+          number: t.tableNumber, // backend field
+          orders: orders.filter((o) => o.table === String(t.tableNumber)),
+        }));
+
+        setTables(grouped);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchTables();
   }, []);
 
   
@@ -108,7 +119,6 @@ function Tables() {
                       Customer {i + 1}
                     </h3>
 
-                    {/*  Delivered Checkmark per customer */}
                     <div className="flex items-center gap-2">
                       <input
                         type="checkbox"
@@ -125,7 +135,6 @@ function Tables() {
                     </span>
                   </div>
 
-                  {/* Cart Table */}
                   <div className="overflow-x-auto">
                     <table className="w-full border-collapse text-center text-black">
                       <thead className="bg-yellow-100">
@@ -150,7 +159,6 @@ function Tables() {
                     </table>
                   </div>
 
-                  {/* Paid button */}
                   <button
                     onClick={() => handlePaid(o.id)}
                     className="w-full mt-3 bg-yellow-600 text-white font-semibold py-2 rounded-xl hover:bg-yellow-500 transition-colors"

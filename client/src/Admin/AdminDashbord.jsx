@@ -5,7 +5,7 @@ import { faBurger } from '@fortawesome/free-solid-svg-icons';
 import Tables from "./Tables";
 import OrderHistory from "./OrderHistory";
 import FoodDataStorage from './FoodDataStorage';
-import Logo from '../../public/logo.jpg';
+import Logo from'../images/logo.jpg';
 import OverviewChart from "./OverviewChart";
 import AdminPanel from './AdminPanel'
 
