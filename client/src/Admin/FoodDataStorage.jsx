@@ -23,7 +23,7 @@ function FoodDataStorage() {
   const [search, setSearch] = useState("");
   const [modal, setModal] = useState(null);
   const [selectedFood, setSelectedFood] = useState(null);
-
+  
 
   useEffect(() => {
     localStorage.setItem("FoodData", JSON.stringify(enterFoodData));
@@ -31,7 +31,8 @@ function FoodDataStorage() {
 
   const submithandler = (e) => {
     e.preventDefault();
-
+    const formData = new FormData();
+    
     const foodData = {
       id: Date.now(),
       name,
