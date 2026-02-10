@@ -5,10 +5,14 @@ import { toast } from "react-toastify";
 import RestaurantLoader from './RestaurantLoader';
 import axios from "axios";
 
+
 function GarsonLogin() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+
+   const { setIsAuth } = useContext(ItemsContext);
+   const navigate = useNavigate();
 
 
 

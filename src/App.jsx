@@ -1,5 +1,5 @@
 import { Route, Routes } from 'react-router-dom';
-import { createContext, useState } from 'react';
+import { createContext, useState, useEffect } from 'react';
 import './App.css';
 import Willcome from './Pages/Willcome';
 import BrekFast from './Components/BrekFast';
@@ -18,6 +18,7 @@ export const ItemsContext = createContext();
 function App() {
 
   const [isAuth, setIsAuth] = useState(false);
+ 
   return (
     <ItemsContext.Provider value={{isAuth, setIsAuth }}>
        
