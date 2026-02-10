@@ -7,7 +7,6 @@ Method: get
 /api/v1/admin/logout/   -------------> Logout the admin
 get
 / email 
-
 #User Login and register 
 Method: post
 /api/v1/user/register/ --------> name, email, password
@@ -46,13 +45,16 @@ put
 Method: post
 /api/v1/orders/add    -------> items [{food, foodId}, {}], quantity, amount, tableId
 Method: get 
-/api/v1/orders/all    -------> Get all orders
+/api/v1/orders/all    -------> Get all orders for the admin
+/api/v1/orders/user ------> Get only the garson Orders
+/api/v1/orders/today/count -----> Get the today orders count
+
 Method: delete
 /api/v1/orders/delete/orderId  -------> Delete the Order
 Method: put
 /api/v1/orders/update/orderId      --------> Update the order 
-
-
+Method: get
+/api/v1/orders/all
 # Menue APIs
 Method: post
 /api/v1/menues/add       ----------> name, catagory
@@ -89,3 +91,4 @@ Method: get
 /api/v1/expenses/report?startDate&endDate  --------> Give the report of expenses from start date until end date in query
 Method: get
 /api/v1/expenses/report
+

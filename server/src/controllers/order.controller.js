@@ -25,6 +25,12 @@ export const getOrders = asyncHandler(async (req, res)=>{
     res.respond(200, "Orders fetched successfully", orders);
 });
 
+// Get all order for admin
+export const getAllOrders = asyncHandler(async (req, res)=>{
+    const orders = await Order.find({isDeleted:false});
+    res.respond(200, "Orders fetched successfully", orders);
+});
+
 // Get single order 
 export const getOrder = asyncHandler(async (req, res)=>{
     const {orderId} = req.params;
@@ -62,4 +68,24 @@ export const updateOrder = asyncHandler(async (req, res)=>{
     res.respond(200, "Order updated successfully", updatedOrder);
 });
 
-
+// Get only todays orders
+export const todayOrderCounts = asyncHandler(async (req, res) => {
+    // Get start of today (00:00:00)
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+    
+    // Get end of today (23:59:59)
+    const endOfToday = new Date();
+    endOfToday.setHours(23, 59, 59, 999);
+    
+    // Count orders created today
+    const todaysOrderCount = await Order.countDocuments({
+        createdAt: {
+            $gte: startOfToday,
+            $lte: endOfToday
+        },
+        isDeleted: false
+    });
+    
+    res.respond(200, "Today's orders count fetched successfully", { count: todaysOrderCount });
+});
