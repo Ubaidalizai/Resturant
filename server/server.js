@@ -30,16 +30,7 @@ app.get('/api/test', (req, res)=>{
   res.send("API is working");
 })
 // Routes
-app.use("/api/v1/user/", userAuthRouter);
-app.use('/api/v1/admin/', adminRouter);
-app.use('/api/v1/foods/', FoodRouter);
-app.use('/api/v1/tables/', tableRouter);
-app.use('/api/v1/menues/', MenueRouter);
-app.use('/api/v1/orders/', OrderRouter);
-app.use('/api/v1/users/', UserRouter);
-app.use('/api/v1/expenseCatagories/', expenseCatagoryRouter);
-app.use('/api/v1/expenses/', expensesRouter);
-app.use('/api/v1/revenue/', revenueRouter)
+
 // DB Connection
 connectDB();
 // Error Middleware
