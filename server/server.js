@@ -17,7 +17,7 @@ import UserRouter from "./src/routes/user.routes.js";
 import expenseCatagoryRouter from "./src/routes/expenseCatagory.routes.js";
 import expensesRouter from "./src/routes/expenses.routes.js";
 import revenueRouter from "./src/routes/revenue.routes.js";
-
+import kitchenRouter from "./src/routes/kitchen.routes.js";
 const app = express();
 
 // Middleware configuration
@@ -39,7 +39,9 @@ app.use('/api/v1/orders/', OrderRouter);
 app.use('/api/v1/users/', UserRouter);
 app.use('/api/v1/expenseCatagories/', expenseCatagoryRouter);
 app.use('/api/v1/expenses/', expensesRouter);
-app.use('/api/v1/revenue/', revenueRouter)
+app.use('/api/v1/revenue/', revenueRouter);
+app.use('/api/v1/kitchen/', kitchenRouter);
+
 // DB Connection
 connectDB();
 // Error Middleware
