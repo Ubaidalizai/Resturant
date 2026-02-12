@@ -98,3 +98,15 @@ Method get
 /api/v1/revenue/today/     -----> Get the today reveuen
 /api/v1/revenue/last-week/    ------> Get the last week revenue
 /api/v1/revenue/monthly/    ------> Get monthly apis 
+
+
+
+# Kitchen Stock 
+get
+/api/v1/kitchen/all   -------> Get all kitch items
+post
+/api/v1/kitchen/add   -------> name, quantity, unit, minRequired, status
+delete
+/api/v1/kitchen/delete/id   ---> Delete the items
+put
+/api/v1/kitchen/update/id    ----> Update the items in kitchen
