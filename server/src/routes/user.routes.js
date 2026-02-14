@@ -8,5 +8,5 @@ UserRouter.get('/all', getAllUser);
 UserRouter.get('/single/:userId', getSingleUser);
 UserRouter.delete('/delete/:userId', deleteUser);
 UserRouter.put('/update/:userId', updateUser);
-UserRouter.delete('/delete/', deleteAllUser)
+UserRouter.delete('/delete/', deleteAllUser);
 export default UserRouter;

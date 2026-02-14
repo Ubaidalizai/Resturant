@@ -29,7 +29,14 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
-    
+    resetToken: {
+      type: String,
+      default: null,
+    },
+    resetTokenExpiry: {
+      type: Date,
+      default: null,
+    },
     isDeleted: {
       type: Boolean,
       default: false,

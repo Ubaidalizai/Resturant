@@ -4,6 +4,8 @@ import {
   logoutUser,
   registerUser,
   verifyUser,
+  forgotPassword,
+  resetPassword,
 } from "../controllers/userAuth.controller.js";
 import { validationMiddleware } from "../middlewares/validationsHandler.utils.js";
 import { registerValidations } from "../validators/userAuth.validator.js";
@@ -22,4 +24,6 @@ userAuthRouter.post(
 userAuthRouter.get("/verify", userAuthMiddleware, verifyUser);
 userAuthRouter.post("/login", loginUser);
 userAuthRouter.get("/logout", userAuthMiddleware, logoutUser);
+userAuthRouter.post("/forgot-password", forgotPassword);
+userAuthRouter.post("/reset-password", resetPassword);
 export default userAuthRouter;
