@@ -110,3 +110,9 @@ delete
 /api/v1/kitchen/delete/id   ---> Delete the items
 put
 /api/v1/kitchen/update/id    ----> Update the items in kitchen
+
+
+#Admin Password 
+POST
+/api/v1/admin/request-reset/      ----> email
+/api/v1/admin/reset-password/:token   -----> password
