@@ -13,6 +13,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import OrderHistory from './Admin/OrderHistory';
 import AdminDashboard from './Admin/AdminDashbord';
 import GarsonLogin from './Pages/GarsonsLogin'
+import KitchenPanel from './Kitchen/KitchenPanel';
 
 export const ItemsContext = createContext();
 function App() {
@@ -38,6 +39,7 @@ function App() {
         <Route path='/lunch' element={<LunchAndDinner />} />
         <Route path='/drinks' element={<Drinks />} />
         <Route path='/login' element={<SignUp />} />
+        <Route path='/kitchen' element={< KitchenPanel />} />
         <Route path='/garson-login' element={<GarsonLogin />} />
         <Route path='/admin' element={  <ProtectedRoute isAuth={isAuth}> <AdminDashboard /> </ProtectedRoute>} />
         <Route path='/history' element={  <ProtectedRoute isAuth={isAuth}> <OrderHistory /> </ProtectedRoute>} />

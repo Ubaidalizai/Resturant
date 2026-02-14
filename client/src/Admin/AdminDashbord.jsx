@@ -8,6 +8,7 @@ import FoodDataStorage from './FoodDataStorage';
 import Logo from'../images/logo.jpg';
 import OverviewChart from "./OverviewChart";
 import AdminPanel from './AdminPanel'
+import Expenses from "./Expenses";
 
 function AdminDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -113,6 +114,15 @@ function AdminDashboard() {
           </div>
 
           <div
+            onClick={() => setActiveMenu("Expenses")}
+            className={`flex items-center gap-3 font-semibold py-2 px-4 rounded cursor-pointer hover:bg-yellow-50 ${
+              activeMenu === "Expenses" ? "bg-yellow-100" : ""
+            }`}>
+            <AiOutlineTable size={20} />
+            <span>Expenses</span>
+          </div>
+
+          <div
             onClick={() => setActiveMenu("OrderHistory")}
             className={`flex items-center gap-3 font-semibold py-2 px-4 rounded cursor-pointer hover:bg-yellow-50 ${
               activeMenu === "OrderHistory" ? "bg-yellow-100" : ""
@@ -166,6 +176,7 @@ function AdminDashboard() {
           {activeMenu === "OrderHistory" && <OrderHistory />}
           {activeMenu === "Foods" && <FoodDataStorage />}
           {activeMenu === "AdminPanel" && <AdminPanel />}
+          {activeMenu === "Expenses" && <Expenses />}
         </div>
       </div>
     </div>

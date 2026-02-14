@@ -21,7 +21,7 @@ function Management() {
     capacity: "",
   });
 
-  // ---------------- FETCH DATA ----------------
+  //  FETCH DATA 
   const fetchMenus = async () => {
     try {
       const res = await axios.get("http://localhost:4000/api/v1/menues/all");
@@ -58,7 +58,7 @@ function Management() {
     fetchGarsons();
   }, []);
 
-  // ---------------- MODAL ----------------
+  // MODAL
   const openModal = () => setModalOpen(true);
   const closeModal = () => {
     setModalOpen(false);
@@ -72,7 +72,7 @@ function Management() {
     });
   };
 
-  // ---------------- ADD ITEM ----------------
+  //  ADD ITEM 
   const handleAdd = async () => {
     try {
       if (activeTab === "Menus") {
@@ -134,7 +134,7 @@ function Management() {
     }
   };
 
-  // ---------------- DELETE ITEM ----------------
+  //  DELETE ITEM 
   const handleDelete = async (index, id) => {
     try {
       if (activeTab === "Menus") {
@@ -158,7 +158,7 @@ function Management() {
     }
   };
 
-  // ---------------- RENDER ----------------
+  //  RENDER 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <h1 className="text-4xl font-bold text-yellow-600 mb-6 text-center">Admin Panel</h1>
