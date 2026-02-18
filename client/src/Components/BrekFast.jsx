@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { AiOutlineDelete } from "react-icons/ai";
+import axios from "axios";
 
 
 function BrekFast() {
@@ -16,9 +17,32 @@ function BrekFast() {
 
   
   useEffect(() => {
-    const data = localStorage.getItem("FoodData");
-    if (data) setFoods(JSON.parse(data));
-  }, []);
+  const fetchFoods = async () => {
+    try {
+      const res = await axios.get("http://localhost:4000/api/v1/foods/all");
+
+    
+      const allFoods = res.data.data || [];
+
+     
+      const formattedFoods = allFoods.map((f) => ({
+        ...f,
+        id: f._id,
+      }));
+
+      setFoods(formattedFoods);
+
+      console.log(formattedFoods);
+    } catch (err) {
+      console.log(err.message);
+      toast.error("Failed to fetch foods");
+    }
+  };
+
+  fetchFoods();
+}, []);
+
+
 
  
   const increase = (id) =>
@@ -180,8 +204,10 @@ function BrekFast() {
     setShowEditModal(false);
   };
 
-  const breakfastFoods = foods.filter((f) => f.category === "Breakfast");
-  const grandTotal = Object.values(cart).reduce((s, i) => s + i.price * i.qty, 0);
+  const breakfastFoods = foods.filter(
+  (f) => f.catagory?.toLowerCase() === "breakfast"
+);
+const grandTotal = Object.values(cart).reduce((s, i) => s + i.price * i.qty, 0);
 
   return (
     <div className="min-h-screen bg-gray-100 px-4 pb-10">

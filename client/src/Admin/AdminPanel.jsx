@@ -21,7 +21,7 @@ function Management() {
     capacity: "",
   });
 
-  //  FETCH DATA 
+  // ---------------- FETCH DATA ----------------
   const fetchMenus = async () => {
     try {
       const res = await axios.get("http://localhost:4000/api/v1/menues/all");
@@ -45,6 +45,7 @@ function Management() {
   const fetchGarsons = async () => {
     try {
       const res = await axios.get("http://localhost:4000/api/v1/users/all/");
+      console.log(res.data)
       setGarsons(res.data.data || []);
     } catch (error) {
       console.log(error);
@@ -58,7 +59,7 @@ function Management() {
     fetchGarsons();
   }, []);
 
-  // MODAL
+  // ---------------- MODAL ----------------
   const openModal = () => setModalOpen(true);
   const closeModal = () => {
     setModalOpen(false);
@@ -72,7 +73,7 @@ function Management() {
     });
   };
 
-  //  ADD ITEM 
+  // ---------------- ADD ITEM ----------------
   const handleAdd = async () => {
     try {
       if (activeTab === "Menus") {
@@ -113,7 +114,11 @@ function Management() {
           name: newItem.name,
           email: newItem.email,
           password: newItem.password,
+          role: newItem.role,
+          phone: newItem.phone,
         });
+        console.log(newItem.role)
+
 
         toast.success("Garson added successfully");
         fetchGarsons();
@@ -134,7 +139,7 @@ function Management() {
     }
   };
 
-  //  DELETE ITEM 
+  // ---------------- DELETE ITEM ----------------
   const handleDelete = async (index, id) => {
     try {
       if (activeTab === "Menus") {
@@ -158,7 +163,7 @@ function Management() {
     }
   };
 
-  //  RENDER 
+  // ---------------- RENDER ----------------
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <h1 className="text-4xl font-bold text-yellow-600 mb-6 text-center">Admin Panel</h1>
@@ -197,14 +202,17 @@ function Management() {
                   <th className="py-2 border">Actions</th>
                 </>
               )}
-              {activeTab === "Garsons" && (
-                <>
-                  <th className="py-2 border">Name</th>
-                  <th className="py-2 border">Email</th>
-                  <th className="py-2 border">Password</th>
-                  <th className="py-2 border">Actions</th>
-                </>
-              )}
+             
+          {activeTab === "Garsons" && (
+            <>
+              <th className="py-2 border">Name</th>
+              <th className="py-2 border">Email</th>
+              <th className="py-2 border">Password</th>
+              <th className="py-2 border">Role</th>
+              <th className="py-2 border">phone</th>
+              <th className="py-2 border">Actions</th>
+            </>
+          )}
             </tr>
           </thead>
 
@@ -238,22 +246,24 @@ function Management() {
                   </td>
                 </tr>
               ))}
+      {activeTab === "Garsons" &&
+          garsons.map((g) => (
+            <tr key={g._id} className="border-b">
+              <td className="py-2 border">{g.name}</td>
+              <td className="py-2 border">{g.email}</td>
+              <td className="py-2 border">{g.password}</td>
+              <td className="py-2 border">{g.role}</td>
+              <td className="py-2 border">{g.phone}</td>
+              <td className="py-2 border">
+                <FontAwesomeIcon
+                  icon={faTrash}
+                  className="text-red-500 cursor-pointer"
+                  onClick={() => handleDelete(null, g._id)}
+                />
+              </td>
+            </tr>
+          ))}
 
-            {activeTab === "Garsons" &&
-              garsons.map((g) => (
-                <tr key={g._id} className="border-b">
-                  <td className="py-2 border">{g.name}</td>
-                  <td className="py-2 border">{g.email}</td>
-                  <td className="py-2 border">{g.password}</td>
-                  <td className="py-2 border">
-                    <FontAwesomeIcon
-                      icon={faTrash}
-                      className="text-red-500 cursor-pointer"
-                      onClick={() => handleDelete(null, g._id)}
-                    />
-                  </td>
-                </tr>
-              ))}
           </tbody>
         </table>
       </div>
@@ -318,31 +328,38 @@ function Management() {
                 </>
               )}
 
-              {activeTab === "Garsons" && (
-                <>
-                  <input
-                    type="text"
-                    placeholder="Name"
+               {activeTab === "Garsons" && (
+            <>
+              <input type="text" placeholder="Name" className="border p-2 rounded w-full"
+                value={newItem.name}
+                onChange={(e) => setNewItem({ ...newItem, name: e.target.value })} />
+
+              <input type="email" placeholder="Email" className="border p-2 rounded w-full"
+                value={newItem.email}
+                onChange={(e) => setNewItem({ ...newItem, email: e.target.value })} />
+
+              <input type="password" placeholder="Password" className="border p-2 rounded w-full"
+                value={newItem.password}
+                onChange={(e) => setNewItem({ ...newItem, password: e.target.value })} />
+
+              <select className="border p-2 rounded w-full"
+                value={newItem.role}
+                onChange={(e) => setNewItem({ ...newItem, role: e.target.value })}>
+                <option value="">Select Role</option>
+                <option value="garson">Garson</option>
+                <option value="chef">Chef</option>
+                <option value="admin">Admin</option>
+              </select>
+
+               <input
+                    type="number"
+                    placeholder="Phone"
                     className="border p-2 rounded w-full"
-                    value={newItem.name}
-                    onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
+                    value={newItem.phone}
+                    onChange={(e) => setNewItem({ ...newItem, phone: e.target.value })}
                   />
-                  <input
-                    type="email"
-                    placeholder="Email"
-                    className="border p-2 rounded w-full"
-                    value={newItem.email}
-                    onChange={(e) => setNewItem({ ...newItem, email: e.target.value })}
-                  />
-                  <input
-                    type="password"
-                    placeholder="Password"
-                    className="border p-2 rounded w-full"
-                    value={newItem.password}
-                    onChange={(e) => setNewItem({ ...newItem, password: e.target.value })}
-                  />
-                </>
-              )}
+            </>
+          )}
 
               <button
                 onClick={handleAdd}

@@ -216,7 +216,7 @@ function FoodDataStorage() {
                 >
                   <option value="">Select Category</option>
                   <option value="Breakfast">Breakfast</option>
-                  <option value="Lunch & Dinner">Lunch & Dinner</option>
+                  <option value="lunch">Lunch & Dinner</option>
                   <option value="Drinks">Drinks</option>
                 </select>
 
@@ -266,7 +266,7 @@ function FoodDataStorage() {
                 >
                   <option value="">Select Category</option>
                   <option value="Breakfast">Breakfast</option>
-                  <option value="Lunch & Dinner">Lunch & Dinner</option>
+                  <option value="Lunch">Lunch & Dinner</option>
                   <option value="Drinks">Drinks</option>
                 </select>
 
