@@ -7,16 +7,15 @@ import { sentTokenToClient } from "../utils/sentTokenToClient.util.js";
 
 // ================= REGISTER =================
 export const registerUser = asyncHandler(async (req, res, next) => {
-  const { name, email, password, phone, address } = req.body;
 
-  const image = req.file ? req.file.buffer.toString("base64") : null;
+  const { name, email, password, phone, address, role } = req.body;
 
-  const userFound = await User.findOne({ email });
-  if (userFound) {
+  const userExists = await User.findOne({ email });
+  if (userExists) {
     return next(new ErrorHandler(400, "Email already exists"));
   }
 
-  // Always force default role (security)
+  // Force default role (security)
   const user = await User.create({
     name,
     email,
@@ -24,18 +23,11 @@ export const registerUser = asyncHandler(async (req, res, next) => {
     phone,
     address,
     image,
-    role: "user"
+    role: role
   });
 
-  // Include role in access token
-  const accessToken = generateAccessToken({
-    id: user._id,
-    role: user.role
-  });
-
-  const refreshToken = generateRefreshToken({
-    id: user._id
-  });
+  const accessToken = generateAccessToken(user._id);
+  const refreshToken = generateRefreshToken(user._id);
 
   user.refreshToken = refreshToken;
   await user.save();
@@ -56,44 +48,34 @@ export const registerUser = asyncHandler(async (req, res, next) => {
 
 // ================= LOGIN =================
 export const loginUser = asyncHandler(async (req, res, next) => {
-  const { email, password } = req.body;
 
-  const userFound = await User.findOne({ email });
-  if (!userFound) {
+  const { email, password, role } = req.body;
+
+  const user = await User.findOne({ email });
+  if (!user) {
     return next(new ErrorHandler(400, "Email does not exist"));
   }
 
-  const isMatchPassword = await userFound.comparePassword(password);
-  if (!isMatchPassword) {
+  const isPasswordMatch = await user.comparePassword(password);
+  if (!isPasswordMatch) {
     return next(new ErrorHandler(400, "Incorrect password"));
   }
+  if(user.role !== role)return res.respond(400, "Invalid Role");
+  const accessToken = generateAccessToken(user._id);
+  const refreshToken = generateRefreshToken(user._id);
 
-  // Optional: block unapproved sellers
-  if (userFound.role === "seller" && !userFound.isSellerApproved) {
-    return next(new ErrorHandler(403, "Seller not approved yet"));
-  }
-
-  const accessToken = generateAccessToken({
-    id: userFound._id,
-    role: userFound.role
-  });
-
-  const refreshToken = generateRefreshToken({
-    id: userFound._id
-  });
-
-  userFound.refreshToken = refreshToken;
-  await userFound.save();
+  user.refreshToken = refreshToken;
+  await user.save();
 
   sentTokenToClient("accessToken", accessToken, res);
   sentTokenToClient("refreshToken", refreshToken, res);
 
   res.respond(200, "User logged in successfully", {
     user: {
-      id: userFound._id,
-      name: userFound.name,
-      email: userFound.email,
-      role: userFound.role
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role
     }
   });
 });
@@ -102,10 +84,8 @@ export const loginUser = asyncHandler(async (req, res, next) => {
 // ================= LOGOUT =================
 export const logoutUser = asyncHandler(async (req, res) => {
 
-  const userId = req.user?.id;
-
-  if (userId) {
-    await User.findByIdAndUpdate(userId, { refreshToken: null });
+  if (req.user?.id) {
+    await User.findByIdAndUpdate(req.user.id, { refreshToken: null });
   }
 
   res.clearCookie("accessToken");
@@ -120,14 +100,12 @@ export const verifyUser = asyncHandler(async (req, res, next) => {
 
   const userId = req.user.id;
 
-  const userFound = await User.findById(userId)
+  const user = await User.findById(userId)
     .select("-password -refreshToken -__v -createdAt -updatedAt");
 
-  if (!userFound) {
+  if (!user) {
     return next(new ErrorHandler(404, "User not found"));
   }
 
-  res.respond(200, "User verified successfully", {
-    user: userFound
-  });
+  res.respond(200, "User verified successfully", { user });
 });
