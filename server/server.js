@@ -7,7 +7,6 @@ import { ErrorMiddlware } from "./src/middlewares/error.middleware.js";
 import { ResponseMiddleware } from "./src/middlewares/response.middleware.js";
 // Route Import
 import userAuthRouter from "./src/routes/userAuth.routes.js";
-import adminRouter from "./src/routes/adminAuth.routes.js";
 import FoodRouter from "./src/routes/food.routes.js";
 import tableRouter from "./src/routes/table.routes.js";
 import MenueRouter from "./src/routes/menue.routes.js";
@@ -32,7 +31,6 @@ app.get('/api/test', (req, res)=>{
 })
 // Routes
 app.use("/api/v1/user/", userAuthRouter);
-app.use('/api/v1/admin/', adminRouter);
 app.use('/api/v1/foods/', FoodRouter);
 app.use('/api/v1/tables/', tableRouter);
 app.use('/api/v1/menues/', MenueRouter);
