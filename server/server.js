@@ -5,7 +5,6 @@ import cors from "cors";
 import { connectDB } from "./src/configs/db.config.js";
 import { ErrorMiddlware } from "./src/middlewares/error.middleware.js";
 import { ResponseMiddleware } from "./src/middlewares/response.middleware.js";
-
 // Route Import
 import userAuthRouter from "./src/routes/userAuth.routes.js";
 import adminRouter from "./src/routes/adminAuth.routes.js";
@@ -17,8 +16,9 @@ import UserRouter from "./src/routes/user.routes.js";
 import expenseCatagoryRouter from "./src/routes/expenseCatagory.routes.js";
 import expensesRouter from "./src/routes/expenses.routes.js";
 import revenueRouter from "./src/routes/revenue.routes.js";
-
+import path from 'path';
 const app = express();
+app.use("/uploads", express.static(path.join("uploads")));
 
 // Middleware configuration
 app.use(express.json({ limit: "16kb" }));
