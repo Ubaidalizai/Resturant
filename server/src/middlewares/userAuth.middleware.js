@@ -10,7 +10,7 @@ export const userAuthMiddleware = async (req, res, next) => {
   if (accessToken) {
     try {
         const payload = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
-        req.userId = payload.id;
+        req.user = payload.id;
         return next();
     } catch (error) {
         // Check the refresh token
@@ -33,3 +33,4 @@ export const userAuthMiddleware = async (req, res, next) => {
     return next(new ErrorHanlder(401, 'Invalid or expire token'));
   }
 };
+

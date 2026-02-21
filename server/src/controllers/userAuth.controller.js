@@ -80,7 +80,6 @@ export const loginUser = asyncHandler(async (req, res, next) => {
   });
 });
 
-
 // ================= LOGOUT =================
 export const logoutUser = asyncHandler(async (req, res) => {
 

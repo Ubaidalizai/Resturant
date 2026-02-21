@@ -1,18 +1,21 @@
 import { asyncHandler } from "../utils/asyncHandler.util.js";
 import { Order } from "../models/order.model.js";
 import { Table } from "../models/table.model.js";
-
+import { Food } from "../models/food.model.js";
 // Add the order 
 export const addOrder = asyncHandler(async (req, res)=>{
     const userId = req.userId;
-    const {items, quantity, amount, tableId} = req.body;
+    const {items, quantity, tableId} = req.body;
     // Check does the table is occupied or not
-    const isTableOccupied = await Order.findOne({tableId,  isDeleted: false});
-    if (isTableOccupied) {
+    const isTableOccupied = await Table.findOne({_id: tableId, isDeleted: false});
+    if (isTableOccupied.isOccupied) {
         return res.respond(400, "Table is already occupied");
     }
     // Update the table status to occupied
     await Table.findByIdAndUpdate(tableId, {isOccupied: true});
+    // Find the foods prices from items.foodId
+    const foodPrices = await Food.find({_id: {$in: items.map(item => item.foodId)}}).select('price');
+    const amount = foodPrices.reduce((acc, food) => acc + food.price * quantity, 0);
     // Create new order
     const newOrder = await Order.create({userId, items, quantity, amount, tableId});
     res.respond(201, "Order placed successfully", newOrder);
