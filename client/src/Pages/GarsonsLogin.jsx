@@ -4,9 +4,10 @@ import { ItemsContext } from "../App";
 import { toast } from "react-toastify";
 import RestaurantLoader from './RestaurantLoader';
 import axios from "axios";
+import KitchenPanel from "../Kitchen/KitchenPanel";
 
-function GarsonLogin() {
-const [username, setUsername] = useState('');
+function LoginForm() {
+const [email, setEmail] = useState('');
 const [password, setPassword] = useState('');
 const [role, setRole] = useState('garson');
 const [loading, setLoading] = useState(false);
@@ -15,43 +16,63 @@ const { setIsAuth } = useContext(ItemsContext);
 const navigate = useNavigate();
 
 const handleLogin = async () => {
-if (username === '' || password === '') {
-toast.warn('Please fill in both fields');
-return;
-}
-
-
-try {
-  setLoading(true); 
-
-
-  const response = await axios.post('http://localhost:4000/api/v1/user/login/', {
-    email: username,
-    password: password
-  });
-
-  if (response.data.success) {
-    setIsAuth(true); // Update auth context
-    toast.success(response.data.message || 'Welcome Back!');
-    navigate('/menus'); // Navigate to menus page
-  } else {
-    toast.error(response.data.message || 'Invalid Username or Password');
+  if (email === '' || password === '') {
+    toast.warn('Please fill in both fields');
+    return;
   }
 
-} catch (err) {
-  console.error(err);
+  try {
+    setLoading(true);
 
-  if (err.response && err.response.data && err.response.data.message) {
-    toast.error(err.response.data.message);
-  } else {
-    toast.error(response.data.message || 'An error occurred during login');
+    const response = await axios.post(
+      'http://localhost:4000/api/v1/user/login/',
+      {
+        email: email,
+        password: password,
+        role: role
+      },
+      console.log(role)
+    );
+
+   
+    if (!response.data.success) {
+      toast.error(response.data.message || 'Invalid Email or Password');
+      setLoading(false);
+      return;
+    }
+
+ 
+    const userRole = response.data.data.user?.role;
+    console.log("Role from backend:", userRole);
+    setIsAuth(true);
+    toast.success('Login Successful');
+
+    if (userRole === "admin") {
+      navigate('/admin');
+    } else if (userRole === "chef") {
+      navigate('/kitchen');
+    } else if (userRole === "garson") {
+      navigate('/menus');
+    } else {
+      toast.error("Unknown role");
+      setIsAuth(false);
+    }
+
+  } catch (err) {
+    console.error(err);
+
+
+    if (err.response && err.response.data && err.response.data.message) {
+      toast.error(err.response.data.message);
+    } else {
+      toast.error('Invalid Email or Password');
+    }
+
+  } finally {
+    setLoading(false);
   }
-} finally {
-  setLoading(false); 
-}
-
-
 };
+
 
 return ( <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
 {loading && <RestaurantLoader message="Logging in..." />} <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden p-8 sm:p-10 relative"> <div className="absolute -top-10 -right-10 w-32 h-32 bg-yellow-400 rounded-full opacity-30"></div> <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-yellow-400 rounded-full opacity-30"></div>
@@ -64,9 +85,9 @@ return ( <div className="min-h-screen bg-gray-50 flex items-center justify-cente
     <div className="flex flex-col space-y-6">
       <input
         type="text"
-        placeholder="Username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
+        placeholder="Email Address"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
         className="w-full border-2 border-yellow-600 rounded-xl px-5 py-3 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
       />
       <input
@@ -84,6 +105,7 @@ return ( <div className="min-h-screen bg-gray-50 flex items-center justify-cente
       >
         <option value="garson">Garson</option>
         <option value="chef">Chef</option>
+        <option value="admin">Admin</option>
       </select>
 
       <button
@@ -100,4 +122,4 @@ return ( <div className="min-h-screen bg-gray-50 flex items-center justify-cente
 );
 }
 
-export default GarsonLogin;
+export default LoginForm;

@@ -1,12 +1,10 @@
 import { Route, Routes } from 'react-router-dom';
 import { createContext, useState, useEffect } from 'react';
 import './App.css';
-import Willcome from './Pages/Willcome';
 import BrekFast from './Components/BrekFast';
 import LunchAndDinner from './Components/LunchAndDinner';
 import Drinks from './Components/Drinks';
 import MenusPage from './Pages/MenusPage';
-import SignUp from './Pages/SignUp';
 import ProtectedRoute from'./Admin/ProtectedRoute';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -33,16 +31,14 @@ function App() {
         theme="light"
       />
       <Routes>
-        <Route path='/' element={<Willcome />} />
         <Route path='/menus' element={<MenusPage />} />
         <Route path='/breakfast' element={<BrekFast />} />
         <Route path='/lunch' element={<LunchAndDinner />} />
         <Route path='/drinks' element={<Drinks />} />
-        <Route path='/login' element={<SignUp />} />
         <Route path='/kitchen' element={< KitchenPanel />} />
-        <Route path='/garson-login' element={<GarsonLogin />} />
-        <Route path='/admin' element={  <ProtectedRoute isAuth={isAuth}> <AdminDashboard /> </ProtectedRoute>} />
-        <Route path='/history' element={  <ProtectedRoute isAuth={isAuth}> <OrderHistory /> </ProtectedRoute>} />
+        <Route path='/' element={<GarsonLogin />} />
+        <Route path='/admin' element={<AdminDashboard />} />
+        <Route path='/history' element={<OrderHistory />} />
         </Routes>
     </ItemsContext.Provider>
   );

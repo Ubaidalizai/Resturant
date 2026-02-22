@@ -9,7 +9,8 @@ function BrekFast() {
   const [foods, setFoods] = useState([]);
   const [quantities, setQuantities] = useState({});
   const [cart, setCart] = useState({});
-  const [table, setTable] = useState("");
+  const [table, setTable] = useState(null);
+  const [tables, setTables] = useState([]);
 
   const [showOrderModal, setShowOrderModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -43,15 +44,26 @@ function BrekFast() {
 }, []);
 
 
+  // ✅ Fetch Tables (نوې برخه)
+  useEffect(() => {
+    const fetchTables = async () => {
+      try {
+        const res = await axios.get("http://localhost:4000/api/v1/tables/all");
+        console.log("TABLE API RESPONSE:", res.data);
+        setTables(res.data.data || []);
+      } catch (err) {
+        toast.error('Table is not loaded');
+      }
+    };
+    fetchTables();
+  }, []);
 
- 
   const increase = (id) =>
     setQuantities((p) => ({ ...p, [id]: (p[id] || 1) + 1 }));
 
   const decrease = (id) =>
     setQuantities((p) => ({ ...p, [id]: Math.max(1, (p[id] || 1) - 1) }));
 
- 
   const toggleCart = (food) => {
     const qty = quantities[food.id] || 1;
     setCart((p) => {
@@ -64,7 +76,6 @@ function BrekFast() {
     });
   };
 
-
   const deleteItem = (id) => {
     setCart((p) => {
       const copy = { ...p };
@@ -73,7 +84,6 @@ function BrekFast() {
     });
   };
 
-  
   const openOrderModal = () => {
     if (!Object.keys(cart).length) {
       toast.error("No food added");
@@ -82,49 +92,50 @@ function BrekFast() {
     setShowOrderModal(true);
   };
 
+  const grandTotal = Object.values(cart).reduce(
+    (s, i) => s + i.price * i.qty,
+    0
+  );
 
-  const confirmOrder = () => {
-    if (!table) {
-      toast.error("Select table number");
-      return;
+  // ✅ CONFIRM ORDER → DATABASE
+  const confirmOrder = async () => {
+  if (!table) {
+    toast.error("Select table number");
+    return;
+  }
+
+  const items = Object.values(cart).map((i) => ({
+    foodId: i.id,
+    quantity: i.qty,
+  }));
+
+  if (!items.length) {
+    toast.error("No items in cart");
+    return;
+  }
+
+  try {
+    const res = await axios.post(
+      "http://localhost:4000/api/v1/orders/add",
+      {
+        tableId: table,
+        items
+      }
+    );
+
+    if (res.data.success) {
+      toast.success("Order placed ✅");
+      setCart({});
+      setQuantities({});
+      setTable(null);
+      setShowOrderModal(false);
+    } else {
+      toast.error(res.data.message || "Order failed");
     }
-
-    const items = Object.values(cart).map((i) => ({
-      id: i.id,
-      name: i.name,
-      category: i.category,
-      price: i.price,
-      quantity: i.qty,
-      total: i.price * i.qty,
-    }));
-
-    if (!items.length) {
-      toast.error("No items in cart");
-      return;
-    }
-
-    let orders = JSON.parse(localStorage.getItem("Orders")) || [];
-
-   
-    const newOrder = {
-      id: Date.now(),
-      date: new Date().toLocaleDateString(),
-      table,
-      items,
-      orderTotal: items.reduce((s, i) => s + i.total, 0),
-    };
-
-    orders.push(newOrder);
-
-    localStorage.setItem("Orders", JSON.stringify(orders));
-    toast.success("Order placed ✅");
-
-    setCart({});
-    setQuantities({});
-    setTable("");
-    setShowOrderModal(false);
-  };
-
+  } catch (err) {
+    toast.error("Server error while placing order" || res.err.message);
+  }
+};
 
   const openEditOrder = () => {
     if (!editTableLocked) {
@@ -135,44 +146,56 @@ function BrekFast() {
     setShowEditModal(true);
   };
 
+  // ✅ LOAD ORDER FROM DATABASE
+  const handleTableSelectEdit = async (tableId) => {
+    setTable(tableId);
 
-  const handleTableSelectEdit = (t) => {
-    setTable(t);
+    try {
+      const res = await axios.get(
+        `http://localhost:4000/api/v1/orders/table/${tableId}`
+      );
 
-    const orders = JSON.parse(localStorage.getItem("Orders")) || [];
-    const found = orders.find((o) => o.table === t);
+      if (!res.data.success) {
+        toast.error("No order found for this table");
+        return;
+      }
 
-    if (!found) {
-      toast.error("No order found for this table");
-      return;
+      const order = res.data.data;
+      setCurrentOrderId(order._id);
+
+      const newCart = {};
+      const newQty = {};
+
+      order.items.forEach((i) => {
+        newCart[i.food] = {
+          id: i.food,
+          name: i.name,
+          price: i.price,
+          qty: i.quantity,
+        };
+        newQty[i.food] = i.quantity;
+      });
+
+      setCart(newCart);
+      setQuantities(newQty);
+      setEditTableLocked(true);
+    } catch (err) {
+      toast.error("Error loading order");
     }
-
-    const newCart = {};
-    const newQty = {};
-    found.items.forEach((i) => {
-      newCart[i.id] = { ...i, qty: i.quantity };
-      newQty[i.id] = i.quantity;
-    });
-
-    setCart(newCart);
-    setQuantities(newQty);
-    setEditTableLocked(true);
   };
 
- 
-  const updateOrder = () => {
-    if (!table) {
+  // ✅ UPDATE ORDER → DATABASE
+  const updateOrder = async () => {
+    if (!table || !currentOrderId) {
       toast.error("Select table number");
       return;
     }
 
     const items = Object.values(cart).map((i) => ({
-      id: i.id,
+      food: i.id,
       name: i.name,
-      category: i.category,
       price: i.price,
       quantity: i.qty,
-      total: i.price * i.qty,
     }));
 
     if (!items.length) {
@@ -180,35 +203,34 @@ function BrekFast() {
       return;
     }
 
-    let orders = JSON.parse(localStorage.getItem("Orders")) || [];
-    const index = orders.findIndex((o) => o.table === table && o.id === cart[Object.keys(cart)[0]].id);
+    try {
+      const res = await axios.put(
+        `http://localhost:4000/api/v1/orders/update/${currentOrderId}`,
+        {
+          table,
+          items,
+          totalAmount: grandTotal,
+        }
+      );
 
-    const updatedOrder = {
-      id: index !== -1 ? orders[index].id : Date.now(),
-      date: new Date().toLocaleDateString(),
-      table,
-      items,
-      orderTotal: items.reduce((s, i) => s + i.total, 0),
-    };
-
-    if (index !== -1) orders[index] = updatedOrder;
-    else orders.push(updatedOrder);
-
-    localStorage.setItem("Orders", JSON.stringify(orders));
-    toast.success("Order updated ✅");
-
-    setCart({});
-    setQuantities({});
-    setTable("");
-    setEditTableLocked(false);
-    setShowEditModal(false);
+      if (res.data.success) {
+        toast.success("Order updated ✅");
+        setCart({});
+        setQuantities({});
+        setTable("");
+        setEditTableLocked(false);
+        setShowEditModal(false);
+        setCurrentOrderId(null);
+      } else {
+        toast.error("Update failed");
+      }
+    } catch (err) {
+      toast.error("Server error while updating order");
+    }
   };
 
   const breakfastFoods = foods.filter(
-  (f) => f.catagory?.toLowerCase() === "breakfast"
-);
-const grandTotal = Object.values(cart).reduce((s, i) => s + i.price * i.qty, 0);
-
+    (f) => f.catagory?.toLowerCase() === "breakfast");
   return (
     <div className="min-h-screen bg-gray-100 px-4 pb-10">
 
@@ -239,12 +261,12 @@ const grandTotal = Object.values(cart).reduce((s, i) => s + i.price * i.qty, 0);
           </button>
         </div>
       </div>
-
+    
       {/* Food Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
         {breakfastFoods.map((food) => (
           <div key={food.id} className="bg-white rounded-xl p-4 shadow">
-            <img src={food.image} alt={food.name} className="h-40 w-full object-cover rounded-lg border-[2.5px] border-yellow-600 border-dotted" />
+            <img src={`http://localhost:4000${food.image}`} alt={food.name} className="h-40 w-full object-cover rounded-lg border-[2.5px] border-yellow-600 border-dotted" />
             <h2 className="font-semibold text-black">{food.name}</h2>
             <p className="text-yellow-600">${food.price}</p>
 
@@ -304,11 +326,13 @@ const grandTotal = Object.values(cart).reduce((s, i) => s + i.price * i.qty, 0);
 
             {/* Table Selection & Buttons */}
             <div className="flex justify-between items-center mt-6 gap-4">
-              <select value={table} onChange={(e) => setTable(e.target.value)} className="px-4 py-2 rounded-xl bg-yellow-600 text-white font-semibold">
+              <select value={table || ""} onChange={(e) => setTable(e.target.value)} className="px-4 py-2 rounded-xl bg-yellow-600 text-white font-semibold">
                 <option value="">Select Table</option>
-                {[1, 2, 3, 4, 5, 6].map((t) => (
-                  <option key={t} value={String(t)}>Table {t}</option>
-                ))}
+                {tables.map((t, i) => (
+                    <option key={t._id || i} value={t._id}>
+                      Table {t.tableNumber || t.number || i + 1}
+                    </option>
+                  ))}
               </select>
 
               <div className="flex gap-4">
@@ -392,3 +416,6 @@ const grandTotal = Object.values(cart).reduce((s, i) => s + i.price * i.qty, 0);
 }
 
 export default BrekFast;
+
+
+

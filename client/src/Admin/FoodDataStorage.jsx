@@ -12,7 +12,7 @@ function FoodDataStorage() {
   const [search, setSearch] = useState("");
   const [modal, setModal] = useState(null);
   const [selectedFood, setSelectedFood] = useState(null);
-
+ 
   // Fetch existing foods from backend
   useEffect(() => {
     const fetchFoods = async () => {
@@ -144,7 +144,7 @@ function FoodDataStorage() {
             className="bg-white rounded-2xl shadow p-6 flex flex-col items-center"
           >
             <img
-              src={food.image}
+              src={`http://localhost:4000${food.image}`}
               alt={food.name}
               className="w-24 h-24 rounded-full mb-4 object-cover"
             />

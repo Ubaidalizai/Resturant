@@ -58,9 +58,7 @@ function MenusPage() {
             </>
           ))
         ) : (
-          <p className="text-center text-gray-500 text-xl col-span-full">
-            No menus available.
-          </p>
+        <></>
         )}
 
         </div>
