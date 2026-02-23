@@ -9,15 +9,14 @@ import KitchenPanel from "../Kitchen/KitchenPanel";
 function LoginForm() {
 const [email, setEmail] = useState('');
 const [password, setPassword] = useState('');
-const [role, setRole] = useState('garson');
 const [loading, setLoading] = useState(false);
 
 const { setIsAuth } = useContext(ItemsContext);
 const navigate = useNavigate();
 
 const handleLogin = async () => {
-  if (email === '' || password === '') {
-    toast.warn('Please fill in both fields');
+  if (!email || !password) {
+    toast.warn("Please fill in both fields");
     return;
   }
 
@@ -25,49 +24,41 @@ const handleLogin = async () => {
     setLoading(true);
 
     const response = await axios.post(
-      'http://localhost:4000/api/v1/user/login/',
-      {
-        email: email,
-        password: password,
-        role: role
-      },
-      console.log(role)
+      "http://localhost:4000/api/v1/user/login/",
+      { email, password }
     );
 
-   
+    console.log("SERVER RESPONSE:", response.data);
+
     if (!response.data.success) {
-      toast.error(response.data.message || 'Invalid Email or Password');
-      setLoading(false);
+      toast.error(response.data.message || "Invalid Email or Password");
       return;
     }
 
- 
-    const userRole = response.data.data.user?.role;
-    console.log("Role from backend:", userRole);
-    setIsAuth(true);
-    toast.success('Login Successful');
+    const user = response.data.data.user; 
+    if (!user) {
+      toast.error("User not returned from server");
+      return;
+    }
 
-    if (userRole === "admin") {
-      navigate('/admin');
-    } else if (userRole === "chef") {
-      navigate('/kitchen');
-    } else if (userRole === "garson") {
-      navigate('/menus');
+    setIsAuth(true);
+    toast.success("Login Successful");
+
+
+    if (user.name.toLowerCase() === "admin") {
+      navigate("/admin");
+    } else if (user.name.toLowerCase() === "chef") {
+      navigate("/kitchen");
+    } else if (user.name.toLowerCase() === "garson") {
+      navigate("/menus");
     } else {
-      toast.error("Unknown role");
+      toast.error("No dashboard assigned to this account");
       setIsAuth(false);
     }
 
   } catch (err) {
     console.error(err);
-
-
-    if (err.response && err.response.data && err.response.data.message) {
-      toast.error(err.response.data.message);
-    } else {
-      toast.error('Invalid Email or Password');
-    }
-
+    toast.error(err.response?.data?.message || "Login failed");
   } finally {
     setLoading(false);
   }
@@ -97,16 +88,6 @@ return ( <div className="min-h-screen bg-gray-50 flex items-center justify-cente
         onChange={(e) => setPassword(e.target.value)}
         className="w-full border-2 border-yellow-600 rounded-xl px-5 py-3 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
       />
-
-      <select
-        value={role}
-        onChange={(e) => setRole(e.target.value)}
-        className="w-full border-2 border-yellow-600 rounded-xl px-5 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
-      >
-        <option value="garson">Garson</option>
-        <option value="chef">Chef</option>
-        <option value="admin">Admin</option>
-      </select>
 
       <button
         onClick={handleLogin}
