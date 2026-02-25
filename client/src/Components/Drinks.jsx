@@ -18,7 +18,7 @@ function Drinks() {
   useEffect(() => {
   const fetchFoods = async () => {
     try {
-      const res = await axios.get("http://localhost:4000/api/v1/foods/all");
+      const res = await axios.get(`${baseURL}/api/v1/foods/all`);
 
     
       const allFoods = res.data.data || [];

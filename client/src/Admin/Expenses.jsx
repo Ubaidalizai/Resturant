@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { AiOutlineDelete, AiOutlineEdit, AiOutlinePlus, AiOutlineClose } from "react-icons/ai";
 import { toast } from "react-toastify";
+import { baseURL } from "../configs/baseURL.config";
 
 function Expenses() {
 
@@ -24,7 +25,7 @@ function Expenses() {
   //  GET CATEGORIES 
   const fetchCategories = async () => {
     try {
-      const res = await axios.get("http://localhost:4000/api/v1/expenseCatagories/all");
+      const res = await axios.get(`${baseURL}/api/v1/expenseCatagories/all`);
 
       if (Array.isArray(res.data)) {
         setCategories(res.data);
@@ -41,7 +42,7 @@ function Expenses() {
   //  GET EXPENSES 
   const fetchExpenses = async () => {
     try {
-      const res = await axios.get("http://localhost:4000/api/v1/expenses/all");
+      const res = await axios.get(`${baseURL}/api/v1/expenses/all`);
 
       if (Array.isArray(res.data)) {
         setExpenses(res.data);
@@ -72,13 +73,13 @@ function Expenses() {
     try {
       if (editCatId) {
         await axios.put(
-          `http://localhost:4000/api/v1/expenseCatagories/update/${editCatId}`,
+          `${baseURL}/api/v1/expenseCatagories/update/${editCatId}`,
           { name, description }
         );
         toast.success("Category Updated");
       } else {
         await axios.post(
-          "http://localhost:4000/api/v1/expenseCatagories/add",
+          `${baseURL}/api/v1/expenseCatagories/add`,
           { name, description }
         );
         toast.success("Category Added");
@@ -99,7 +100,7 @@ function Expenses() {
   //  DELETE CATEGORY 
   const deleteCategory = async (id) => {
     try {
-      await axios.delete(`http://localhost:4000/api/v1/expenseCatagories/delete/${id}`);
+      await axios.delete(`${baseURL}/api/v1/expenseCatagories/delete/${id}`);
       toast.success("Category Deleted");
       fetchCategories();
     } catch (err) {
@@ -125,7 +126,7 @@ function Expenses() {
 
     try {
       console.log(catagoryId);
-      await axios.post("http://localhost:4000/api/v1/expenses/add", {
+      await axios.post(`${baseURL}/api/v1/expenses/add`, {
         title,
         catagory: catagoryId,
         amount,
@@ -152,7 +153,7 @@ function Expenses() {
   //  DELETE EXPENSE 
   const deleteExpense = async (id) => {
     try {
-      await axios.delete(`http://localhost:4000/api/v1/expenses/delete/${id}`);
+      await axios.delete(`${baseURL}/api/v1/expenses/delete/${id}`);
       toast.success("Expense Deleted");
       fetchExpenses();
     } catch (err) {

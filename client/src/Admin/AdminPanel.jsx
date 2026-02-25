@@ -3,7 +3,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
-
+import {baseURL} from "../configs/baseURL.config"
 function Management() {
   const [activeTab, setActiveTab] = useState("Menus");
   const [modalOpen, setModalOpen] = useState(false);
@@ -24,7 +24,7 @@ function Management() {
   // ---------------- FETCH DATA ----------------
   const fetchMenus = async () => {
     try {
-      const res = await axios.get("http://localhost:4000/api/v1/menues/all");
+      const res = await axios.get(`${baseURL}/api/v1/menues/all`);
       setMenus(res.data.data || []);
     } catch (error) {
       console.log(error);
@@ -34,7 +34,7 @@ function Management() {
 
   const fetchTables = async () => {
     try {
-      const res = await axios.get("http://localhost:4000/api/v1/tables/all");
+      const res = await axios.get(`${baseURL}/api/v1/tables/all`);
       setTables(res.data.data || []);
     } catch (error) {
       console.log(error);
@@ -44,7 +44,7 @@ function Management() {
 
   const fetchGarsons = async () => {
     try {
-      const res = await axios.get("http://localhost:4000/api/v1/users/all/");
+      const res = await axios.get(`${baseURL}/api/v1/users/all/`);
       console.log(res.data)
       setGarsons(res.data.data || []);
     } catch (error) {
@@ -82,7 +82,7 @@ function Management() {
           return;
         }
 
-        await axios.post("http://localhost:4000/api/v1/menues/add", {
+        await axios.post(`${baseURL}/api/v1/menues/add`, {
           name: newItem.name,
           catagory: newItem.catagory,
         });
@@ -96,7 +96,7 @@ function Management() {
           return;
         }
 
-        await axios.post("http://localhost:4000/api/v1/tables/add", {
+        await axios.post(`${baseURL}/api/v1/tables/add`, {
           tableNumber: newItem.name,
           capacity: Number(newItem.capacity),
         });
@@ -110,7 +110,7 @@ function Management() {
           return;
         }
 
-        await axios.post("http://localhost:4000/api/v1/user/register/", {
+        await axios.post(`${baseURL}/api/v1/user/register/`, {
           name: newItem.name,
           email: newItem.email,
           password: newItem.password,
@@ -143,17 +143,17 @@ function Management() {
   const handleDelete = async (index, id) => {
     try {
       if (activeTab === "Menus") {
-        await axios.delete(`http://localhost:4000/api/v1/menues/delete/${id}`);
+        await axios.delete(`${baseURL}/api/v1/menues/delete/${id}`);
         toast.success("Menu deleted");
         fetchMenus();
 
       } else if (activeTab === "Tables") {
-        await axios.delete(`http://localhost:4000/api/v1/tables/delete/${id}`);
+        await axios.delete(`${baseURL}/api/v1/tables/delete/${id}`);
         toast.success("Table deleted");
         fetchTables();
 
       } else if (activeTab === "Garsons") {
-        await axios.delete(`http://localhost:4000/api/v1/users/delete/${id}`);
+        await axios.delete(`${baseURL}/api/v1/users/delete/${id}`);
         toast.success("Garson deleted");
         fetchGarsons();
       }

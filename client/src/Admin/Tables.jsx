@@ -8,7 +8,7 @@ function Tables() {
   useEffect(() => {
     const fetchTables = async () => {
       try {
-        const res = await axios.get("http://localhost:4000/api/v1/tables/all");
+        const res = await axios.get(`${baseURL}/api/v1/tables/all`);
         const backendTables = res.data.data || [];
 
         const orders = JSON.parse(localStorage.getItem("Orders")) || [];

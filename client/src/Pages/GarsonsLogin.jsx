@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import RestaurantLoader from './RestaurantLoader';
 import axios from "axios";
 import KitchenPanel from "../Kitchen/KitchenPanel";
+import { baseURL } from "../configs/baseURL.config";
 
 function LoginForm() {
 const [email, setEmail] = useState('');
@@ -24,7 +25,7 @@ const handleLogin = async () => {
     setLoading(true);
 
     const response = await axios.post(
-      "http://localhost:4000/api/v1/user/login/",
+      `${baseURL}/api/v1/user/login`,
       { email, password }
     );
 

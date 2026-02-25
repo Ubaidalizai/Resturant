@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { baseURL } from "../configs/baseURL.config";
 
 function FoodDataStorage() {
   const [name, setName] = useState("");
@@ -17,7 +18,7 @@ function FoodDataStorage() {
   useEffect(() => {
     const fetchFoods = async () => {
       try {
-        const res = await axios.get("http://localhost:4000/api/v1/foods/all");
+        const res = await axios.get(`${baseURL}/api/v1/foods/all`);
         setEnterFoodData(res.data.data || []);
       } catch (err) {
         console.log(err.message);
@@ -44,7 +45,7 @@ function FoodDataStorage() {
       formData.append("image", image);
 
       const res = await axios.post(
-        "http://localhost:4000/api/v1/foods/add",
+        `${baseURL}/api/v1/foods/add`,
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
@@ -66,7 +67,7 @@ function FoodDataStorage() {
   // Delete Food
   const deleteFood = async (foodId) => {
     try {
-      await axios.delete(`http://localhost:4000/api/v1/foods/delete/${foodId}`);
+      await axios.delete(`${baseURL}/api/v1/foods/delete/${foodId}`);
       setEnterFoodData((prev) => prev.filter((food) => food._id !== foodId));
       toast.success("Food deleted successfully");
     } catch (err) {
@@ -92,7 +93,7 @@ function FoodDataStorage() {
       }
 
       const res = await axios.put(
-        `http://localhost:4000/api/v1/foods/${selectedFood._id}`,
+        `${baseURL}/api/v1/foods/${selectedFood._id}`,
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
@@ -144,7 +145,7 @@ function FoodDataStorage() {
             className="bg-white rounded-2xl shadow p-6 flex flex-col items-center"
           >
             <img
-              src={`http://localhost:4000${food.image}`}
+              src={`${baseURL}/${food.image}`}
               alt={food.name}
               className="w-24 h-24 rounded-full mb-4 object-cover"
             />

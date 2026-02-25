@@ -20,7 +20,7 @@ function BrekFast() {
   useEffect(() => {
   const fetchFoods = async () => {
     try {
-      const res = await axios.get("http://localhost:4000/api/v1/foods/all");
+      const res = await axios.get(`${baseURL}/api/v1/foods/all`);
 
     
       const allFoods = res.data.data || [];
@@ -48,7 +48,7 @@ function BrekFast() {
   useEffect(() => {
     const fetchTables = async () => {
       try {
-        const res = await axios.get("http://localhost:4000/api/v1/tables/all");
+        const res = await axios.get(`${baseURL}/api/v1/tables/all`);
         console.log("TABLE API RESPONSE:", res.data);
         setTables(res.data.data || []);
       } catch (err) {
@@ -116,7 +116,7 @@ function BrekFast() {
 
   try {
     const res = await axios.post(
-      "http://localhost:4000/api/v1/orders/add",
+      `${baseURL}/api/v1/orders/add`,
       {
         tableId: table,
         items
@@ -153,7 +153,7 @@ function BrekFast() {
 
     try {
       const res = await axios.get(
-        `http://localhost:4000/api/v1/orders/table/${tableId}`
+        `${baseURL}/api/v1/orders/table/${tableId}`
       );
 
       if (!res.data.success) {
@@ -206,7 +206,7 @@ function BrekFast() {
 
     try {
       const res = await axios.put(
-        `http://localhost:4000/api/v1/orders/update/${currentOrderId}`,
+        `${baseURL}/api/v1/orders/update/${currentOrderId}`,
         {
           table,
           items,
@@ -267,7 +267,7 @@ function BrekFast() {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
         {breakfastFoods.map((food) => (
           <div key={food.id} className="bg-white rounded-xl p-4 shadow">
-            <img src={`http://localhost:4000${food.image}`} alt={food.name} className="h-40 w-full object-cover rounded-lg border-[2.5px] border-yellow-600 border-dotted" />
+            <img src={`${baseURL}/${food.image}`} alt={food.name} className="h-40 w-full object-cover rounded-lg border-[2.5px] border-yellow-600 border-dotted" />
             <h2 className="font-semibold text-black">{food.name}</h2>
             <p className="text-yellow-600">${food.price}</p>
 

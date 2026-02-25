@@ -8,7 +8,7 @@ function MenusPage() {
   useEffect(() => {
     const fetchMenus = async () => {
       try {
-        const res = await axios.get("http://localhost:4000/api/v1/menues/all");
+        const res = await axios.get(`${baseURL}/api/v1/menues/all`);
 
        
         const menusData = Array.isArray(res.data.data) ? res.data.data : [];
