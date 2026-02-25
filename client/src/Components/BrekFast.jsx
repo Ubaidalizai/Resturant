@@ -135,6 +135,7 @@ function BrekFast() {
   } catch (err) {
     toast.error("Server error while placing order" || res.err.message);
   }
+  console.log(res)
 };
 
   const openEditOrder = () => {
