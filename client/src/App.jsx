@@ -48,7 +48,7 @@ function App() {
   if (loadingAuth) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p>Checking authentication...</p>
+        <p>Checking authentication..</p>
       </div>
     );
   }
