@@ -45,11 +45,11 @@ const handleLogin = async () => {
     toast.success("Login Successful");
 
 
-    if (user.name.toLowerCase() === "admin") {
+    if (user.role.toLowerCase() === "admin") {
       navigate("/admin");
-    } else if (user.name.toLowerCase() === "chef") {
+    } else if (user.role.toLowerCase() === "chef") {
       navigate("/kitchen");
-    } else if (user.name.toLowerCase() === "garson") {
+    } else if (user.role.toLowerCase() === "user") {
       navigate("/menus");
     } else {
       toast.error("No dashboard assigned to this account");
