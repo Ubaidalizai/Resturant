@@ -66,13 +66,15 @@ function App() {
       />
 
       <Routes>
-        <Route path='/' element={isAuth ? <Navigate to="/menus" /> : <GarsonLogin />} />
+        <Route path='/' element={<GarsonLogin />} />
 
-        <Route path='/menus' element={<MenusPage />} />
+      
         <Route path='/breakfast' element={<BrekFast />} />
         <Route path='/lunch' element={<LunchAndDinner />} />
         <Route path='/drinks' element={<Drinks />} />
-        <Route path='/kitchen' element={<KitchenPanel />} />
+        
+        <Route path='/menus' element={isAuth ? <MenusPage /> : <Navigate to='/' />} />
+        <Route path='/kitchen' element={isAuth ? <KitchenPanel /> : <Navigate to='/' />} />
 
         <Route
           path='/admin'

@@ -4,7 +4,6 @@ import { ItemsContext } from "../App";
 import { toast } from "react-toastify";
 import RestaurantLoader from './RestaurantLoader';
 import axios from "axios";
-import KitchenPanel from "../Kitchen/KitchenPanel";
 import { baseURL } from "../configs/baseURL.config";
 
 function LoginForm() {
