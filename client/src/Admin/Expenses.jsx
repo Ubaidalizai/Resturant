@@ -65,37 +65,29 @@ function Expenses() {
 
   //  ADD / UPDATE CATEGORY 
   const saveCategory = async () => {
-    if (!name) {
-      toast.error("Category name required");
-      return;
-    }
+  if (!name) {
+    toast.error("Category name required");
+    return;
+  }
 
-    try {
-      if (editCatId) {
-        await axios.put(
-          `${baseURL}/api/v1/expenseCatagories/update/${editCatId}`,
-          { name, description }
-        );
-        toast.success("Category Updated");
-      } else {
-        await axios.post(
-          `${baseURL}/api/v1/expenseCatagories/add`,
-          { name, description }
-        );
-        toast.success("Category Added");
-      }
+  try {
+  
+    const payload = { name, description: description || "" };
 
-      setName("");
-      setDescription("");
-      setEditCatId(null);
-      setShowCatModal(false);
-      fetchCategories();
+    await axios.post(`${baseURL}/api/v1/expenseCatagories/add`, payload);
 
-    } catch (err) {
-      console.log(err);
-      toast.error("Operation failed");
-    }
-  };
+    toast.success("Category Added");
+    setName("");
+    setDescription("");
+    setEditCatId(null);
+    setShowCatModal(false);
+    fetchCategories();
+
+  } catch (err) {
+    console.log(err.response?.data || err);
+    toast.error(err.response?.data?.message || "Operation failed");
+  }
+};
 
   //  DELETE CATEGORY 
   const deleteCategory = async (id) => {

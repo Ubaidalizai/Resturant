@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { baseURL } from "../configs/baseURL.config";
 
 function MenusPage() {
   const [menus, setMenus] = useState([]);

@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { AiOutlineMenu, AiOutlineAppstore } from "react-icons/ai";
 import KitchenOrders from "./KitchenOrders";
-import Store from "./Store";
 import cooker from '../images/cooker.avif';
 
 function KitchenPanel() {
@@ -10,7 +9,6 @@ function KitchenPanel() {
 
   const menuItems = [
     { name: "Orders", icon: <AiOutlineAppstore size={20} /> },
-    { name: "Store", icon: <AiOutlineMenu size={20} /> },
   ];
 
   return (
@@ -62,7 +60,6 @@ function KitchenPanel() {
         {/* Page Content */}
         <div className="p-6 flex-1">
           {activeMenu === "Orders" && <KitchenOrders />}
-          {activeMenu === "Store" && <Store />}
         </div>
       </div>
     </div>

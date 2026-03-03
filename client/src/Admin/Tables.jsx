@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import {baseURL} from "../configs/baseURL.config"
 
 function Tables() {
   const [tables, setTables] = useState([]);
