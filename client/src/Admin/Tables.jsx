@@ -6,6 +6,7 @@ function Tables() {
   const [tables, setTables] = useState([]);
   const [selectedTable, setSelectedTable] = useState(null);
 
+  //Fetch All added tables from database
   useEffect(() => {
     const fetchTables = async () => {
       try {
