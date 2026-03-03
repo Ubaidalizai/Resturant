@@ -5,7 +5,7 @@ import cors from "cors";
 import { connectDB } from "./src/configs/db.config.js";
 import { ErrorMiddlware } from "./src/middlewares/error.middleware.js";
 import { ResponseMiddleware } from "./src/middlewares/response.middleware.js";
-
+// New changes
 // Route Import
 import userAuthRouter from "./src/routes/userAuth.routes.js";
 import adminRouter from "./src/routes/adminAuth.routes.js";
