@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import MenuTabs from "../Components/garsoon/MenuTabs";
-import FoodGrid from "../Components/garsoon/FoodGrid";
-import CartPanel from "../Components/garsoon/CartPanel";
+import MenuTabs from "../Components/garson/MenuTabs";
+import FoodGrid from "../Components/garson/FoodGrid";
+import CartPanel from "../Components/garson/CartPanel";
 import axios from "axios";
 import { baseURL } from "../configs/baseURL.config";
 

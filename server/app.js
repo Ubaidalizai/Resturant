@@ -31,19 +31,7 @@ import stockRouter from "./src/routes/stock.routes.js";
 
 const app = express();
 
-// Security middlewares
-app.use(helmet());           // XSS, security headers
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      imgSrc: ["'self'", "http://localhost:4000", "data:"], // allow backend images
-      scriptSrc: ["'self'"],
-      styleSrc: ["'self'", "https:", "'unsafe-inline'"]
-    }
-  },
-  crossOriginResourcePolicy: { policy: "cross-origin" } // allow cross-origin images
-}));
+
 app.use(apiLimiter);         // Rate limiting
 
 // JSON and URL encoding
