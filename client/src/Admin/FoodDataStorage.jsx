@@ -7,14 +7,15 @@ import { baseURL } from "../configs/baseURL.config";
 function FoodDataStorage() {
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
-  const [catagory, setCatagory] = useState("");
+  const [category, setCategory] = useState(""); 
   const [image, setImage] = useState(null);
   const [enterFoodData, setEnterFoodData] = useState([]);
+  const [categories, setCategories] = useState([]); 
   const [search, setSearch] = useState("");
   const [modal, setModal] = useState(null);
   const [selectedFood, setSelectedFood] = useState(null);
- 
-  // Fetch existing foods from backend
+
+  // Fetch foods
   useEffect(() => {
     const fetchFoods = async () => {
       try {
@@ -28,11 +29,24 @@ function FoodDataStorage() {
     fetchFoods();
   }, []);
 
+  // Fetch categories from DB
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await axios.get(`${baseURL}/api/v1/menues/all`);
+        setCategories(res.data.data || []);
+      } catch (err) {
+        console.log(err.message);
+        toast.error("Failed to fetch categories");
+      }
+    };
+    fetchCategories();
+  }, []);
+
   // Add Food
   const submitHandler = async (e) => {
     e.preventDefault();
-
-    if (!name || !price || !catagory || !image) {
+    if (!name || !price || !category || !image) {
       toast.warn("Please fill all fields and select an image");
       return;
     }
@@ -41,22 +55,20 @@ function FoodDataStorage() {
       const formData = new FormData();
       formData.append("name", name);
       formData.append("price", price);
-      formData.append("catagory", catagory); 
+      formData.append("catagory", category); // send id, not name
       formData.append("image", image);
 
-      const res = await axios.post(
-        `${baseURL}/api/v1/foods/add`,
-        formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
-      );
+      const res = await axios.post(`${baseURL}/api/v1/foods/add`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
       setEnterFoodData((prev) => [...prev, res.data]);
       toast.success(`${res.data.data.name} was added successfully`);
 
-      setName('');
+      setName("");
       setPrice("");
-      setCatagory("");
-      setImage('null');
+      setCategory("");
+      setImage(null);
       setModal(null);
     } catch (err) {
       console.log(err);
@@ -64,21 +76,9 @@ function FoodDataStorage() {
     }
   };
 
-  // Delete Food
-  const deleteFood = async (foodId) => {
-    try {
-      await axios.delete(`${baseURL}/api/v1/foods/delete/${foodId}`);
-      setEnterFoodData((prev) => prev.filter((food) => food._id !== foodId));
-      toast.success("Food deleted successfully");
-    } catch (err) {
-      console.log(err);
-      toast.error("Failed to delete food");
-    }
-  };
-
   // Update Food
   const updateFood = async () => {
-    if (!name || !price || !catagory) {
+    if (!name || !price || !category) {
       toast.warn("Please fill all fields");
       return;
     }
@@ -87,7 +87,7 @@ function FoodDataStorage() {
       const formData = new FormData();
       formData.append("name", name);
       formData.append("price", price);
-      formData.append("catagory", catagory);
+      formData.append("catagory", category); // send id
       if (image instanceof File) {
         formData.append("image", image);
       }
@@ -112,11 +112,22 @@ function FoodDataStorage() {
     }
   };
 
-  // Safe filter to avoid undefined name errors
+  // Delete Food
+  const deleteFood = async (foodId) => {
+    try {
+      await axios.delete(`${baseURL}/api/v1/foods/delete/${foodId}`);
+      setEnterFoodData((prev) => prev.filter((food) => food._id !== foodId));
+      toast.success("Food deleted successfully");
+    } catch (err) {
+      console.log(err);
+      toast.error("Failed to delete food");
+    }
+  };
+
   const filteredFoods = enterFoodData.filter(
     (food) => food.name && food.name.toLowerCase().includes(search.toLowerCase())
   );
-  console.log(filteredFoods);
+
   return (
     <div className="min-h-screen bg-gray-50 p-6 flex flex-col items-center space-y-8">
       <h1 className="text-4xl font-extrabold text-yellow-600 text-center">
@@ -138,6 +149,7 @@ function FoodDataStorage() {
         className="w-full max-w-4xl border-2 border-yellow-600 rounded-xl px-4 py-3 text-black focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
       />
 
+      {/* Food Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full max-w-5xl">
         {filteredFoods.map((food) => (
           <div
@@ -151,7 +163,7 @@ function FoodDataStorage() {
             />
             <h2 className="text-xl font-bold text-gray-800">{food.name}</h2>
             <span className="px-4 py-1 rounded-full bg-yellow-100 text-yellow-800 mt-2">
-              {food.catagory}
+              {food.catagory.name || food.catagory} {/* show category name */}
             </span>
             <p className="text-yellow-600 font-bold text-lg mt-2">${food.price}</p>
 
@@ -162,8 +174,8 @@ function FoodDataStorage() {
                   setSelectedFood(food);
                   setName(food.name);
                   setPrice(food.price);
-                  setCatagory(food.catagory);
-                  setImage(null); // reset image for editing
+                  setCategory(food.catagory._id || food.catagory);
+                  setImage(null);
                   setModal("edit");
                 }}
               />
@@ -188,107 +200,63 @@ function FoodDataStorage() {
               X
             </button>
 
-            {modal === "add" && (
-              <form onSubmit={submitHandler} className="space-y-4 text-black">
-                <h2 className="text-2xl font-bold text-yellow-600 text-center">
-                  Add Food
-                </h2>
+            <form
+              onSubmit={modal === "add" ? submitHandler : (e) => e.preventDefault()}
+              className="space-y-4 text-black"
+            >
+              <h2 className="text-2xl font-bold text-yellow-600 text-center">
+                {modal === "add" ? "Add Food" : "Edit Food"}
+              </h2>
 
+              <input
+                type="text"
+                placeholder="Food Name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="border-2 border-yellow-600 rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
+              />
+
+              <input
+                type="number"
+                placeholder="$Price"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                className="border-2 border-yellow-600 rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
+              />
+
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="border-2 border-yellow-600 rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
+              >
+                <option value="">Select Category</option>
+                {categories.map((cat) => (
+                  <option key={cat._id} value={cat._id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+
+              <label className="w-full border-2 border-dashed border-yellow-600 rounded-xl px-4 py-3 text-center cursor-pointer flex items-center justify-center hover:bg-yellow-50 transition">
+                <span className="font-semibold text-yellow-600">
+                  Upload Image
+                </span>
                 <input
-                  type="text"
-                  placeholder="Food Name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="border-2 border-yellow-600 rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
+                  type="file"
+                  accept="image/*"
+                  hidden
+                  onChange={(e) => setImage(e.target.files[0])}
                 />
+              </label>
 
-                <input
-                  type="number"
-                  placeholder="$Price"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  className="border-2 border-yellow-600 rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
-                />
-
-                <select
-                  value={catagory}
-                  onChange={(e) => setCatagory(e.target.value)}
-                  className="border-2 border-yellow-600 rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
-                >
-                  <option value="">Select Category</option>
-                  <option value="Breakfast">Breakfast</option>
-                  <option value="lunch">Lunch & Dinner</option>
-                  <option value="Drinks">Drinks</option>
-                </select>
-
-                <label className="w-full border-2 border-dashed border-yellow-600 rounded-xl px-4 py-3 text-center cursor-pointer flex items-center justify-center hover:bg-yellow-50 transition">
-                  <span className="font-semibold text-yellow-600">Upload Image</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    hidden
-                    onChange={(e) => setImage(e.target.files[0])}
-                  />
-                </label>
-
-                <button
-                  type="submit"
-                  className="bg-yellow-600 text-white font-bold py-3 rounded-xl w-full cursor-pointer hover:scale-105 transition"
-                >
-                  Add Food
-                </button>
-              </form>
-            )}
-
-            {modal === "edit" && selectedFood && (
-              <div className="space-y-4 text-black">
-                <h2 className="text-2xl font-bold text-yellow-600 text-center">
-                  Edit Food
-                </h2>
-
-                <input
-                  type="text"
-                  placeholder={selectedFood.name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="border-2 border-yellow-600 rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
-                />
-
-                <input
-                  type="number"
-                  placeholder={selectedFood.price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  className="border-2 border-yellow-600 rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
-                />
-
-                <select
-                  placeholder={selectedFood.catagory}
-                  onChange={(e) => setCatagory(e.target.value)}
-                  className="border-2 border-yellow-600 rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
-                >
-                  <option value="">Select Category</option>
-                  <option value="Breakfast">Breakfast</option>
-                  <option value="Lunch">Lunch & Dinner</option>
-                  <option value="Drinks">Drinks</option>
-                </select>
-
-                <label className="w-full border-2 border-dashed border-yellow-600 rounded-xl px-4 py-3 text-center cursor-pointer flex items-center justify-center hover:bg-yellow-50 transition">
-                  <span className="font-semibold text-yellow-600">Upload New Image</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    hidden
-                    onChange={(e) => setImage(e.target.files[0])}
-                  />
-                </label>
-
-                <button
-                  onClick={updateFood}
-                  className="bg-yellow-600 text-white font-bold py-3 rounded-xl w-full cursor-pointer hover:scale-105 transition"
-                >
-                  Update Food
-                </button>
-              </div>
-            )}
+              <button
+                onClick={modal === "edit" ? updateFood : null}
+                type={modal === "add" ? "submit" : "button"}
+                className="bg-yellow-600 text-white font-bold py-3 rounded-xl w-full cursor-pointer hover:scale-105 transition"
+              >
+                {modal === "add" ? "Add Food" : "Update Food"}
+              </button>
+            </form>
           </div>
         </div>
       )}
