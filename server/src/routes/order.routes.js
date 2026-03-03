@@ -7,7 +7,7 @@ import { authorizeRole } from '../middlewares/authorizeRole.middleware.js';
 const OrderRouter = express.Router();
 
 OrderRouter.get('/user', userAuthMiddleware, authorizeRole('user'), getOrders);
-OrderRouter.post('/add', orderValidation, validationMiddleware, addOrder);
+OrderRouter.post('/add', userAuthMiddleware,  orderValidation, validationMiddleware, addOrder);
 OrderRouter.delete('/delete/:orderId', userAuthMiddleware, authorizeRole('user'), deleteOrder);
 OrderRouter.put('/update/:orderId', updateOrder);
 OrderRouter.get('/all',  getAllOrders);

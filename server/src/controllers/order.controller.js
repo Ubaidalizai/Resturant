@@ -5,9 +5,9 @@ import { Food } from "../models/food.model.js";
 
 // Add new order
 export const addOrder = asyncHandler(async (req, res) => {
+    if (!req.user) return res.respond(401, "User not authenticated");
     const id = req.user.id;
     const { items, tableId } = req.body;
-
     if (!items || !items.length)
         return res.respond(400, "Order items are required");
 
@@ -37,7 +37,7 @@ export const addOrder = asyncHandler(async (req, res) => {
 
     // Create order
     const newOrder = await Order.create({
-        userId,
+        owner: id,
         items,
         tableId,
         amount: totalAmount,   // keep for reference if needed

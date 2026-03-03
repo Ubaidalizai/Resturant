@@ -1,6 +1,7 @@
 import axios from "axios";
 import TableSelector from "./TableSelector";
 import { baseURL } from "../../configs/baseURL.config";
+import {toast} from 'react-toastify';
 // fsaf
 function CartPanel({ cart, setCart, tables, selectedTable, setSelectedTable }) {
   const items = Object.values(cart);
@@ -11,42 +12,53 @@ function CartPanel({ cart, setCart, tables, selectedTable, setSelectedTable }) {
     delete copy[id];
     setCart(copy);
   };
+const confirmOrder = async () => {
+  if (!selectedTable) {
+    alert("Select a table first");
+    return;
+  }
 
-  const confirmOrder = async () => {
-    if (!selectedTable) {
-      alert("Select a table first");
-      return;
-    }
+  if (items.length === 0) {
+    alert("Add some food first");
+    return;
+  }
 
-    if (items.length === 0) {
-      alert("Add some food first");
-      return;
-    }
+  try {
+    // Map items to match backend
+    const orderItems = items.map(item => ({
+      foodId: item._id,
+      quantity: item.qty,
+    }));
 
-    try {
-      // 🔹 Map items to match backend validation
-      const orderItems = items.map(item => ({
-        foodId: item._id,
-        quantity: item.qty, // matches backend validation
-      }));
-
-      // 🔹 Post order to backend
-      const res = await axios.post(`${baseURL}/api/v1/orders/add`, {
+    // 🔹 Make axios POST with cookies
+    const res = await axios.post(
+      `${baseURL}/api/v1/orders/add`,
+      {
         tableId: selectedTable,
-        items: orderItems
-      });
-
-      console.log("Order added:", res.data);
-      alert("Order placed successfully!");
-
-      // 🔹 Clear cart and table selection
-      setCart({});
-      setSelectedTable("");
-    } catch (err) {
-      console.error("Error adding order:", err);
-      alert("Error placing order, try again.");
+        items: orderItems,
+      },
+      {
+        withCredentials: true, // send cookies
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    toast.success("Order placed successfully!");
+    // Clear cart & table
+    setCart({});
+    setSelectedTable("");
+  } catch (err) {
+    toast.error(err.response?.data || err.message);
+    if (err.response?.status === 401) {
+      toast.error("You are not logged in. Please login first.");
+    } else if (err.response?.data?.message) {
+      toast.error(err.response.data.message);
+    } else {
+      toast.error("Error placing order, try again.");
     }
-  };
+  }
+};
 
   return (
     <div className="sticky top-0 h-screen w-full md:w-80 bg-gray-50 shadow-xl p-6 flex flex-col">
