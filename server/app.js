@@ -5,7 +5,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import helmet from "helmet";
 import path from "path";
-
+// dotenv.config();
 // DB connection
 import { connectDB } from "./src/configs/db.config.js";
 
