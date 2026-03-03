@@ -21,6 +21,10 @@ const expensesSchema = new mongoose.Schema({
   note: {
     type: String,
   },
+  isDeleted: {
+    type: Boolean, 
+    default: false
+  }
 });
 
 

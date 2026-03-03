@@ -4,7 +4,6 @@ import './App.css';
 import BrekFast from './Components/BrekFast';
 import LunchAndDinner from './Components/LunchAndDinner';
 import Drinks from './Components/Drinks';
-import MenusPage from './Pages/MenusPage';
 import ProtectedRoute from './Admin/ProtectedRoute';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -14,6 +13,7 @@ import GarsonLogin from './Pages/GarsonsLogin';
 import KitchenPanel from './Kitchen/KitchenPanel';
 import axios from 'axios';
 import { baseURL } from './configs/baseURL.config';
+import GarsoonDashboard from './Pages/GarsoonDashboard';
 
 export const ItemsContext = createContext();
 
@@ -73,7 +73,9 @@ function App() {
         <Route path='/lunch' element={<LunchAndDinner />} />
         <Route path='/drinks' element={<Drinks />} />
         
-        <Route path='/menus' element={isAuth ? <MenusPage /> : <Navigate to='/' />} />
+        <Route path='/menus' element={isAuth ? <GarsoonDashboard /> : <Navigate to='/' />} />
+
+        
         <Route path='/kitchen' element={isAuth ? <KitchenPanel /> : <Navigate to='/' />} />
 
         <Route

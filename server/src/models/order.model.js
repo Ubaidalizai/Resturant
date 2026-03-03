@@ -1,21 +1,25 @@
 import mongoose from "mongoose";
 const orderSchema = new mongoose.Schema(
   {
-    userId: {
+    owner: {
       type: mongoose.Types.ObjectId,
       ref: "User",
+      required: true
     },
     items: [
       {
-        food: String,
         foodId: { type: mongoose.Types.ObjectId, ref: "Food" },
+        quantity: { type: Number, default: 1 },
       },
     ],
-    quantity: { type: Number, required: true },
     amount: { type: Number, required: true },
     tableId: {
       type: mongoose.Types.ObjectId,
       ref: "Table",
+    },
+    totalAmount: {
+      type: Number, 
+      default: 0
     },
     isPaid: {
       type: Boolean,

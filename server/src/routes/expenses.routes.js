@@ -5,7 +5,7 @@ import { validationMiddleware } from '../middlewares/validationsHandler.utils.js
 const expensesRouter = express.Router();
 expensesRouter.post('/add', expensesValidations, validationMiddleware,  addExpense);
 expensesRouter.get('/all', getAllExpenses);
-expensesRouter.put('/update/:id', updateExpense);
+expensesRouter.put('/update/:id', expensesValidations, validationMiddleware, updateExpense);
 expensesRouter.delete('/delete/:id', deleteExpense);
 expensesRouter.get('/report', getExpensesByDateRange);
 expensesRouter.get('/id', getExpensesByCatagory);

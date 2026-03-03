@@ -346,8 +346,8 @@ function Management() {
                 value={newItem.role}
                 onChange={(e) => setNewItem({ ...newItem, role: e.target.value })}>
                 <option value="">Select Role</option>
-                <option value="garson">Garson</option>
-                <option value="chef">Chef</option>
+                <option value="user">Garson</option>
+                <option value="chef">Chef</option >
                 <option value="admin">Admin</option>
               </select>
 

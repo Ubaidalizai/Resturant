@@ -21,7 +21,7 @@ export const registerValidations = [
     .withMessage("Password must be between 8 and 100 characters"),
 
   body("role")
-    .optional()
+    .notEmpty().withMessage("Role is required")
     .isIn(["user", "chef", "admin"])
     .withMessage("Invalid role selected")
 ];

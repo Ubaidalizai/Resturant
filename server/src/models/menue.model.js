@@ -8,6 +8,10 @@ export const menueSchema = new mongoose.Schema({
     catagory: {
         type: String, 
         required: true
+    },
+    isDeleted: {
+        type: Boolean, 
+        default: false
     }
 }, {timestamps: true});
 
