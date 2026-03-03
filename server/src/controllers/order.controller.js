@@ -3,49 +3,44 @@ import { Order } from "../models/order.model.js";
 import { Table } from "../models/table.model.js";
 import { Food } from "../models/food.model.js";
 
-// Add new order
 export const addOrder = asyncHandler(async (req, res) => {
-    if (!req.user) return res.respond(401, "User not authenticated");
-    const id = req.user.id;
-    const { items, tableId } = req.body;
-    if (!items || !items.length)
-        return res.respond(400, "Order items are required");
+  if (!req.user) return res.respond(401, "User not authenticated");
+  const id = req.user.id;
+  const { items, tableId } = req.body;
 
-    // Check table exists
-    const table = await Table.findOne({ _id: tableId, isDeleted: false });
-    if (!table) return res.respond(404, "Table not found");
-    if (table.isOccupied) return res.respond(400, "Table is already occupied");
+  if (!items || !items.length)
+    return res.respond(400, "Order items are required");
 
-    // Fetch food prices
-    const foodIds = items.map(item => item.foodId);
-    const foods = await Food.find({ _id: { $in: foodIds } }).select("price");
+  // Check table exists
+  const table = await Table.findOne({ _id: tableId, isDeleted: false });
+  if (!table) return res.respond(404, "Table not found");
 
-    const foodMap = {};
-    foods.forEach(food => { foodMap[food._id] = food.price });
+  // Fetch food prices
+  const foodIds = items.map(item => item.foodId);
+  const foods = await Food.find({ _id: { $in: foodIds } }).select("price");
 
-    // Calculate totalAmount
-    let totalAmount = 0;
-    for (const item of items) {
-        const price = foodMap[item.foodId];
-        if (!price) return res.respond(400, "Invalid food item");
-        totalAmount += price * item.quantity;
-    }
+  const foodMap = {};
+  foods.forEach(food => { foodMap[food._id] = food.price });
 
-    // Mark table as occupied
-    table.isOccupied = true;
-    await table.save();
+  // Calculate totalAmount
+  let totalAmount = 0;
+  for (const item of items) {
+    const price = foodMap[item.foodId];
+    if (!price) return res.respond(400, "Invalid food item");
+    totalAmount += price * item.quantity;
+  }
 
-    // Create order
-    const newOrder = await Order.create({
-        owner: id,
-        items,
-        tableId,
-        amount: totalAmount,   // keep for reference if needed
-        totalAmount,           // this is now correctly stored
-        isPaid: false
-    });
+  // Create order (removed isOccupied logic)
+  const newOrder = await Order.create({
+    owner: id,
+    items,
+    tableId,
+    amount: totalAmount,   // keep for reference if needed
+    totalAmount,
+    isPaid: false
+  });
 
-    res.respond(201, "Order placed successfully", newOrder);
+  res.respond(201, "Order placed successfully", newOrder);
 });
 
 // Get all unpaid orders for user
