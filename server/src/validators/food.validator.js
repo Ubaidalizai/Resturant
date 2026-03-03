@@ -9,9 +9,7 @@ export const foodValidation = [
   body("catagory")
     .trim()
     .notEmpty()
-    .withMessage("Food category is required")
-    .isMongoId()
-    .withMessage("Invalid category ID"),
+    .withMessage("Food category is required"),
 
   body("price")
     .notEmpty()

@@ -11,14 +11,14 @@ export const createExpensesCatagory = asyncHandler(async(req, res)=>{
 
 // Get all expenses catagories
 export const getAllExpensesCatagories = asyncHandler(async(req, res)=>{
-    const catagories = await ExpensesCatagroy.find({isDeleted: false}, {isDeleted:0});
+    const catagories = await ExpensesCatagroy.find();
     res.respond(200, "Expenses catagories retrieved successfully", catagories);
 });
 
 // Get single expenses catagory
 export const getSingleExpensesCatagory = asyncHandler(async(req, res)=>{
     const { id } = req.params;
-    const catagory = await ExpensesCatagroy.findOne({_id: id, isDeleted: false}, {isDeleted: 0});
+    const catagory = await ExpensesCatagroy.findById(id);
     if (!catagory) {
         return res.respond(404, "Expenses catagory not found");
     }
@@ -31,27 +31,19 @@ export const updateExpensesCatagory = asyncHandler(async(req, res)=>{
     const { name, description } = req.body;
     const catagory = await ExpensesCatagroy.findById(id);
     if(!catagory)return next(new ErrorHandler(400, "Expenses catagory not found"));
-    const updatedCatagory = await ExpensesCatagroy.findByIdAndUpdate(id, { name, description }).select(['name', 'description']);
+    const updatedCatagory = await ExpensesCatagroy.findByIdAndUpdate(id, { name, description });
     if (!updatedCatagory) {
         return res.respond(404, "Expenses catagory not found");
     }
     res.respond(200, "Expenses catagory updated successfully", updatedCatagory);
 });
 
-// Delete expenses category (Soft Delete)
-export const deleteExpensesCatagory = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const categoryFound = await ExpensesCatagroy.findOne({
-    _id: id,
-    isDeleted: false,
-  });
-  if (!categoryFound) {
-    return res.respond(404, "Category not found or already deleted");
-  }
-  const deletedCategory = await ExpensesCatagroy.findByIdAndUpdate(
-    id,
-    { isDeleted: true },
-    { new: true }
-  );
-  res.respond(200, "Expenses category deleted successfully", deletedCategory);
+// Delete expenses catagory
+export const deleteExpensesCatagory = asyncHandler(async(req, res)=>{
+    const { id } = req.params;
+    const deletedCatagory = await ExpensesCatagroy.findByIdAndDelete(id);
+    if (!deletedCatagory) {
+        return res.respond(404, "Expenses catagory not found");
+    }
+    res.respond(200, "Expenses catagory deleted successfully");
 });

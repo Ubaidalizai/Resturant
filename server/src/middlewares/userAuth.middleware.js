@@ -10,8 +10,7 @@ export const userAuthMiddleware = async (req, res, next) => {
   if (accessToken) {
     try {
         const payload = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
-        const userFound = await User.findById(payload.id);
-        req.user = userFound;
+        req.userId = payload.id;
         return next();
     } catch (error) {
         // Check the refresh token
@@ -20,6 +19,7 @@ export const userAuthMiddleware = async (req, res, next) => {
   // Check refresh token in DB
   const users = await User.find({});
   const userFound = await User.findOne({ refreshToken });
+  console.log(userFound);
   if (!userFound) return next(new ErrorHanlder(401, "Invalid Token...."));
   // Validate the refresh token
   try {
@@ -28,9 +28,8 @@ export const userAuthMiddleware = async (req, res, next) => {
       return next(new ErrorHanlder(401, "Invalid token.."));
     const newAccessToken = generateAccessToken(userFound.id); // Generate new access token
     sentTokenToClient('accessToken', newAccessToken, res);
-    req.user = userFound;
+    req.userId = userFound.id;
     next();  } catch (error) {
     return next(new ErrorHanlder(401, 'Invalid or expire token'));
   }
 };
-

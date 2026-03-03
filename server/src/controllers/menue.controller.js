@@ -8,34 +8,23 @@ export const addMenue = asyncHandler(async (req, res) => {
 });
 // Get all menues
 export const getMenues = asyncHandler(async (req, res) => {
-  const menues = await Menue.find({isDeleted: false});
+  const menues = await Menue.find({});
   res.respond(200, "Menues fetched successfully", menues);
 });
 
 // Delete menue
 export const deleteMenue = asyncHandler(async (req, res) => {
   const { menueId } = req.params;
-  await Menue.findByIdAndUpdate(menueId, {isDeleted: true});
+  await Menue.findByIdAndDelete(menueId);
   res.respond(200, "Menue deleted successfully");
 });
 
 // Update the menue
 export const updateMenue = asyncHandler(async (req, res) => {
-  const { menuId } = req.params;
-  const { name, category } = req.body;
-
-  const menuFound = await Menue.findById(menuId);
-  if (!menuFound) {
-    return res.respond(404, "Menue not found");
-  }
-
-  const updatedMenu = await Menue.findByIdAndUpdate(
-    menuId,
-    { name, category },
-    { new: true, runValidators: true }
-  );
-
-  console.log(updatedMenu);
-
-  res.respond(200, "Menue updated successfully", updatedMenu);
+  const { menueId } = req.params;
+  const { name, catagory } = req.body;
+  const updatedMenue = await Menue.findByIdAndUpdate(
+    menueId,
+    { name, catagory });
+  res.respond(200, "Menue updated successfully", updatedMenue);
 });

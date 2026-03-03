@@ -3,31 +3,23 @@ import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { AiOutlineDelete } from "react-icons/ai";
 
-
 function LunchAndDinner() {
   const [foods, setFoods] = useState([]);
   const [quantities, setQuantities] = useState({});
   const [cart, setCart] = useState({});
   const [table, setTable] = useState("");
-
   const [showOrderModal, setShowOrderModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editTableLocked, setEditTableLocked] = useState(false);
 
-  
   useEffect(() => {
     const data = localStorage.getItem("FoodData");
     if (data) setFoods(JSON.parse(data));
   }, []);
 
- 
-  const increase = (id) =>
-    setQuantities((p) => ({ ...p, [id]: (p[id] || 1) + 1 }));
+  const increase = (id) => setQuantities((p) => ({ ...p, [id]: (p[id] || 1) + 1 }));
+  const decrease = (id) => setQuantities((p) => ({ ...p, [id]: Math.max(1, (p[id] || 1) - 1) }));
 
-  const decrease = (id) =>
-    setQuantities((p) => ({ ...p, [id]: Math.max(1, (p[id] || 1) - 1) }));
-
- 
   const toggleCart = (food) => {
     const qty = quantities[food.id] || 1;
     setCart((p) => {
@@ -40,7 +32,6 @@ function LunchAndDinner() {
     });
   };
 
-
   const deleteItem = (id) => {
     setCart((p) => {
       const copy = { ...p };
@@ -49,21 +40,13 @@ function LunchAndDinner() {
     });
   };
 
-  
   const openOrderModal = () => {
-    if (!Object.keys(cart).length) {
-      toast.error("No food added");
-      return;
-    }
+    if (!Object.keys(cart).length) return toast.error("No food added");
     setShowOrderModal(true);
   };
 
-
   const confirmOrder = () => {
-    if (!table) {
-      toast.error("Select table number");
-      return;
-    }
+    if (!table) return toast.error("Select table number");
 
     const items = Object.values(cart).map((i) => ({
       id: i.id,
@@ -74,14 +57,10 @@ function LunchAndDinner() {
       total: i.price * i.qty,
     }));
 
-    if (!items.length) {
-      toast.error("No items in cart");
-      return;
-    }
+    if (!items.length) return toast.error("No items in cart");
 
     let orders = JSON.parse(localStorage.getItem("Orders")) || [];
 
-   
     const newOrder = {
       id: Date.now(),
       date: new Date().toLocaleDateString(),
@@ -91,7 +70,6 @@ function LunchAndDinner() {
     };
 
     orders.push(newOrder);
-
     localStorage.setItem("Orders", JSON.stringify(orders));
     toast.success("Order placed ✅");
 
@@ -100,7 +78,6 @@ function LunchAndDinner() {
     setTable("");
     setShowOrderModal(false);
   };
-
 
   const openEditOrder = () => {
     if (!editTableLocked) {
@@ -111,17 +88,11 @@ function LunchAndDinner() {
     setShowEditModal(true);
   };
 
-
   const handleTableSelectEdit = (t) => {
     setTable(t);
-
     const orders = JSON.parse(localStorage.getItem("Orders")) || [];
     const found = orders.find((o) => o.table === t);
-
-    if (!found) {
-      toast.error("No order found for this table");
-      return;
-    }
+    if (!found) return toast.error("No order found for this table");
 
     const newCart = {};
     const newQty = {};
@@ -135,12 +106,8 @@ function LunchAndDinner() {
     setEditTableLocked(true);
   };
 
- 
   const updateOrder = () => {
-    if (!table) {
-      toast.error("Select table number");
-      return;
-    }
+    if (!table) return toast.error("Select table number");
 
     const items = Object.values(cart).map((i) => ({
       id: i.id,
@@ -151,10 +118,7 @@ function LunchAndDinner() {
       total: i.price * i.qty,
     }));
 
-    if (!items.length) {
-      toast.error("No items in cart");
-      return;
-    }
+    if (!items.length) return toast.error("No items in cart");
 
     let orders = JSON.parse(localStorage.getItem("Orders")) || [];
     const index = orders.findIndex((o) => o.table === table && o.id === cart[Object.keys(cart)[0]].id);
@@ -180,56 +144,45 @@ function LunchAndDinner() {
     setShowEditModal(false);
   };
 
-  const lunchAndDinnerFoods = foods.filter(f => f.category === "Lunch & Dinner");
+  const lunchAndDinnerFoods = foods.filter(f => f.category === "Lunch" || f.category === "Dinner");
   const grandTotal = Object.values(cart).reduce((s, i) => s + i.price * i.qty, 0);
 
   return (
-   <div className="min-h-screen bg-gray-100 px-4 pb-10">
+    <div className="min-h-screen bg-gray-100 px-4 pb-10">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-6">
+        <Link to="/" className="text-3xl sm:text-4xl md:text-5xl font-bold text-yellow-600">Lunch & Dinner</Link>
 
-      {/* Header */}
-  
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-6">
-       
         <div className="flex items-center gap-4">
-          <Link to="/menus" className="text-black flex items-center gap-2 px-4 py-2 rounded-xl   border border-gray-300 bg-white hover:bg-gray-100 transition shadow-sm font-semibold"> Back </Link> 
-          <Link to="/" className="text-3xl sm:text-4xl font-bold text-yellow-600"> Lunch & Dinner </Link>
-        </div>
+          <select value={table} onChange={(e) => setTable(e.target.value)} className="px-4 py-2 rounded-xl text-white bg-yellow-600">
+            <option value="">Select Table</option>
+            {[1,2,3,4,5,6].map((t) => <option key={t} value={t}>Table {t}</option>)}
+          </select>
 
-        <div className="flex gap-4">
-          {/* Order Button */}
-          <button
-            onClick={openOrderModal}
-            className="bg-yellow-600 text-white px-6 py-3 rounded-xl font-bold"
-          >
+          <button onClick={openOrderModal} className="bg-yellow-600 text-white px-6 py-3 rounded-xl font-bold">
             Order ({Object.keys(cart).length})
           </button>
 
-          {/* Edit Button */}
-          <button
-            onClick={openEditOrder}
-            className="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold"
-          >
-            Order Edit
+          <button onClick={openEditOrder} className="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold">
+            Edit Order
           </button>
         </div>
       </div>
 
-      {/* Food Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
         {lunchAndDinnerFoods.map((food) => (
-          <div key={food.id} className="bg-white rounded-xl p-4 shadow">
-            <img src={food.image} alt={food.name} className="h-40 w-full object-cover rounded-lg border-[2.5px] border-yellow-600 border-dotted" />
-            <h2 className="font-semibold text-black">{food.name}</h2>
-            <p className="text-yellow-600">${food.price}</p>
+          <div key={food.id} className="bg-white rounded-xl p-4 flex flex-col gap-4 shadow hover:shadow-lg">
+            <img src={food.image} alt={food.name} className="h-40 w-full object-cover rounded-lg border border-dashed border-yellow-600"/>
+            <h2 className="font-semibold text-gray-800">{food.name}</h2>
+            <p className="text-yellow-600 font-medium">${food.price}</p>
 
-            <div className="flex justify-between items-center">
-              <div className="flex gap-3">
-                <button className="w-8 h-8 border rounded border-yellow-500 text-yellow-600" onClick={() => decrease(food.id)}>−</button>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <button onClick={() => decrease(food.id)} className="w-8 h-8 border rounded border-yellow-500 text-yellow-600">−</button>
                 <span className="text-yellow-600">{quantities[food.id] || 1}</span>
-                <button className="w-8 h-8 border rounded border-yellow-500 text-yellow-600" onClick={() => increase(food.id)}>+</button>
+                <button onClick={() => increase(food.id)} className="w-8 h-8 border rounded border-yellow-500 text-yellow-600">+</button>
               </div>
 
-              <button className="bg-green-500 text-white px-4 py-2 rounded font-semibold text-sm" onClick={() => toggleCart(food)}>
+              <button onClick={() => toggleCart(food)} className={`px-4 py-2 rounded font-semibold text-sm ${cart[food.id] ? "bg-green-500 text-white" : "bg-yellow-600 text-white"}`}>
                 {cart[food.id] ? "Added ✓" : "Add"}
               </button>
             </div>
@@ -237,13 +190,12 @@ function LunchAndDinner() {
         ))}
       </div>
 
-      {/*ORDER MODAL*/}
+      {/* Order Modal */}
       {showOrderModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 w-[90%] max-w-4xl shadow-xl">
             <h2 className="text-2xl font-bold text-yellow-600 mb-4">Order Details</h2>
 
-            {/* Table of Selected Foods */}
             <table className="w-full border text-black">
               <thead className="bg-yellow-100">
                 <tr>
@@ -255,7 +207,7 @@ function LunchAndDinner() {
                 </tr>
               </thead>
               <tbody>
-                {Object.values(cart).map((item) => (
+                {Object.values(cart).map(item => (
                   <tr key={item.id} className="text-center border-t">
                     <td className="p-2">{item.name}</td>
                     <td className="p-2">${item.price}</td>
@@ -271,18 +223,14 @@ function LunchAndDinner() {
               </tbody>
             </table>
 
-            {/* Grand Total */}
-            <div className="flex justify-end items-center mt-4">
+            <div className="flex justify-end mt-4">
               <h3 className="font-bold text-lg text-red-600">Grand Total: ${grandTotal}</h3>
             </div>
 
-            {/* Table Selection & Buttons */}
             <div className="flex justify-between items-center mt-6 gap-4">
               <select value={table} onChange={(e) => setTable(e.target.value)} className="px-4 py-2 rounded-xl bg-yellow-600 text-white font-semibold">
                 <option value="">Select Table</option>
-                {[1, 2, 3, 4, 5, 6].map((t) => (
-                  <option key={t} value={String(t)}>Table {t}</option>
-                ))}
+                {[1,2,3,4,5,6].map(t => <option key={t} value={t}>Table {t}</option>)}
               </select>
 
               <div className="flex gap-4">
@@ -290,32 +238,26 @@ function LunchAndDinner() {
                   <AiOutlineDelete /> Cancel
                 </button>
 
-                <button onClick={confirmOrder} className="bg-green-600 text-white px-6 py-2 rounded-xl">
-                  Confirm Order
-                </button>
+                <button onClick={confirmOrder} className="bg-green-600 text-white px-6 py-2 rounded-xl">Confirm Order</button>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {/*EDIT MODAL*/}
+      {/* Edit Modal */}
       {showEditModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 w-[90%] max-w-4xl shadow-xl">
             <h2 className="text-2xl font-bold text-yellow-600 mb-4">Edit Order</h2>
 
-            {/* Table Selection if not locked */}
             {!editTableLocked && (
               <select value={table} onChange={(e) => handleTableSelectEdit(e.target.value)} className="mb-4 px-4 py-2 rounded-xl bg-yellow-600 text-white font-semibold">
                 <option value="">Select Table</option>
-                {[1, 2, 3, 4, 5, 6].map((t) => (
-                  <option key={t} value={String(t)}>Table {t}</option>
-                ))}
+                {[1,2,3,4,5,6].map(t => <option key={t} value={t}>Table {t}</option>)}
               </select>
             )}
 
-            {/* Table of Foods */}
             <table className="w-full border text-black">
               <thead className="bg-yellow-100">
                 <tr>
@@ -327,7 +269,7 @@ function LunchAndDinner() {
                 </tr>
               </thead>
               <tbody>
-                {Object.values(cart).map((item) => (
+                {Object.values(cart).map(item => (
                   <tr key={item.id} className="text-center border-t">
                     <td className="p-2">{item.name}</td>
                     <td className="p-2">${item.price}</td>
@@ -343,27 +285,20 @@ function LunchAndDinner() {
               </tbody>
             </table>
 
-            {/* Grand Total */}
-            <div className="flex justify-end items-center mt-4">
+            <div className="flex justify-end mt-4">
               <h3 className="font-bold text-lg text-red-600">Grand Total: ${grandTotal}</h3>
             </div>
 
-            {/* Buttons */}
             <div className="flex justify-end gap-4 mt-6">
-              <button onClick={() => setShowEditModal(false)} className="bg-yellow-600 text-white px-4 py-2 rounded-xl">
-                Foods
-              </button>
-
-              <button onClick={updateOrder} className="bg-green-600 text-white px-6 py-2 rounded-xl">
-                Update
-              </button>
+              <button onClick={() => setShowEditModal(false)} className="bg-yellow-600 text-white px-4 py-2 rounded-xl">Foods</button>
+              <button onClick={updateOrder} className="bg-green-600 text-white px-6 py-2 rounded-xl">Update</button>
             </div>
           </div>
         </div>
       )}
+
     </div>
   );
 }
-
 
 export default LunchAndDinner;

@@ -1,9 +1,14 @@
 import express from "express";
-import { getRevenue } from "../controllers/revenue.controller.js";
+import {
+  getTodayRevenue,
+  getLastWeekRevenue,
+  getMonthlyRevenue,
+} from "../controllers/revenue.controller.js";
 
 const revenueRouter = express.Router();
 
-// Single unified route
-revenueRouter.get("/", getRevenue);
+revenueRouter.get("/today", getTodayRevenue);
+revenueRouter.get("/last-week", getLastWeekRevenue);
+revenueRouter.get("/monthly", getMonthlyRevenue);
 
 export default revenueRouter;
