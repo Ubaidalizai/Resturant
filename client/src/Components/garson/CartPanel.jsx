@@ -1,7 +1,7 @@
 import axios from "axios";
 import TableSelector from "./TableSelector";
 import { baseURL } from "../../configs/baseURL.config";
-
+// fsaf
 function CartPanel({ cart, setCart, tables, selectedTable, setSelectedTable }) {
   const items = Object.values(cart);
   const grandTotal = items.reduce((sum, item) => sum + item.price * item.qty, 0);
