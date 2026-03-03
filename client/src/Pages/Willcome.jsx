@@ -11,7 +11,7 @@ function Welcome() {
     setLoading(true);
 
     setTimeout(() => {
-      navigate("/garson-login");
+      navigate("/menus");
     }, 2000); 
   };
 

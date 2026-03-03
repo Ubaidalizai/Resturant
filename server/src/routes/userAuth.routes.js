@@ -6,18 +6,20 @@ import {
   verifyUser,
 } from "../controllers/userAuth.controller.js";
 import { validationMiddleware } from "../middlewares/validationsHandler.utils.js";
-import { loginValidations, registerValidations } from "../validators/userAuth.validator.js";
+import { registerValidations } from "../validators/userAuth.validator.js";
 import { userAuthMiddleware } from "../middlewares/userAuth.middleware.js";
+import { upload } from "../configs/multer.config.js";
 
 const userAuthRouter = express.Router();
 
 userAuthRouter.post(
   "/register",
+  upload.single('image'),
   registerValidations,
   validationMiddleware,
   registerUser,
 );
 userAuthRouter.get("/verify", userAuthMiddleware, verifyUser);
-userAuthRouter.post("/login", loginValidations, validationMiddleware, loginUser);
+userAuthRouter.post("/login", loginUser);
 userAuthRouter.get("/logout", userAuthMiddleware, logoutUser);
 export default userAuthRouter;

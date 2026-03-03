@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { AiOutlineDelete } from "react-icons/ai";
-import axios from "axios";
 
 function Drinks() {
  const [foods, setFoods] = useState([]);
@@ -16,30 +15,9 @@ function Drinks() {
 
   
   useEffect(() => {
-  const fetchFoods = async () => {
-    try {
-      const res = await axios.get(`${baseURL}/api/v1/foods/all`);
-
-    
-      const allFoods = res.data.data || [];
-
-     
-      const formattedFoods = allFoods.map((f) => ({
-        ...f,
-        id: f._id,
-      }));
-
-      setFoods(formattedFoods);
-
-      console.log(formattedFoods);
-    } catch (err) {
-      console.log(err.message);
-      toast.error("Failed to fetch foods");
-    }
-  };
-
-  fetchFoods();
-}, []);
+    const data = localStorage.getItem("FoodData");
+    if (data) setFoods(JSON.parse(data));
+  }, []);
 
  
   const increase = (id) =>
@@ -202,10 +180,8 @@ function Drinks() {
   };
 
   const grandTotal = Object.values(cart).reduce((s, i) => s + i.price * i.qty, 0);
+  const drinks = foods.filter((food) => food.category === "Drinks");
 
-const drinks = foods.filter(
-  (f) => f.catagory?.toLowerCase() === "drinks"
-);
   return (
     <div className="min-h-screen bg-gray-100 px-4 pb-10">
 
