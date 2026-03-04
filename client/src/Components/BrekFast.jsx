@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { AiOutlineDelete } from "react-icons/ai";
 import axios from "axios";
+import { baseURL } from "../configs/baseURL.config";
+
 
 
 function BrekFast() {
@@ -44,7 +46,7 @@ function BrekFast() {
 }, []);
 
 
-  // ✅ Fetch Tables (نوې برخه)
+  
   useEffect(() => {
     const fetchTables = async () => {
       try {
