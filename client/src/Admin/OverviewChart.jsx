@@ -107,6 +107,7 @@ function OverviewChart() {
           <XAxis dataKey="date" tick={{ fontSize: 12 }} />
           <YAxis tickFormatter={(value) => `$${value.toLocaleString()}`} />
           <Tooltip formatter={tooltipFormatter} />
+          {/* df */}
           <Line
             type="monotone"
             dataKey="revenue"
