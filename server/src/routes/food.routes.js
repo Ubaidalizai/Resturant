@@ -9,7 +9,7 @@ import { userAuthMiddleware } from '../middlewares/userAuth.middleware.js';
 FoodRouter.post('/add',upload.single('image'), foodValidation, validationMiddleware,  addFood);
 FoodRouter.get('/all', getFoods);
 FoodRouter.get('/menu/:menuId', getMenueFoods);
-FoodRouter.delete('/delete/:productId', userAuthMiddleware,  deleteFood);
+FoodRouter.delete('/delete/:productId',  deleteFood);
 FoodRouter.put('/update/:productId', upload.single('image'), foodValidation, validationMiddleware, updateFood);
 FoodRouter.get("/sales", getFoodBySales);
 
