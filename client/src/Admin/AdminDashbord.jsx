@@ -9,6 +9,8 @@ import Logo from'../images/logo.jpg';
 import OverviewChart from "./OverviewChart";
 import AdminPanel from './AdminPanel'
 import Expenses from "./Expenses";
+import axios from "axios";
+import { baseURL } from "../configs/baseURL.config";
 
 function AdminDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -20,50 +22,38 @@ function AdminDashboard() {
   const [monthOrders, setMonthOrders] = useState([]);
 
   useEffect(() => {
-    const data = localStorage.getItem("Orders");
-
-    if (data) {
-      const parsedOrders = JSON.parse(data);
-      setOrders(parsedOrders);
-
-      const today = new Date();
-
-      
-      const lastWeek = new Date();
-      lastWeek.setDate(today.getDate() - 7);
-
-      const lastMonth = new Date();
-      lastMonth.setDate(today.getDate() - 30);
-
-      const toDate = (d) => new Date(d);
-
-      
-      const todayList = parsedOrders.filter(order =>
-        toDate(order.date).toDateString() === today.toDateString()
-      );
-
-      
-      const weekList = parsedOrders.filter(order =>
-        toDate(order.date) >= lastWeek
-      );
-
-      
-      const monthList = parsedOrders.filter(order =>
-        toDate(order.date) >= lastMonth
-      );
-
-      setTodayOrders(todayList);
-      setWeekOrders(weekList);
-      setMonthOrders(monthList);
-
-    
-      const total = todayList.reduce(
-        (sum, order) => sum + Number(order.orderTotal || 0),
-        0
-      );
-
-      setTodayRevenue(total);
-    }
+    // Fetch today's orders
+    axios.get(`${baseURL}/api/v1/orders/count/daily`)
+      .then(response => {
+        setTodayOrders(response.data.data.count);
+      })
+      .catch(error => {
+        console.error("Error fetching today's orders:", error);
+      });
+      // Fetcht weekly today  
+      axios.get(`${baseURL}/api/v1/orders/count/weekly`)
+      .then(response => {
+        setWeekOrders(response.data.data.count);
+      })
+      .catch(error => {
+        console.error("Error fetching this week's orders:", error);
+      });
+      // Fetch monthly orders
+      axios.get(`${baseURL}/api/v1/orders/count/monthly`)
+      .then(response => {
+        setMonthOrders(response.data.data.count);
+      })
+      .catch(error => {
+        console.error("Error fetching this month's orders:", error);
+      });
+      // Fetch today's revenue
+      axios.get(`${baseURL}/api/v1/revenue/daily`)
+      .then(response => {
+        setTodayRevenue(response.data.data.revenue);
+      })
+      .catch(error => {
+        console.error("Error fetching today's revenue:", error);
+      });
   }, []);
 
   return (
@@ -144,18 +134,18 @@ function AdminDashboard() {
 
               <div className="col-span-4 flex flex-row w-full justify-center space-x-[30px]">
                 <div className="bg-white rounded-3xl shadow-2xl p-6 flex flex-col items-center hover:scale-105 transition-transform">
-                  <h3 className="text-gray-500 font-semibold">Last Monthe Orders</h3>
-                  <p className="text-yellow-600 text-3xl font-bold mt-2">{monthOrders.length}</p>
+                  <h3 className="text-gray-500 font-semibold">Last Month Orders</h3>
+                  <p className="text-yellow-600 text-3xl font-bold mt-2">{monthOrders}</p>
                 </div>
 
                 <div className="bg-white rounded-3xl shadow-2xl p-6 flex flex-col items-center hover:scale-105 transition-transform">
                   <h3 className="text-gray-500 font-semibold">Last Week Orders</h3>
-                  <p className="text-yellow-600 text-3xl font-bold mt-2">{weekOrders.length}</p>
+                  <p className="text-yellow-600 text-3xl font-bold mt-2">{weekOrders}</p>
                 </div>
 
                 <div className="bg-white rounded-3xl shadow-2xl p-6 flex flex-col items-center hover:scale-105 transition-transform">
                   <h3 className="text-gray-500 font-semibold">Today Orders</h3>
-                  <p className="text-yellow-600 text-3xl font-bold mt-2">{todayOrders.length}</p>
+                  <p className="text-yellow-600 text-3xl font-bold mt-2">{todayOrders}</p>
                 </div>
 
                 <div className="bg-white rounded-3xl shadow-2xl p-6 flex flex-col items-center hover:scale-105 transition-transform">
@@ -165,7 +155,7 @@ function AdminDashboard() {
                   </p>
                 </div>
               </div>
-
+              {/* Filter */}
               <div className="md:col-span-2 lg:col-span-4">
                 <OverviewChart />
               </div>

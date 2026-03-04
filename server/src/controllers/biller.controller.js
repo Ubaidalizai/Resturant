@@ -5,7 +5,7 @@ import { asyncHandler } from "../utils/asyncHandler.util.js";
 
 export const generateAndPayBillByOrder = asyncHandler(async (req, res) => {
   const { orderId } = req.params;
-
+// d
   if (!orderId) return res.respond(400, "Order ID is required");
 
   // Find the order

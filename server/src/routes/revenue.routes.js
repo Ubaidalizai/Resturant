@@ -4,6 +4,6 @@ import { getRevenue } from "../controllers/revenue.controller.js";
 const revenueRouter = express.Router();
 
 // Single unified route
-revenueRouter.get("/", getRevenue);
+revenueRouter.get("/:type", getRevenue);
 
 export default revenueRouter;
