@@ -118,18 +118,44 @@ export const updateOrder = asyncHandler(async (req, res) => {
     res.respond(200, "Order updated successfully", updatedOrder);
 });
 
-// Get today's orders count
-export const todayOrderCounts = asyncHandler(async (req, res) => {
-    const startOfToday = new Date();
-    startOfToday.setHours(0, 0, 0, 0);
+// Get orders count by type (daily, weekly, monthly)
+export const orderCounts = asyncHandler(async (req, res) => {
+    const { type } = req.params;
 
-    const endOfToday = new Date();
-    endOfToday.setHours(23, 59, 59, 999);
+    let startDate = new Date();
+    let endDate = new Date();
 
-    const todaysOrderCount = await Order.countDocuments({
-        createdAt: { $gte: startOfToday, $lte: endOfToday },
+    if (type === "daily") {
+        startDate.setHours(0, 0, 0, 0);
+        endDate.setHours(23, 59, 59, 999);
+    }
+
+    else if (type === "weekly") {
+        const currentDay = startDate.getDay(); // 0-6
+        const diff = startDate.getDate() - currentDay;
+
+        startDate = new Date(startDate.setDate(diff));
+        startDate.setHours(0, 0, 0, 0);
+
+        endDate = new Date(startDate);
+        endDate.setDate(startDate.getDate() + 6);
+        endDate.setHours(23, 59, 59, 999);
+    }
+
+    else if (type === "monthly") {
+        startDate = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+        endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0);
+        endDate.setHours(23, 59, 59, 999);
+    }
+
+    else {
+        return res.respond(400, "Invalid type. Use daily, weekly, or monthly");
+    }
+
+    const count = await Order.countDocuments({
+        createdAt: { $gte: startDate, $lte: endDate },
         isDeleted: false
     });
 
-    res.respond(200, "Today's orders count fetched successfully", { count: todaysOrderCount });
+    res.respond(200, `${type} orders count fetched successfully`, { count });
 });

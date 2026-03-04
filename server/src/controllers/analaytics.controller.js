@@ -103,3 +103,76 @@ export const getWorstSellingFood = asyncHandler(async (req, res) => {
     if (!result.length) return res.respond(404, "No sales data found");
     res.respond(200, "Worst selling food fetched successfully", result[0]);
 });
+
+// Chart Data Controller (Daily / Weekly / Monthly grouped)
+export const getChartData = asyncHandler(async (req, res) => {
+    const { type, start, end } = req.query;
+
+    let startDate, endDate;
+    const now = new Date();
+
+    // ✅ Custom Date Filter
+    if (start && end) {
+        startDate = new Date(start);
+        endDate = new Date(end);
+        endDate.setHours(23, 59, 59, 999);
+    }
+
+    // ✅ Type Filter
+    else if (type) {
+        if (!["daily", "weekly", "monthly"].includes(type)) {
+            return res.respond(400, "Invalid type");
+        }
+
+        if (type === "daily") {
+            startDate = new Date();
+            startDate.setUTCDate(startDate.getUTCDate() - 6);
+        }
+
+        if (type === "weekly") {
+            startDate = new Date();
+            startDate.setUTCDate(startDate.getUTCDate() - 28);
+        }
+
+        if (type === "monthly") {
+            startDate = new Date();
+            startDate.setUTCMonth(startDate.getUTCMonth() - 6);
+        }
+
+        endDate = now;
+    }
+
+    else {
+        return res.respond(400, "Provide type or start & end date");
+    }
+
+    const data = await Order.aggregate([
+        {
+            $match: {
+                createdAt: { $gte: startDate, $lte: endDate },
+                isDeleted: false
+            }
+        },
+        {
+            $group: {
+                _id: {
+                    $dateToString: {
+                        format: type === "monthly" ? "%Y-%m" : "%Y-%m-%d",
+                        date: "$createdAt"
+                    }
+                },
+                revenue: { $sum: "$totalAmount" },
+                orders: { $sum: 1 }
+            }
+        },
+        { $sort: { _id: 1 } }
+    ]);
+
+    const formatted = data.map(item => ({
+        date: item._id,
+        revenue: item.revenue,
+        orders: item.orders
+    }));
+
+    res.respond(200, "Chart data fetched successfully", formatted);
+});
