@@ -168,7 +168,7 @@ function Tables() {
         </div>
       )}
 
-      {/* PRINTABLE INVOICE ONLY */}
+      {/* PRINTABLE INVOICE ONLYy */}
       {selectedInvoice && (
         <div className="print-area bg-white p-10 text-black">
           <h2 className="text-3xl font-bold text-center mb-4">
