@@ -6,7 +6,7 @@ import { Food } from "../models/food.model.js";
 export const addOrder = asyncHandler(async (req, res) => {
   if (!req.user) return res.respond(401, "User not authenticated");
   const id = req.user.id;
-  const { items, tableId } = req.body;
+  const { items, tableId, customer } = req.body;
 
   if (!items || !items.length)
     return res.respond(400, "Order items are required");
@@ -37,20 +37,33 @@ export const addOrder = asyncHandler(async (req, res) => {
     tableId,
     amount: totalAmount,   // keep for reference if needed
     totalAmount,
-    isPaid: false
+    isPaid: false, 
+    customer
   });
-
   res.respond(201, "Order placed successfully", newOrder);
 });
 
 // Get all unpaid orders for user
 export const getOrders = asyncHandler(async (req, res) => {
-    const user = req.user.id;
-    
-    const orders = await Order.find({ userId: user, isDeleted: false, isPaid: false })
-        .populate('tableId', 'number')
-        .populate('items.foodId', 'name price');
-    res.respond(200, "Orders fetched successfully", orders);
+    const userId = req.user.id;
+    // Get today's date range
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0); // today 00:00:00
+
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999); // today 23:59:59
+
+    // Fetch today's orders
+    const orders = await Order.find({
+        owner:userId,
+        isDeleted: false,
+        isPaid: false,
+        createdAt: { $gte: startOfDay, $lte: endOfDay }
+    })
+    .populate('tableId', 'tableNumber')
+    .populate('items.foodId', 'name price');
+    res.respond(200, "Today's orders fetched successfully", orders);
+    console.log("Orders:", orders);
 });
 
 // Get all orders for admin

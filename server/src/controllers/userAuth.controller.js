@@ -1,9 +1,10 @@
 import { User } from "../models/user.model.js";
+import { sendResetToken } from "../services/email.js";
 import { asyncHandler } from "../utils/asyncHandler.util.js";
 import ErrorHandler from "../utils/errorHandler.util.js";
 import { generateAccessToken, generateRefreshToken } from "../utils/genToken.util.js";
 import { sentTokenToClient } from "../utils/sentTokenToClient.util.js";
-
+import jwt from 'jsonwebtoken';
 
 // ================= REGISTER =================
 export const registerUser = asyncHandler(async (req, res, next) => {
@@ -104,3 +105,46 @@ export const verifyUser = asyncHandler(async (req, res, next) => {
 
   res.respond(200, "User verified successfully", { user });
 });
+
+export const forgotPassword = asyncHandler(async (req, res, next) => {
+  const { email } = req.body;
+  const userFound = await User.findOne({ email, isDeleted: false });
+  if (!userFound) {
+    return next(new ErrorHandler(404, "Email does not exist"));
+  }
+  // Generate JWT token, valid for 15 minutes
+  const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: "15m" });
+
+  // Send token via email
+  const result = await sendResetToken(email, token);
+
+  if (result.success) {
+    res.respond(200, "Reset token sent to email");
+  } else {
+    next(new ErrorHandler(500, "Failed to send reset token"));
+    
+  }});
+
+export const resetPassword = asyncHandler(async (req, res, next) => {
+  const { password, token } = req.body;
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const email = decoded.email;
+    const userFound = await User.findOne({ email, isDeleted: false });
+    if (!userFound) {
+      return next(new ErrorHandler(404, "User not found"));
+    }
+    userFound.password = password;
+    await userFound.save();
+    res.respond(200, "Password reset successful");
+  } catch (err) {
+    if (err.name === "TokenExpiredError") {
+      return next(new ErrorHandler(400, "Reset token has expired"));
+    } else if (err.name === "JsonWebTokenError") {
+      return next(new ErrorHandler(400, "Invalid reset token"));
+    }
+    next(new ErrorHandler(500, "An error occurred while resetting password"));
+  }
+
+}); 
+  

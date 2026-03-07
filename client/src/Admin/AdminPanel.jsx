@@ -117,8 +117,7 @@ function Management() {
           role: newItem.role,
           phone: newItem.phone,
         });
-        console.log(newItem.role)
-
+        console.log(newItem.email);
 
         toast.success("Garson added successfully");
         fetchGarsons();
