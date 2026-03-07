@@ -45,7 +45,6 @@ function LoginForm() {
       setIsAuth(true);
       toast.success("Login Successful");
 
-
       if (user.role.toLowerCase() === "admin") {
         navigate("/admin");
       } else if (user.role.toLowerCase() === "chef") {

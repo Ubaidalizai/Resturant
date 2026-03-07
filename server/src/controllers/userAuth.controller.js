@@ -5,33 +5,42 @@ import ErrorHandler from "../utils/errorHandler.util.js";
 import { generateAccessToken, generateRefreshToken } from "../utils/genToken.util.js";
 import { sentTokenToClient } from "../utils/sentTokenToClient.util.js";
 import jwt from 'jsonwebtoken';
+import { Role } from "../models/role.model.js";
 
-// ================= REGISTER =================
+// Register a user
 export const registerUser = asyncHandler(async (req, res, next) => {
-
   const { name, email, password, phone, address, role } = req.body;
 
+  // Check if email already exists
   const userExists = await User.findOne({ email });
   if (userExists) {
     return next(new ErrorHandler(400, "Email already exists"));
   }
 
-  // Force default role (security)
+  // Check if role exists and is not deleted
+  const roleExists = await Role.findOne({ _id: role, isDeleted: false });
+  if (!roleExists) {
+    return next(new ErrorHandler(400, "Role does not exist"));
+  }
+
+  // Create user with valid role
   const user = await User.create({
     name,
     email,
     password,
     phone,
     address,
-    role: role
+    role: roleExists._id
   });
 
+  // Generate tokens
   const accessToken = generateAccessToken(user._id);
   const refreshToken = generateRefreshToken(user._id);
 
   user.refreshToken = refreshToken;
   await user.save();
 
+  // Send tokens to client
   sentTokenToClient("accessToken", accessToken, res);
   sentTokenToClient("refreshToken", refreshToken, res);
 
@@ -40,13 +49,14 @@ export const registerUser = asyncHandler(async (req, res, next) => {
       id: user._id,
       name: user.name,
       email: user.email,
-      role: user.role
+      role: roleExists.role, // return role name
+      permissions: roleExists.permissions // optional: return permissions too
     }
   });
 });
 
 
-// ================= LOGIN =================
+// Login the user
 export const loginUser = asyncHandler(async (req, res, next) => {
 
   const { email, password } = req.body;
@@ -77,7 +87,7 @@ export const loginUser = asyncHandler(async (req, res, next) => {
   });
 });
 
-// ================= LOGOUT =================
+// Logout the user
 export const logoutUser = asyncHandler(async (req, res) => {
 
   if (req.user?.id) {
@@ -91,7 +101,7 @@ export const logoutUser = asyncHandler(async (req, res) => {
 });
 
 
-// ================= VERIFY USER =================
+//Verify the user
 export const verifyUser = asyncHandler(async (req, res, next) => {
 
   const userId = req.user.id;
@@ -106,6 +116,8 @@ export const verifyUser = asyncHandler(async (req, res, next) => {
   res.respond(200, "User verified successfully", { user });
 });
 
+
+// forggot password 
 export const forgotPassword = asyncHandler(async (req, res, next) => {
   const { email } = req.body;
   const userFound = await User.findOne({ email, isDeleted: false });
@@ -125,6 +137,8 @@ export const forgotPassword = asyncHandler(async (req, res, next) => {
     
   }});
 
+
+// Reset password
 export const resetPassword = asyncHandler(async (req, res, next) => {
   const { password, token } = req.body;
   try {
