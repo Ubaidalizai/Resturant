@@ -1,9 +1,10 @@
+// CartPanel.jsx
 import axios from "axios";
 import TableSelector from "./TableSelector";
 import { baseURL } from "../../configs/baseURL.config";
-import {toast} from 'react-toastify';
-// fsaf
-function CartPanel({ cart, setCart, tables, selectedTable, setSelectedTable }) {
+import { toast } from "react-toastify";
+
+function CartPanel({ cart, setCart, tables, selectedTable, setSelectedTable, currentOrderId, setCurrentOrderId, customer, setCustomer }) {
   const items = Object.values(cart);
   const grandTotal = items.reduce((sum, item) => sum + item.price * item.qty, 0);
 
@@ -12,67 +13,70 @@ function CartPanel({ cart, setCart, tables, selectedTable, setSelectedTable }) {
     delete copy[id];
     setCart(copy);
   };
-const confirmOrder = async () => {
-  if (!selectedTable) {
-    alert("Select a table first");
-    return;
-  }
 
-  if (items.length === 0) {
-    alert("Add some food first");
-    return;
-  }
+  const confirmOrder = async () => {
+    if (!selectedTable) return toast.error("Select a table first");
+    if (items.length === 0) return toast.error("Add some food first");
+    if (!customer || customer.trim() === "") return toast.error("Please enter customer name");
 
-  try {
-    // Map items to match backend
-    const orderItems = items.map(item => ({
-      foodId: item._id,
-      quantity: item.qty,
-    }));
+    try {
+      const orderItems = items.reduce((acc, item) => {
+        acc[item._id] = { quantity: item.qty };
+        return acc;
+      }, {});
 
-    // 🔹 Make axios POST with cookies
-    const res = await axios.post(
-      `${baseURL}/api/v1/orders/add`,
-      {
-        tableId: selectedTable,
-        items: orderItems,
-      },
-      {
-        withCredentials: true, // send cookies
-        headers: {
-          "Content-Type": "application/json",
-        },
+      if (currentOrderId) {
+        // Update existing order
+        await axios.put(
+          `${baseURL}/api/v1/orders/update/${currentOrderId}`,
+          { items: orderItems },
+          { withCredentials: true }
+        );
+        toast.success("Order updated successfully!");
+      } else {
+        // Create new order
+        await axios.post(
+          `${baseURL}/api/v1/orders/add`,
+          {
+            tableId: selectedTable,
+            items: items.map(item => ({ foodId: item._id, quantity: item.qty })),
+            customer
+          },
+          { withCredentials: true }
+        );
+        toast.success("Order placed successfully!");
       }
-    );
-    toast.success("Order placed successfully!");
-    // Clear cart & table
-    setCart({});
-    setSelectedTable("");
-  } catch (err) {
-    toast.error(err.response?.data || err.message);
-    if (err.response?.status === 401) {
-      toast.error("You are not logged in. Please login first.");
-    } else if (err.response?.data?.message) {
-      toast.error(err.response.data.message);
-    } else {
-      toast.error("Error placing order, try again.");
+
+      setCart({});
+      setSelectedTable("");
+      setCurrentOrderId(null);
+      setCustomer("");
+    } catch (err) {
+      toast.error(err.response?.data?.message || err.message || "Error processing order");
     }
-  }
-};
+  };
 
   return (
     <div className="sticky top-0 h-screen w-full md:w-80 bg-gray-50 shadow-xl p-6 flex flex-col">
-      {/* Header */}
       <h2 className="text-2xl font-bold text-yellow-600 mb-4">Cart</h2>
 
-      {/* Table Selector */}
+      <div className="mb-4">
+        <label className="block text-gray-700 font-bold mb-2">Customer Name</label>
+        <input
+          type="text"
+          placeholder="Enter customer name"
+          className="border ::placeholder:text-gray-500 rounded py-2 text-black px-3 border-gray-400 w-full focus:outline-none focus:ring-2 focus:ring-yellow-600"
+          value={customer}
+          onChange={(e) => setCustomer(e.target.value)}
+        />
+      </div>
+
       <TableSelector
         tables={tables}
         selectedTable={selectedTable}
         setSelectedTable={setSelectedTable}
       />
 
-      {/* Items List */}
       <div className="flex-1 overflow-y-auto mb-4">
         {items.length === 0 ? (
           <p className="text-gray-500">No items in cart</p>
@@ -94,14 +98,13 @@ const confirmOrder = async () => {
         )}
       </div>
 
-      {/* Footer / Total */}
       <div className="mt-auto">
         <h3 className="font-bold text-lg text-red-600 mb-4">Total: ${grandTotal}</h3>
         <button
           onClick={confirmOrder}
           className="w-full bg-green-600 text-white py-2 rounded-xl font-bold"
         >
-          Confirm Order
+          {currentOrderId ? "Update Order" : "Confirm Order"}
         </button>
       </div>
     </div>

@@ -6,6 +6,9 @@ const orderSchema = new mongoose.Schema(
       ref: "User",
       required: true
     },
+    customer:{
+      type: String
+    },
     items: [
       {
         foodId: { type: mongoose.Types.ObjectId, ref: "Food" },

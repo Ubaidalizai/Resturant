@@ -14,6 +14,8 @@ import KitchenPanel from './Kitchen/KitchenPanel';
 import axios from 'axios';
 import { baseURL } from './configs/baseURL.config';
 import GarsoonDashboard from './Pages/GarsoonDashboard';
+import ForggotPasswordPage from './Pages/ForggotPasswordPage';
+import ResetPasswordPage from './Pages/ResetPasswordPage';
 
 export const ItemsContext = createContext();
 
@@ -74,7 +76,7 @@ function App() {
         <Route path='/drinks' element={<Drinks />} />
         
         <Route path='/menus' element={isAuth ? <GarsoonDashboard /> : <Navigate to='/' />} />
-
+        <Route path="/forgot-password" element={<ForggotPasswordPage />} />
         
         <Route path='/kitchen' element={isAuth ? <KitchenPanel /> : <Navigate to='/' />} />
 
@@ -86,6 +88,7 @@ function App() {
           path='/history'
           element={isAuth ? <OrderHistory /> : <Navigate to="/" />}
         />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
       </Routes>
     </ItemsContext.Provider>
   );

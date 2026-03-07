@@ -1,5 +1,5 @@
 import { useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ItemsContext } from "../App";
 import { toast } from "react-toastify";
 import RestaurantLoader from './RestaurantLoader';
@@ -45,7 +45,6 @@ function LoginForm() {
       setIsAuth(true);
       toast.success("Login Successful");
 
-
       if (user.role.toLowerCase() === "admin") {
         navigate("/admin");
       } else if (user.role.toLowerCase() === "chef") {
@@ -89,7 +88,11 @@ function LoginForm() {
           onChange={(e) => setPassword(e.target.value)}
           className="w-full border-2 border-yellow-600 rounded-xl px-5 py-3 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
         />
-
+        <div className="text-center">
+          <Link to="/forgot-password" className="text-yellow-600 hover:underline">
+            Forgot Password?
+          </Link>
+        </div>
         <button
           onClick={handleLogin}
           className="w-full bg-yellow-600 text-white font-bold py-3 rounded-xl shadow-lg hover:shadow-yellow-400 transition-transform transform hover:scale-105"
