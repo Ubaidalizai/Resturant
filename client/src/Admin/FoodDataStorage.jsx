@@ -165,9 +165,6 @@ function FoodDataStorage() {
             />
             <h2 className="text-xl font-bold text-gray-800">{food.name}</h2>
 
-            <span className="px-4 py-1 rounded-full bg-yellow-100 text-yellow-800 mt-2">
-              {food.catagory.name || food.catagory} {/* show category name */}
-            </span>
 
             <p className="text-yellow-600 font-bold text-lg mt-2">${food.price}</p>
 

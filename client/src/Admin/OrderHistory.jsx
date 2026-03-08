@@ -86,7 +86,7 @@ function OrderHistory() {
                       {order.items.map((i) => i.name).join(", ")}
                     </td>
                     <td className="py-2">{order.items.reduce((sum, i) => sum + i.quantity, 0)}</td>
-                    <td className="py-2 font-bold text-red-600">${order.orderTotal}</td>
+                    <td className="py-2 text-black">${order.orderTotal}</td>
                     <td className="py-2">{order.date}</td>
                     <td className="py-2">
                       <AiOutlineDelete

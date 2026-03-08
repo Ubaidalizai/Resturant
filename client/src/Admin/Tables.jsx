@@ -86,7 +86,7 @@ function Tables() {
                 >
                   <div className="p-6">
                     <div className="flex justify-center items-center mb-4">
-                      <FaChair className="text-5xl text-gray-700" />
+                      <FaChair className="text-5xl text-yellow-500" />
                     </div>
 
                     <h2 className="text-2xl font-semibold text-gray-900 text-center">
@@ -102,7 +102,7 @@ function Tables() {
                         </>
                       ) : (
                         <>
-                          <FaCheckCircle className="text-blue-500 text-lg" />
+                          <FaCheckCircle className="text-yellow-600 text-lg" />
                           <span className="text-md font-medium">Free</span>
                         </>
                       )}

@@ -14,7 +14,22 @@ function Management() {
   const [tables, setTables] = useState([]);
   const [garsons, setGarsons] = useState([]);
   const [role, setRole] = useState([]);
+  const [staff, setStaff] = useState([]);
 
+  const [permissions, setPermissions] = useState([]);
+  useEffect(()=>{
+    const fetchPermissions = async ()=>{
+      try {
+        const permissions = await axios.get(`${baseURL}/api/v1/permissions`);
+        console.log(permissions);
+      setPermissions(permissions.data.data);
+      } catch (error) {
+        console.log("Erro", error)
+      }
+
+    };
+    fetchPermissions();
+  },[])
   const [newItem, setNewItem] = useState({
     name: "",
     catagory: "",
@@ -24,6 +39,10 @@ function Management() {
     capacity: "",
     phone: "",
     role: "",
+    salary: "",
+    selectedPermissions: [],
+    standard: false,
+    international: false
   });
 
   // ---------------- FETCH DATA ----------------
@@ -49,6 +68,7 @@ function Management() {
     try {
       const res = await axios.get(`${baseURL}/api/v1/users/all/`);
       setGarsons(res.data.data || []);
+      console.log(res);
     } catch {
       toast.error("Failed to load garsons");
     }
@@ -72,6 +92,10 @@ function Management() {
         capacity: item.capacity || "",
         phone: item.phone || "",
         role: item.role || "",
+        salary: item.salary || "",
+        selectedPermissions: item.permissions || [],
+        standard: item.standard || false,
+        international: item.international || false,
       });
     } else {
       setEditItem(null);
@@ -84,6 +108,10 @@ function Management() {
         capacity: "",
         phone: "",
         role: "",
+        salary: "",
+        selectedPermissions: [],
+        standard: false,
+        international: false,
       });
     }
     setModalOpen(true);
@@ -101,6 +129,10 @@ function Management() {
       capacity: "",
       phone: "",
       role: "",
+      salary: "",
+      selectedPermissions: [],
+      standard: false,
+      international: false,
     });
   };
 
@@ -151,16 +183,23 @@ function Management() {
         fetchGarsons();
       } else if (activeTab === "Role") {
         if (!newItem.name) return toast.error("Please fill role field");
+        const payload = {
+          role: newItem.name,
+          permissions: newItem.selectedPermissions
+        };
         if (editItem) {
-          await axios.put(`${baseURL}/api/v1/users/update-role/${editItem._id}`, { roleName: newItem.name });
+          await axios.put(`${baseURL}/api/v1/users/update-role/${editItem._id}`, payload);
           toast.success("Role updated successfully");
         } else {
-          await axios.post(`${baseURL}/api/v1/users/add-role`, { roleName: newItem.name });
+          await axios.post(`${baseURL}/api/v1/role/add`, payload);
           toast.success("Role added successfully");
         }
         fetchGarsons();
+      } else if (activeTab === "Staff") {
+        if (!newItem.name || !newItem.phone || !newItem.salary) return toast.error("Please fill all staff fields");
+        // API call for staff
+        toast.success("Staff operation simulated"); // placeholder
       }
-
       closeModal();
     } catch (error) {
       toast.error(error.response?.data?.message || "Operation failed");
@@ -193,6 +232,7 @@ function Management() {
     Tables: faTable,
     Garsons: faUser,
     Role: faUserShield,
+    Staff: faUser,
   };
 
   return (
@@ -201,7 +241,7 @@ function Management() {
 
       {/* Tabs */}
       <div className="flex justify-center gap-4 mb-8 flex-wrap">
-        {["Menus", "Tables", "Garsons", "Role"].map(tab => (
+        {["Menus", "Tables", "Garsons", "Role", "Staff"].map(tab => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -221,8 +261,9 @@ function Management() {
             <tr>
               {activeTab === "Menus" && <><th className="p-4">Menu Name</th><th>Category</th><th>Actions</th></>}
               {activeTab === "Tables" && <><th className="p-4">Table Number</th><th>Capacity</th><th>Actions</th></>}
-              {activeTab === "Garsons" && <><th>Name</th><th>Email</th><th>Password</th><th>Role</th><th>Phone</th><th>Actions</th></>}
-              {activeTab === "Role" && <><th>Role</th><th>Actions</th></>}
+              {activeTab === "Garsons" && <><th className="p-4">Name</th><th>Email</th><th>Password</th><th>Role</th><th>Phone</th><th>Actions</th></>}
+              {activeTab === "Role" && <><th className="p-4">Role</th><th>Permissions</th><th>Actions</th></>}
+              {activeTab === "Staff" && <><th className="p-4">Name</th><th>Phone</th><th>Salary</th><th>Actions</th></>}
             </tr>
           </thead>
           <tbody>
@@ -236,6 +277,7 @@ function Management() {
                 </td>
               </tr>
             ))}
+
             {activeTab === "Tables" && tables.map(table => (
               <tr key={table._id || table.tableNumber} className="border-b hover:bg-gray-50 transition">
                 <td className="p-4 text-black">{table.tableNumber}</td>
@@ -246,6 +288,7 @@ function Management() {
                 </td>
               </tr>
             ))}
+
             {activeTab === "Garsons" && garsons.map(g => (
               <tr key={g._id} className="border-b hover:bg-gray-50 transition">
                 <td className="p-4 text-black">{g.name}</td>
@@ -259,12 +302,26 @@ function Management() {
                 </td>
               </tr>
             ))}
+
             {activeTab === "Role" && role.map(r => (
               <tr key={r._id} className="border-b hover:bg-gray-50 transition">
-                <td className="p-4 text-black">{r.name}</td>
+                <td className="p-4 text-black">{r.name}</td>  
+                <td className="text-black">{(r.permissions || []).join(", ")}</td>
                 <td className="flex justify-center gap-4">
                   <button onClick={() => openModal(r)} className="text-blue-500 hover:text-blue-700 transition"><FontAwesomeIcon icon={faEdit} /></button>
                   <button onClick={() => handleDelete(null, r._id)} className="text-red-500 hover:text-red-700 transition"><FontAwesomeIcon icon={faTrash} /></button>
+                </td>
+              </tr>
+            ))}
+
+            {activeTab === "Staff" && staff.map(s => (
+              <tr key={s._id} className="border-b hover:bg-gray-50 transition">
+                <td className="p-4 text-black">{s.name}</td>
+                <td className="text-black">{s.phone}</td>
+                <td className="text-black">{s.salary}</td>
+                <td className="flex justify-center gap-4">
+                  <button onClick={() => openModal(s)} className="text-blue-500 hover:text-blue-700 transition"><FontAwesomeIcon icon={faEdit} /></button>
+                  <button onClick={() => handleDelete(null, s._id)} className="text-red-500 hover:text-red-700 transition"><FontAwesomeIcon icon={faTrash} /></button>
                 </td>
               </tr>
             ))}
@@ -288,86 +345,82 @@ function Management() {
               <button onClick={closeModal} className="text-black text-xl font-bold hover:text-gray-700">X</button>
             </div>
 
-            <div className="flex flex-col md:flex-row gap-4 items-center text-black mb-4">
+            <div className="flex flex-col gap-4 text-black mb-4">
+              {/* Menus */}
               {activeTab === "Menus" && (
                 <>
-                  <input
-                    type="text"
-                    placeholder="Menu Name"
-                    className="border p-2 rounded w-full"
-                    value={newItem.name}
-                    onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
-                  />
-                  <input
-                    type="text"
-                    placeholder="Catagory"
-                    className="border p-2 rounded w-full"
-                    value={newItem.catagory}
-                    onChange={(e) => setNewItem({ ...newItem, catagory: e.target.value })}
-                  />
+                  <input type="text" placeholder="Menu Name" className="border p-2 rounded w-full" value={newItem.name} onChange={(e) => setNewItem({ ...newItem, name: e.target.value })} />
+                  <input type="text" placeholder="Catagory" className="border p-2 rounded w-full" value={newItem.catagory} onChange={(e) => setNewItem({ ...newItem, catagory: e.target.value })} />
                 </>
               )}
 
+              {/* Tables */}
               {activeTab === "Tables" && (
                 <>
-                  <input
-                    type="text"
-                    placeholder="Table Number"
-                    className="border p-2 rounded w-full"
-                    value={newItem.name}
-                    onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
-                  />
-                  <input
-                    type="number"
-                    placeholder="Capacity"
-                    className="border p-2 rounded w-full"
-                    value={newItem.capacity}
-                    onChange={(e) => setNewItem({ ...newItem, capacity: e.target.value })}
-                  />
+                  <input type="text" placeholder="Table Number" className="border p-2 rounded w-full" value={newItem.name} onChange={(e) => setNewItem({ ...newItem, name: e.target.value })} />
+                  <input type="number" placeholder="Capacity" className="border p-2 rounded w-full" value={newItem.capacity} onChange={(e) => setNewItem({ ...newItem, capacity: e.target.value })} />
                 </>
               )}
 
-               {activeTab === "Garsons" && (
-            <>
-              <input type="text" placeholder="Name" className="border p-2 rounded w-full"
-                value={newItem.name}
-                onChange={(e) => setNewItem({ ...newItem, name: e.target.value })} />
+              {/* Garsons */}
+              {activeTab === "Garsons" && (
+                <>
+                  <input type="text" placeholder="Name" className="border p-2 rounded w-full" value={newItem.name} onChange={(e) => setNewItem({ ...newItem, name: e.target.value })} />
+                  <input type="email" placeholder="Email" className="border p-2 rounded w-full" value={newItem.email} onChange={(e) => setNewItem({ ...newItem, email: e.target.value })} />
+                  <input type="password" placeholder="Password" className="border p-2 rounded w-full" value={newItem.password} onChange={(e) => setNewItem({ ...newItem, password: e.target.value })} />
+                  <select className="border p-2 rounded w-full" value={newItem.role} onChange={(e) => setNewItem({ ...newItem, role: e.target.value })}>
+                    <option value="">Select Role</option>
+                    <option value="user">Garson</option>
+                    <option value="chef">Chef</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                  <input type="number" placeholder="Phone" className="border p-2 rounded w-full" value={newItem.phone} onChange={(e) => setNewItem({ ...newItem, phone: e.target.value })} />
+                </>
+              )}
 
-              <input type="email" placeholder="Email" className="border p-2 rounded w-full"
-                value={newItem.email}
-                onChange={(e) => setNewItem({ ...newItem, email: e.target.value })} />
+              {/* Role */}
+              {activeTab === "Role" && (
+                <>
+                  <input type="text" placeholder="Role Name" className="border p-2 rounded w-full" value={newItem.name} onChange={(e) => setNewItem({ ...newItem, name: e.target.value })} />
+                  <div className="flex flex-wrap gap-2 max-h-32 overflow-auto border p-2 rounded">
+                    {permissions.map(p => (
+  <label key={p._id} className="flex items-center gap-1">
+    <input
+      type="checkbox"
+      checked={newItem.selectedPermissions.includes(p._id)}
+      onChange={(e) => {
+        const checked = e.target.checked;
+        const selected = newItem.selectedPermissions;
+        if (checked) {
+          setNewItem({ ...newItem, selectedPermissions: [...selected, p._id] });
+        } else {
+          setNewItem({ ...newItem, selectedPermissions: selected.filter(x => x !== p._id) });
+        }
+      }}
+    />
+    {p.name}
+  </label>
+))}
+                  </div>
+                </>
+              )}
 
-              <input type="password" placeholder="Password" className="border p-2 rounded w-full"
-                value={newItem.password}
-                onChange={(e) => setNewItem({ ...newItem, password: e.target.value })} />
-
-              <select className="border p-2 rounded w-full"
-                value={newItem.role}
-                onChange={(e) => setNewItem({ ...newItem, role: e.target.value })}>
-                <option value="">Select Role</option>
-                <option value="user">Garson</option>
-                <option value="chef">Chef</option >
-                <option value="admin">Admin</option>
-              </select>
-
-               <input
-                    type="number"
-                    placeholder="Phone"
-                    className="border p-2 rounded w-full"
-                    value={newItem.phone}
-                    onChange={(e) => setNewItem({ ...newItem, phone: e.target.value })}
-                  />
-            </>
-          )}
-
-              <button onClick={handleAdd} className="bg-yellow-500 text-white py-3 rounded-lg hover:bg-yellow-600 transition">
-                {editItem ? "Update" : "Add"}
-              </button>
+              {/* Staff */}
+              {activeTab === "Staff" && (
+                <>
+                  <input type="text" placeholder="Name" className="border p-2 rounded w-full" value={newItem.name} onChange={(e) => setNewItem({ ...newItem, name: e.target.value })} />
+                  <input type="number" placeholder="Phone" className="border p-2 rounded w-full" value={newItem.phone} onChange={(e) => setNewItem({ ...newItem, phone: e.target.value })} />
+                  <input type="number" placeholder="Salary" className="border p-2 rounded w-full" value={newItem.salary} onChange={(e) => setNewItem({ ...newItem, salary: e.target.value })} />
+                </>
+              )}
             </div>
+
+            <button onClick={handleAdd} className="px-6 py-2 bg-yellow-500 text-white rounded-xl shadow-lg hover:bg-yellow-600 transition w-full mt-4">
+              {editItem ? "Update" : "Add"} {activeTab.slice(0, -1)}
+            </button>
           </div>
         </div>
       )}
-
     </div>
   );
 }
