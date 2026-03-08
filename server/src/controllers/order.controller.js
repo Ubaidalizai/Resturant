@@ -3,59 +3,67 @@ import { Order } from "../models/order.model.js";
 import { Table } from "../models/table.model.js";
 import { Food } from "../models/food.model.js";
 
-// Add new order
 export const addOrder = asyncHandler(async (req, res) => {
-    const id = req.user.id;
-    const { items, tableId } = req.body;
+  if (!req.user) return res.respond(401, "User not authenticated");
+  const id = req.user.id;
+  const { items, tableId, customer } = req.body;
 
-    if (!items || !items.length)
-        return res.respond(400, "Order items are required");
+  if (!items || !items.length)
+    return res.respond(400, "Order items are required");
 
-    // Check table exists
-    const table = await Table.findOne({ _id: tableId, isDeleted: false });
-    if (!table) return res.respond(404, "Table not found");
-    if (table.isOccupied) return res.respond(400, "Table is already occupied");
+  // Check table exists
+  const table = await Table.findOne({ _id: tableId, isDeleted: false });
+  if (!table) return res.respond(404, "Table not found");
 
-    // Fetch food prices
-    const foodIds = items.map(item => item.foodId);
-    const foods = await Food.find({ _id: { $in: foodIds } }).select("price");
+  // Fetch food prices
+  const foodIds = items.map(item => item.foodId);
+  const foods = await Food.find({ _id: { $in: foodIds } }).select("price");
 
-    const foodMap = {};
-    foods.forEach(food => { foodMap[food._id] = food.price });
+  const foodMap = {};
+  foods.forEach(food => { foodMap[food._id] = food.price });
 
-    // Calculate totalAmount
-    let totalAmount = 0;
-    for (const item of items) {
-        const price = foodMap[item.foodId];
-        if (!price) return res.respond(400, "Invalid food item");
-        totalAmount += price * item.quantity;
-    }
+  // Calculate totalAmount
+  let totalAmount = 0;
+  for (const item of items) {
+    const price = foodMap[item.foodId];
+    if (!price) return res.respond(400, "Invalid food item");
+    totalAmount += price * item.quantity;
+  }
 
-    // Mark table as occupied
-    table.isOccupied = true;
-    await table.save();
-
-    // Create order
-    const newOrder = await Order.create({
-        userId,
-        items,
-        tableId,
-        amount: totalAmount,   // keep for reference if needed
-        totalAmount,           // this is now correctly stored
-        isPaid: false
-    });
-
-    res.respond(201, "Order placed successfully", newOrder);
+  // Create order (removed isOccupied logic)
+  const newOrder = await Order.create({
+    owner: id,
+    items,
+    tableId,
+    amount: totalAmount,   // keep for reference if needed
+    totalAmount,
+    isPaid: false, 
+    customer
+  });
+  res.respond(201, "Order placed successfully", newOrder);
 });
 
 // Get all unpaid orders for user
 export const getOrders = asyncHandler(async (req, res) => {
-    const user = req.user.id;
-    
-    const orders = await Order.find({ userId: user, isDeleted: false, isPaid: false })
-        .populate('tableId', 'number')
-        .populate('items.foodId', 'name price');
-    res.respond(200, "Orders fetched successfully", orders);
+    const userId = req.user.id;
+    // Get today's date range
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0); // today 00:00:00
+
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999); // today 23:59:59
+
+    // Fetch today's orders
+    const orders = await Order.find({
+        owner:userId,
+        isDeleted: false,
+        isPaid: false,
+        createdAt: { $gte: startOfDay, $lte: endOfDay }
+    })
+    .populate('tableId', 'tableNumber')
+    .populate('items.foodId', 'name price');
+    res.respond(200, "Today's orders fetched successfully", orders);
+    console.log("Orders:", orders);
 });
 
 // Get all orders for admin
@@ -123,18 +131,44 @@ export const updateOrder = asyncHandler(async (req, res) => {
     res.respond(200, "Order updated successfully", updatedOrder);
 });
 
-// Get today's orders count
-export const todayOrderCounts = asyncHandler(async (req, res) => {
-    const startOfToday = new Date();
-    startOfToday.setHours(0, 0, 0, 0);
+// Get orders count by type (daily, weekly, monthly)
+export const orderCounts = asyncHandler(async (req, res) => {
+    const { type } = req.params;
 
-    const endOfToday = new Date();
-    endOfToday.setHours(23, 59, 59, 999);
+    let startDate = new Date();
+    let endDate = new Date();
 
-    const todaysOrderCount = await Order.countDocuments({
-        createdAt: { $gte: startOfToday, $lte: endOfToday },
+    if (type === "daily") {
+        startDate.setHours(0, 0, 0, 0);
+        endDate.setHours(23, 59, 59, 999);
+    }
+
+    else if (type === "weekly") {
+        const currentDay = startDate.getDay(); // 0-6
+        const diff = startDate.getDate() - currentDay;
+
+        startDate = new Date(startDate.setDate(diff));
+        startDate.setHours(0, 0, 0, 0);
+
+        endDate = new Date(startDate);
+        endDate.setDate(startDate.getDate() + 6);
+        endDate.setHours(23, 59, 59, 999);
+    }
+
+    else if (type === "monthly") {
+        startDate = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+        endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0);
+        endDate.setHours(23, 59, 59, 999);
+    }
+
+    else {
+        return res.respond(400, "Invalid type. Use daily, weekly, or monthly");
+    }
+
+    const count = await Order.countDocuments({
+        createdAt: { $gte: startDate, $lte: endDate },
         isDeleted: false
     });
 
-    res.respond(200, "Today's orders count fetched successfully", { count: todaysOrderCount });
+    res.respond(200, `${type} orders count fetched successfully`, { count });
 });

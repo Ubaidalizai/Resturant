@@ -18,7 +18,7 @@ function FoodCard({ food, cart, setCart }) {
   return (
     <div className="bg-white rounded-xl p-4 w-[16rem] shadow hover:shadow-md transition">
       <img
-        src={food.image}
+        src={`http://localhost:4000${food.image}`}
         alt={food.name}
         className="h-40 w-full object-cover rounded-lg border-[2.5px] border-yellow-600 border-dotted"
       />

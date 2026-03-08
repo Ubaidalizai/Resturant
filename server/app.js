@@ -28,6 +28,8 @@ import BillRouter from "./src/routes/bill.routes.js";
 import Staffrouter from "./src/routes/staff.routes.js";
 import analyticsRouter from "./src/routes/analytics.routes.js";
 import stockRouter from "./src/routes/stock.routes.js";
+import roleRouter from "./src/routes/role.routes.js";
+import permissionRouter from "./src/routes/permission.routes.js";
 
 const app = express();
 
@@ -70,7 +72,9 @@ app.use("/api/v1/bill/", BillRouter);
 app.use("/api/v1/staff/", Staffrouter);
 app.use("/api/v1/analytics/", analyticsRouter);
 app.use("/api/v1/stock", stockRouter);
-
+app.use("/api/v1/role", roleRouter);
+// Get all permissions 
+app.use("/api/v1/permissions", permissionRouter);
 // Connect to DB
 connectDB();
 

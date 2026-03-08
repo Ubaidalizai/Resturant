@@ -5,12 +5,15 @@ import { Staff } from "../models/staff.model.js";
 import { asyncHandler } from "../utils/asyncHandler.util.js";
 
 export const getRevenue = asyncHandler(async (req, res) => {
-  const { type } = req.query;
+  const { type } = req.params;
+
   if (!["daily", "weekly", "monthly"].includes(type)) {
-    return res.respond(400, "Please provide a valid type of revenue: daily, weekly, or monthly");
+    return res.respond(400, "Please provide a valid type: daily, weekly, or monthly");
   }
+
   let start, end;
   const now = new Date();
+
   // DAILY
   if (type === "daily") {
     start = new Date();
@@ -20,8 +23,8 @@ export const getRevenue = asyncHandler(async (req, res) => {
     end.setHours(23, 59, 59, 999);
   }
 
-  // WEEKLY
-  if (type === "weekly") {
+  // WEEKLY (last 7 days)
+  else if (type === "weekly") {
     end = new Date();
     end.setHours(23, 59, 59, 999);
 
@@ -31,8 +34,10 @@ export const getRevenue = asyncHandler(async (req, res) => {
   }
 
   // MONTHLY
-  if (type === "monthly") {
+  else if (type === "monthly") {
     start = new Date(now.getFullYear(), now.getMonth(), 1);
+    start.setHours(0, 0, 0, 0);
+
     end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
     end.setHours(23, 59, 59, 999);
   }

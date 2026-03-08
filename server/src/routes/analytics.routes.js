@@ -1,5 +1,5 @@
 import express from "express";
-import { getSalesComparison, getTopSellingFood, getWorstSellingFood } from "../controllers/analaytics.controller.js";
+import { getChartData, getSalesComparison, getTopSellingFood, getWorstSellingFood } from "../controllers/analaytics.controller.js";
 
 const analyticsRouter = express.Router();
 
@@ -12,5 +12,5 @@ analyticsRouter.get("/top-selling", getTopSellingFood);
 
 // Worst Selling Food
 analyticsRouter.get("/worst-selling", getWorstSellingFood);
-
+analyticsRouter.get("/chart-data", getChartData);
 export default analyticsRouter;
