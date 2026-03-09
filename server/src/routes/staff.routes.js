@@ -1,26 +1,54 @@
 import express from "express";
 import { addStaff, getAllStaff, getSingleStaff, updateStaff, deleteStaff } from "../controllers/staff.controller.js";
-import { asyncHandler } from "../utils/asyncHandler.util.js";
 import { staffValidation } from "../validators/staff.validator.js";
 import { validationMiddleware } from "../middlewares/validationsHandler.utils.js";
+import { userAuthMiddleware } from "../middlewares/userAuth.middleware.js";
+import { authorize } from "../middlewares/authorizeRole.middleware.js";
 
 const Staffrouter = express.Router();
-// All staff routes should be protected (admin only)
-// Staffrouter.use(authorizeRoles("admin"));
 
-// Add new staff
-Staffrouter.post("/add", staffValidation, validationMiddleware, addStaff);
+// Add new staff → admin only
+Staffrouter.post(
+  "/add",
+  userAuthMiddleware,
+  authorize('admin_access'),
+  staffValidation,
+  validationMiddleware,
+  addStaff
+);
 
-// Get all staff
-Staffrouter.get("/all", getAllStaff);
+// Get all staff → admin only
+Staffrouter.get(
+  "/all",
+  userAuthMiddleware,
+  authorize('admin_access'),
+  getAllStaff
+);
 
-// Get single staff by ID
-Staffrouter.get("/:staffId", getSingleStaff);
+// Get single staff by ID → admin only
+Staffrouter.get(
+  "/:staffId",
+  userAuthMiddleware,
+  authorize('admin_access'),
+  getSingleStaff
+);
 
-// Update staff
-Staffrouter.put("/update/:staffId", staffValidation, validationMiddleware, updateStaff);
+// Update staff → admin only
+Staffrouter.put(
+  "/update/:staffId",
+  userAuthMiddleware,
+  authorize('admin_access'),
+  staffValidation,
+  validationMiddleware,
+  updateStaff
+);
 
-// Delete staff (soft delete)
-Staffrouter.delete("/delete/:staffId", deleteStaff);
+// Delete staff (soft delete) → admin only
+Staffrouter.delete(
+  "/delete/:staffId",
+  userAuthMiddleware,
+  authorize('admin_access'),
+  deleteStaff
+);
 
 export default Staffrouter;

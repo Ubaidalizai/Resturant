@@ -17,10 +17,15 @@ const userSchema = new mongoose.Schema(
       type: String, // Base64 string
       default: null,
     },
+    role: {
+      type: mongoose.Types.ObjectId,
+      ref: "Role"
+    },
     address: {
       type: String,
       default: null,
-    },
+    },     
+    
     password: {
       type: String,
       required: true,
@@ -29,10 +34,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
-    role: {
-      type: String, 
-      enum: ["user", "admin", "chef"]
-    }, 
+   
     isDeleted: {
       type: Boolean,
       default: false,

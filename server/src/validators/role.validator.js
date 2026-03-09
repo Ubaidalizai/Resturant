@@ -3,7 +3,8 @@ import { body } from "express-validator";
 export const roleValidator = [
   body("role")
     .notEmpty()
-    .withMessage("Role is required"),
+    .withMessage("Role is required")
+    .isString().withMessage("Role must be a string"),
 
   body("permissions")
     .notEmpty()

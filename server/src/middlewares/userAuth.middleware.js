@@ -3,6 +3,9 @@ import ErrorHanlder from "../utils/errorHandler.util.js";
 import jwt from "jsonwebtoken";
 import { generateAccessToken } from "../utils/genToken.util.js";
 import { sentTokenToClient } from "../utils/sentTokenToClient.util.js";
+
+
+
 export const userAuthMiddleware = async (req, res, next) => {
   const { accessToken, refreshToken } = req.cookies;
   if (!accessToken && !refreshToken)
