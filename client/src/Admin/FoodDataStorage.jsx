@@ -55,7 +55,9 @@ function FoodDataStorage() {
       const formData = new FormData();
       formData.append("name", name);
       formData.append("price", price);
+
       formData.append("catagory", category); // send id, not name
+
       formData.append("image", image);
 
       const res = await axios.post(`${baseURL}/api/v1/foods/add`, formData, {
@@ -162,9 +164,8 @@ function FoodDataStorage() {
               className="w-24 h-24 rounded-full mb-4 object-cover"
             />
             <h2 className="text-xl font-bold text-gray-800">{food.name}</h2>
-            <span className="px-4 py-1 rounded-full bg-yellow-100 text-yellow-800 mt-2">
-              {food.catagory.name || food.catagory} {/* show category name */}
-            </span>
+
+
             <p className="text-yellow-600 font-bold text-lg mt-2">${food.price}</p>
 
             <div className="flex space-x-4 mt-4">
