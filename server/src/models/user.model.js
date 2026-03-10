@@ -45,10 +45,12 @@ const userSchema = new mongoose.Schema(
 
 // Bcrypt the password
 userSchema.pre("save", async function () {
-  const user = this;
-  if (!user.isModified("password")) return;
-  const hashPassword = await bcrypt.hash(user.password, 10);
-  user.password = hashPassword;
+  if (!this.isModified("password")) return;
+  try {
+    this.password = await bcrypt.hash(this.password, 10);
+  } catch (err) {
+    throw new Error("Password hashing failed");
+  }
 });
 
 // Compare password Method

@@ -6,11 +6,14 @@ import RestaurantLoader from './RestaurantLoader';
 import axios from "axios";
 import { baseURL } from "../configs/baseURL.config";
 
+// Set default axios config globally
+axios.defaults.baseURL = baseURL;
+axios.defaults.withCredentials = true; // <-- All requests will now send cookies automatically
+
 function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-
   const { setIsAuth } = useContext(ItemsContext);
   const navigate = useNavigate();
 
@@ -23,11 +26,8 @@ function LoginForm() {
     try {
       setLoading(true);
 
-      const response = await axios.post(
-        `${baseURL}/api/v1/user/login`,
-        { email, password },
-        { withCredentials: true }
-      );
+      // No need to add `withCredentials` here, it is global now
+      const response = await axios.post("/api/v1/user/login", { email, password });
 
       console.log("SERVER RESPONSE:", response.data);
 
@@ -45,12 +45,20 @@ function LoginForm() {
       setIsAuth(true);
       toast.success("Login Successful");
 
-      if (user.role.toLowerCase() === "admin") {
+      // Get array of permission keys
+      const permissionKeys = user.permissions || [];
+
+      // Define dashboard priorities
+      const adminKeys = ['admin_access', 'add_user', 'update_user', 'delete_user', 'add_role', 'update_role', 'delete_role', 'add_table', 'add_menu'];
+      const garsonKeys = ['order_food', 'garson_access'];
+      const kitchenKeys = ['kitchen_access'];
+
+      if (permissionKeys.some(p => adminKeys.includes(p))) {
         navigate("/admin");
-      } else if (user.role.toLowerCase() === "chef") {
+      } else if (permissionKeys.some(p => garsonKeys.includes(p))) {
+        navigate("/garson-dashboard");
+      } else if (permissionKeys.some(p => kitchenKeys.includes(p))) {
         navigate("/kitchen");
-      } else if (user.role.toLowerCase() === "user") {
-        navigate("/menus");
       } else {
         toast.error("No dashboard assigned to this account");
         setIsAuth(false);
@@ -64,46 +72,46 @@ function LoginForm() {
     }
   };
 
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+      {loading && <RestaurantLoader message="Logging in..." />}
+      <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden p-8 sm:p-10 relative">
+        <div className="absolute -top-10 -right-10 w-32 h-32 bg-yellow-400 rounded-full opacity-30"></div>
+        <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-yellow-400 rounded-full opacity-30"></div>
 
-  return (<div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-    {loading && <RestaurantLoader message="Logging in..." />} <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden p-8 sm:p-10 relative"> <div className="absolute -top-10 -right-10 w-32 h-32 bg-yellow-400 rounded-full opacity-30"></div> <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-yellow-400 rounded-full opacity-30"></div>
+        <h1 className="text-center text-4xl sm:text-4xl font-extrabold text-yellow-600 mb-8">
+          Welcome
+        </h1>
 
-
-      <h1 className="text-center text-4xl sm:text-4xl font-extrabold text-yellow-600 mb-8">
-        Welcome
-      </h1>
-
-      <div className="flex flex-col space-y-6">
-        <input
-          type="text"
-          placeholder="Email Address"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full border-2 border-yellow-600 rounded-xl px-5 py-3 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full border-2 border-yellow-600 rounded-xl px-5 py-3 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
-        />
-        <div className="text-center">
-          <Link to="/forgot-password" className="text-yellow-600 hover:underline">
-            Forgot Password?
-          </Link>
+        <div className="flex flex-col space-y-6">
+          <input
+            type="text"
+            placeholder="Email Address"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full border-2 border-yellow-600 rounded-xl px-5 py-3 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full border-2 border-yellow-600 rounded-xl px-5 py-3 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
+          />
+          <div className="text-center">
+            <Link to="/forgot-password" className="text-yellow-600 hover:underline">
+              Forgot Password?
+            </Link>
+          </div>
+          <button
+            onClick={handleLogin}
+            className="w-full bg-yellow-600 text-white font-bold py-3 rounded-xl shadow-lg hover:shadow-yellow-400 transition-transform transform hover:scale-105"
+          >
+            Login
+          </button>
         </div>
-        <button
-          onClick={handleLogin}
-          className="w-full bg-yellow-600 text-white font-bold py-3 rounded-xl shadow-lg hover:shadow-yellow-400 transition-transform transform hover:scale-105"
-        >
-          Login
-        </button>
       </div>
     </div>
-  </div>
-
-
   );
 }
 

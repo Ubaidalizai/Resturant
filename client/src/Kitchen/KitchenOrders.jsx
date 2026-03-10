@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axios from '../configs/axios.config';
 
 function KitchenOrders() {
   const [orders, setOrders] = useState([]);

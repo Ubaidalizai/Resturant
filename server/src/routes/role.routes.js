@@ -38,8 +38,8 @@ roleRouter.delete(
 // Get all roles → 'view_roles' or admin
 roleRouter.get(
   '/get', 
-  userAuthMiddleware,
-  authorize('view_roles', 'admin_access'),
+  // userAuthMiddleware,
+  // authorize('view_roles', 'admin_access'),
   getRoles
 );
 

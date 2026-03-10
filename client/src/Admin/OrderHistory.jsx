@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "../configs/axios.config";
 import React, { useEffect, useState } from "react";
 import { AiOutlineDelete } from "react-icons/ai";
 import { toast } from "react-toastify";

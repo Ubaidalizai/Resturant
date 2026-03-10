@@ -1,5 +1,5 @@
 // CartPanel.jsx
-import axios from "axios";
+import axios from '../../configs/axios.config';
 import TableSelector from "./TableSelector";
 import { baseURL } from "../../configs/baseURL.config";
 import { toast } from "react-toastify";

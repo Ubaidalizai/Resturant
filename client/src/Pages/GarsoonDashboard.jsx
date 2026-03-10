@@ -4,10 +4,9 @@ import MenuTabs from "../Components/garson/MenuTabs";
 import FoodGrid from "../Components/garson/FoodGrid";
 import CartPanel from "../Components/garson/CartPanel";
 import OrderCard from "../Components/garson/OrderCard";
-import axios from "axios";
 import { baseURL } from "../configs/baseURL.config";
 import { toast } from "react-toastify";
-
+import axios from '../configs/axios.config'
 function GarsoonDashboard() {
   const [menus, setMenus] = useState([]);
   const [allFoods, setAllFoods] = useState([]);

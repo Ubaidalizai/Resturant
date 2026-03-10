@@ -58,10 +58,15 @@ export const registerUser = asyncHandler(async (req, res, next) => {
 
 // Login the user
 export const loginUser = asyncHandler(async (req, res, next) => {
-
   const { email, password } = req.body;
+  const user = await User.findOne({ email }).populate({
+    path: "role",
+    populate: {
+      path: "permissions",
+      select: "key -_id", // fetch only the key field
+    },
+  });
 
-  const user = await User.findOne({ email });
   if (!user) {
     return next(new ErrorHandler(400, "Email does not exist"));
   }
@@ -70,6 +75,7 @@ export const loginUser = asyncHandler(async (req, res, next) => {
   if (!isPasswordMatch) {
     return next(new ErrorHandler(400, "Incorrect password"));
   }
+
   const accessToken = generateAccessToken(user._id);
   const refreshToken = generateRefreshToken(user._id);
   user.refreshToken = refreshToken;
@@ -77,13 +83,17 @@ export const loginUser = asyncHandler(async (req, res, next) => {
   sentTokenToClient("accessToken", accessToken, res);
   sentTokenToClient("refreshToken", refreshToken, res);
 
+  // Extract permission keys
+  const permissions = user.role.permissions.map((p) => p.key);
+
   res.respond(200, "User logged in successfully", {
     user: {
       id: user._id,
       name: user.name,
       email: user.email,
-      role: user.role
-    }
+      role: user.role.name,
+      permissions, // array of keys
+    },
   });
 });
 
@@ -144,12 +154,16 @@ export const resetPassword = asyncHandler(async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const email = decoded.email;
+    console.log("Decoded email from token:", email);
     const userFound = await User.findOne({ email, isDeleted: false });
     if (!userFound) {
       return next(new ErrorHandler(404, "User not found"));
     }
     userFound.password = password;
+    console.log("userFound.password", userFound.password);
+    console.log("password", password);
     await userFound.save();
+    console.log("userFound after save", userFound.password);// It doesn't show the userFound here completely
     res.respond(200, "Password reset successful");
   } catch (err) {
     if (err.name === "TokenExpiredError") {
@@ -157,7 +171,8 @@ export const resetPassword = asyncHandler(async (req, res, next) => {
     } else if (err.name === "JsonWebTokenError") {
       return next(new ErrorHandler(400, "Invalid reset token"));
     }
-    next(new ErrorHandler(500, "An error occurred while resetting password"));
+    console.error("Reset password error:", err);
+    next(new ErrorHandler(500, "An error occurred while resetting password")); // Give to me this error
   }
 
 }); 
