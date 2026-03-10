@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
 import { toast } from "react-toastify";
-import axios from "axios";
+import axios from "../configs/axios.config";
 import { baseURL } from "../configs/baseURL.config";
 
 function FoodDataStorage() {

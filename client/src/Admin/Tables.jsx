@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { baseURL } from "../configs/baseURL.config";
-import { FaUtensils, FaChair, FaClock, FaCheckCircle } from "react-icons/fa"; // Icons
+import axios from "../configs/axios.config";
 
 function Tables() {
   const [tables, setTables] = useState([]);

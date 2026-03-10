@@ -1,4 +1,5 @@
 import app  from './app.js'
+import bcrypt from 'bcrypt';
 
 // Server listen
 app.listen(process.env.PORT, () =>

@@ -7,7 +7,7 @@ export const registerValidations = [
     .notEmpty().withMessage("User name is required")
     .isLength({ min: 3 }).withMessage("User name must be at least 3 characters")
     .isLength({ max: 50 }).withMessage("User name must be less than 50 characters")
-    .toLowerCase(),
+    .isString().withMessage("User name must be a string"),
 
   body("email")
     .notEmpty().withMessage("Email is required")

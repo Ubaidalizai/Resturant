@@ -17,10 +17,15 @@ const userSchema = new mongoose.Schema(
       type: String, // Base64 string
       default: null,
     },
+    role: {
+      type: mongoose.Types.ObjectId,
+      ref: "Role"
+    },
     address: {
       type: String,
       default: null,
-    },
+    },     
+    
     password: {
       type: String,
       required: true,
@@ -29,10 +34,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
-    role: {
-      type: String, 
-      enum: ["user", "admin", "chef"]
-    }, 
+   
     isDeleted: {
       type: Boolean,
       default: false,
@@ -43,10 +45,12 @@ const userSchema = new mongoose.Schema(
 
 // Bcrypt the password
 userSchema.pre("save", async function () {
-  const user = this;
-  if (!user.isModified("password")) return;
-  const hashPassword = await bcrypt.hash(user.password, 10);
-  user.password = hashPassword;
+  if (!this.isModified("password")) return;
+  try {
+    this.password = await bcrypt.hash(this.password, 10);
+  } catch (err) {
+    throw new Error("Password hashing failed");
+  }
 });
 
 // Compare password Method

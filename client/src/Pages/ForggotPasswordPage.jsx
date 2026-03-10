@@ -1,6 +1,6 @@
 // frontend/components/ForgotPasswordPage.jsx
 import React, { useState } from "react";
-import axios from "axios";
+import axios from '../configs/axios.config';
 import { toast } from "react-toastify";
 import RestaurantLoader from "./RestaurantLoader";
 import { baseURL } from "../configs/baseURL.config";

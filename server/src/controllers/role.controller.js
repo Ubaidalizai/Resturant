@@ -1,7 +1,6 @@
-import { Role } from "../models/role.model.js";
 import { asyncHandler } from "../utils/asyncHandler.util.js";
 import ErrorHandler from "../utils/errorHandler.util.js";
-
+import {Role} from '../models/role.model.js'
 // ----------------------- ADD ROLE -----------------------
 export const addRole = asyncHandler(async (req, res, next) => {
     const { role, permissions } = req.body;
@@ -45,14 +44,10 @@ export const updateRole = asyncHandler(async (req, res, next) => {
     if (!roleFound || roleFound.isDeleted) {
         return next(new ErrorHandler(404, "Role not found"));
     }
-
     if (role) roleFound.role = role;
     if (permissions && Array.isArray(permissions)) roleFound.permissions = permissions;
-
     await roleFound.save();
-
     await roleFound.populate("permissions");
-
     res.respond(200, "Role updated successfully", { role: roleFound });
 });
 

@@ -18,4 +18,5 @@ export const orderValidation = [
     .isMongoId().withMessage("Invalid table ID"),
   body("customer")
     .notEmpty().withMessage("Customer name is required")
+    .isString().withMessage("Customer name must be a string")
 ];

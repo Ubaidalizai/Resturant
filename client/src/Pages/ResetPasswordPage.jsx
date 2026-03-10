@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import RestaurantLoader from './RestaurantLoader';
 import { toast } from 'react-toastify';
-import axios from 'axios';
+import axios from '../configs/axios.config';
 import { baseURL } from '../configs/baseURL.config';
 
 const ResetPasswordPage = () => {

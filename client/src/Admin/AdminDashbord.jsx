@@ -9,7 +9,7 @@ import Logo from'../images/logo.jpg';
 import OverviewChart from "./OverviewChart";
 import AdminPanel from './AdminPanel'
 import Expenses from "./Expenses";
-import axios from "axios";
+import axios from "../configs/axios.config";
 import { baseURL } from "../configs/baseURL.config";
 
 function AdminDashboard() {
