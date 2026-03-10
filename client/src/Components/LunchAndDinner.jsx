@@ -6,7 +6,8 @@ import axios from "axios";
 
 
 function LunchAndDinner() {
-  const [foods, setFoods] = useState([]);
+  const { foods, tables: backendTables } = useContext(AppContext);
+  const [foodsState, setFoodsState] = useState([]);
   const [quantities, setQuantities] = useState({});
   const [cart, setCart] = useState({});
   const [table, setTable] = useState("");
@@ -16,31 +17,12 @@ function LunchAndDinner() {
   const [editTableLocked, setEditTableLocked] = useState(false);
 
   
-    useEffect(() => {
-  const fetchFoods = async () => {
-    try {
-      const res = await axios.get(`${baseURL}/api/v1/foods/all`);
-
-    
-      const allFoods = res.data.data || [];
-
-     
-      const formattedFoods = allFoods.map((f) => ({
-        ...f,
-        id: f._id,
-      }));
-
-      setFoods(formattedFoods);
-
-      console.log(formattedFoods);
-    } catch (err) {
-      console.log(err.message);
-      toast.error("Failed to fetch foods");
-    }
-  };
-
-  fetchFoods();
-}, []);
+    // keep a transformed copy of global foods
+  useEffect(() => {
+    setFoodsState(
+      foods.map((f) => ({ ...f, id: f._id || f.id }))
+    );
+  }, [foods]);
 
 
  
@@ -203,9 +185,9 @@ function LunchAndDinner() {
     setShowEditModal(false);
   };
 
-  const lunchAndDinnerFoods = foods.filter(
-  (f) => f.catagory?.toLowerCase() === "lunch"
-);
+  const lunchAndDinnerFoods = foodsState.filter(
+    (f) => f.catagory?.toLowerCase() === "lunch"
+  );
   const grandTotal = Object.values(cart).reduce((s, i) => s + i.price * i.qty, 0);
 
   return (
@@ -305,8 +287,8 @@ function LunchAndDinner() {
             <div className="flex justify-between items-center mt-6 gap-4">
               <select value={table} onChange={(e) => setTable(e.target.value)} className="px-4 py-2 rounded-xl bg-yellow-600 text-white font-semibold">
                 <option value="">Select Table</option>
-                {[1, 2, 3, 4, 5, 6].map((t) => (
-                  <option key={t} value={String(t)}>Table {t}</option>
+                {backendTables.map((t) => (
+                  <option key={t._id} value={t._id}>Table {t.tableNumber}</option>
                 ))}
               </select>
 
@@ -334,8 +316,8 @@ function LunchAndDinner() {
             {!editTableLocked && (
               <select value={table} onChange={(e) => handleTableSelectEdit(e.target.value)} className="mb-4 px-4 py-2 rounded-xl bg-yellow-600 text-white font-semibold">
                 <option value="">Select Table</option>
-                {[1, 2, 3, 4, 5, 6].map((t) => (
-                  <option key={t} value={String(t)}>Table {t}</option>
+                {backendTables.map((t) => (
+                  <option key={t._id} value={t._id}>Table {t.tableNumber}</option>
                 ))}
               </select>
             )}
