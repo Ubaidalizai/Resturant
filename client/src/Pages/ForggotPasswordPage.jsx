@@ -1,11 +1,13 @@
 // frontend/components/ForgotPasswordPage.jsx
 import React, { useState } from "react";
-import axios from '../configs/axios.config';
 import { toast } from "react-toastify";
 import RestaurantLoader from "./RestaurantLoader";
-import { baseURL } from "../configs/baseURL.config";
+import { useApi } from "../context/ApiContext";
+import InputField from "../Components/UI/InputField";
+import Button from "../Components/UI/Button";
 
 const ForgotPasswordPage = () => {
+  const { post } = useApi();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -16,7 +18,7 @@ const ForgotPasswordPage = () => {
     }
     try {
       setLoading(true);
-      const res = await axios.post(`${baseURL}/api/v1/user/forgot-password`, { email });
+      const res = await post(`/api/v1/user/forgot-password`, { email });
       if (res.data.success) {
         toast.success(res.data.message || "Reset link sent to your email");
       } else {
@@ -43,19 +45,16 @@ const ForgotPasswordPage = () => {
         </h1>
 
         <div className="flex flex-col space-y-6">
-          <input
+          <InputField
             type="email"
             placeholder="Email Address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full border-2 border-yellow-600 rounded-xl px-5 py-3 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
+            className="border-2 border-yellow-600 rounded-xl px-5 py-3 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
           />
-          <button
-            onClick={handleResetPassword}
-            className="w-full bg-yellow-600 text-white font-bold py-3 rounded-xl shadow-lg hover:shadow-yellow-400 transition-transform transform hover:scale-105"
-          >
+          <Button onClick={handleResetPassword} className="w-full">
             Send Reset Link
-          </button>
+          </Button>
         </div>
       </div>
     </div>

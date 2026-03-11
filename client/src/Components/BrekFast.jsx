@@ -2,12 +2,12 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { AiOutlineDelete } from "react-icons/ai";
-import axios from "axios";
-import { baseURL } from "../configs/baseURL.config";
+import { useApi } from "../context/ApiContext";
 
 
 
 function BrekFast() {
+  const { get, post, put, baseURL } = useApi();
   const [foods, setFoods] = useState([]);
   const [quantities, setQuantities] = useState({});
   const [cart, setCart] = useState({});
@@ -22,7 +22,7 @@ function BrekFast() {
   useEffect(() => {
   const fetchFoods = async () => {
     try {
-      const res = await axios.get(`${baseURL}/api/v1/foods/all`);
+      const res = await get('/api/v1/foods/all');
 
     
       const allFoods = res.data.data || [];
@@ -50,7 +50,7 @@ function BrekFast() {
   useEffect(() => {
     const fetchTables = async () => {
       try {
-        const res = await axios.get(`${baseURL}/api/v1/tables/all`);
+        const res = await get('/api/v1/tables/all');
         console.log("TABLE API RESPONSE:", res.data);
         setTables(res.data.data || []);
       } catch (err) {
@@ -117,8 +117,8 @@ function BrekFast() {
   }
 
   try {
-    const res = await axios.post(
-      `${baseURL}/api/v1/orders/add`,
+    const res = await post(
+      `/api/v1/orders/add`,
       {
         tableId: table,
         items
@@ -154,8 +154,8 @@ function BrekFast() {
     setTable(tableId);
 
     try {
-      const res = await axios.get(
-        `${baseURL}/api/v1/orders/table/${tableId}`
+      const res = await get(
+        `/api/v1/orders/table/${tableId}`
       );
 
       if (!res.data.success) {
@@ -207,8 +207,8 @@ function BrekFast() {
     }
 
     try {
-      const res = await axios.put(
-        `${baseURL}/api/v1/orders/update/${currentOrderId}`,
+const res = await put(
+      `/api/v1/orders/update/${currentOrderId}`,
         {
           table,
           items,

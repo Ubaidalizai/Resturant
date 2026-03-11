@@ -1,10 +1,12 @@
 import React, { useState } from 'react'
 import RestaurantLoader from './RestaurantLoader';
 import { toast } from 'react-toastify';
-import axios from '../configs/axios.config';
-import { baseURL } from '../configs/baseURL.config';
+import { useApi } from '../context/ApiContext';
+import InputField from "../Components/UI/InputField";
+import Button from "../Components/UI/Button";
 
 const ResetPasswordPage = () => {
+    const { post } = useApi();
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [loading, setLoading] = useState(false);
@@ -34,7 +36,7 @@ const ResetPasswordPage = () => {
                 toast.error("Invalid or expired reset link");
                 return;
             }
-            const res = await axios.post(`${baseURL}/api/v1/user/reset-password`, { password, token });
+            const res = await post(`/api/v1/user/reset-password`, { password, token });
             if (res.data.success) {
                 toast.success(res.data.message || "Password reset successful");
                 setTimeout(() => {
@@ -63,26 +65,26 @@ const ResetPasswordPage = () => {
         </h1>
 
         <div className="flex flex-col space-y-6">
-          <input
+          <InputField
             type="password"
             placeholder="New Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full border-2 border-yellow-600 rounded-xl px-5 py-3 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
+            className="border-2 border-yellow-600 rounded-xl px-5 py-3 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
           />
-          <input
+          <InputField
             type="password"
             placeholder="Confirm Password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full border-2 border-yellow-600 rounded-xl px-5 py-3 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
+            className="border-2 border-yellow-600 rounded-xl px-5 py-3 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
           />
-          <button
+          <Button
             onClick={handleResetPassword}
-            className="w-full bg-yellow-600 text-white font-bold py-3 rounded-xl shadow-lg hover:shadow-yellow-400 transition-transform transform hover:scale-105"
+            className="w-full"
           >
             Reset the Password
-          </button>
+          </Button>
         </div>
       </div>
     </div>

@@ -8,6 +8,11 @@ import { Order } from '../models/order.model.js';
 export const addFood = asyncHandler(async (req, res) => {
     const { name, catagory, price } = req.body;
 
+    // Basic checks
+    if (!name) return res.respond(400, "Title is required");
+    if (!catagory) return res.respond(400, "Category is required");
+    if (!price) return res.respond(400, "Price is required");
+
     // Check if image exists
     if (!req.file) return res.respond(400, "Image is required");
 
@@ -29,8 +34,11 @@ export const getFoods = asyncHandler(async (req, res) => {
 
 // Delete Food
 export const deleteFood = asyncHandler(async (req, res) => {
-    const { productId } = req.params;
-    const food = await Food.findById(productId);
+    // route uses :id, so read that; also accept productId for backwards compatibility
+    const id = req.params.id || req.params.productId;
+    if (!id) return res.respond(400, "Food id is required");
+
+    const food = await Food.findById(id);
     if (!food) return res.respond(404, "Food not found");
 
     // Delete image file
@@ -46,12 +54,18 @@ export const deleteFood = asyncHandler(async (req, res) => {
 
 // Update Food
 export const updateFood = asyncHandler(async (req, res) => {
-    const { productId } = req.params;
+    // route currently defined as /update/:id
+    const id = req.params.id || req.params.productId;
     const { name, catagory, price } = req.body;
+
+    if (!name) return res.respond(400, "Title is required");
+    if (!catagory) return res.respond(400, "Category is required");
+    if (!price) return res.respond(400, "Price is required");
+
     const updatedData = { name, catagory, price };
 
     if (req.file) {
-        const food = await Food.findById(productId);
+        const food = await Food.findById(id);
         if (!food) return res.respond(404, "Food not found");
 
         // Delete old image if exists
@@ -64,7 +78,7 @@ export const updateFood = asyncHandler(async (req, res) => {
         updatedData.image = `/uploads/food_images/${req.file.filename}`;
     }
 
-    const updatedFood = await Food.findByIdAndUpdate(productId, updatedData, { new: true });
+    const updatedFood = await Food.findByIdAndUpdate(id, updatedData, { new: true });
     res.respond(200, "Product updated successfully", updatedFood);
 });
 

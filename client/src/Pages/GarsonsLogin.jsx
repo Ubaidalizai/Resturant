@@ -3,14 +3,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { ItemsContext } from "../App";
 import { toast } from "react-toastify";
 import RestaurantLoader from './RestaurantLoader';
-import axios from "axios";
-import { baseURL } from "../configs/baseURL.config";
-
-// Set default axios config globally
-axios.defaults.baseURL = baseURL;
-axios.defaults.withCredentials = true; // <-- All requests will now send cookies automatically
+import { useApi } from '../context/ApiContext';
+import InputField from "../Components/UI/InputField";
+import Button from "../Components/UI/Button";
 
 function LoginForm() {
+  const { post } = useApi();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -27,7 +25,7 @@ function LoginForm() {
       setLoading(true);
 
       // No need to add `withCredentials` here, it is global now
-      const response = await axios.post("/api/v1/user/login", { email, password });
+      const response = await post("/api/v1/user/login", { email, password }, { withCredentials: true });
 
       console.log("SERVER RESPONSE:", response.data);
 
@@ -84,31 +82,28 @@ function LoginForm() {
         </h1>
 
         <div className="flex flex-col space-y-6">
-          <input
+          <InputField
             type="text"
             placeholder="Email Address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full border-2 border-yellow-600 rounded-xl px-5 py-3 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
+            className="border-2 border-yellow-600 rounded-xl px-5 py-3 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
           />
-          <input
+          <InputField
             type="password"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full border-2 border-yellow-600 rounded-xl px-5 py-3 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
+            className="border-2 border-yellow-600 rounded-xl px-5 py-3 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
           />
           <div className="text-center">
             <Link to="/forgot-password" className="text-yellow-600 hover:underline">
               Forgot Password?
             </Link>
           </div>
-          <button
-            onClick={handleLogin}
-            className="w-full bg-yellow-600 text-white font-bold py-3 rounded-xl shadow-lg hover:shadow-yellow-400 transition-transform transform hover:scale-105"
-          >
+          <Button onClick={handleLogin} className="w-full">
             Login
-          </button>
+          </Button>
         </div>
       </div>
     </div>

@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import background from "../images/willcome.jpg";
 import RestaurantLoader from'./RestaurantLoader';
+import Button from "../Components/UI/Button";
 
 function Welcome() {
   const navigate = useNavigate();
@@ -39,19 +40,19 @@ function Welcome() {
           Experience the Taste of Real Food
         </p>
 
-        <button
+        <Button
           onClick={handleOrderNow}
-          className="mt-4 bg-yellow-600 text-white font-bold px-8 py-4 rounded-full text-lg shadow-xl animate-bounce hover:shadow-amber-300 scale-105 transition-all duration-300 cursor-pointer"
+          className="mt-4 bg-yellow-600 px-8 py-4 rounded-full text-lg shadow-xl animate-bounce hover:shadow-amber-300 scale-105 transition-all duration-300"
         >
           Order Now
-        </button>
+        </Button>
 
-        <button
+        <Button
           onClick={() => navigate("/login")}
-          className="text-white cursor-pointer"
+          className="text-white bg-transparent px-0 py-0 shadow-none hover:underline"
         >
           Login
-        </button>
+        </Button>
       </div>
     </div>
   );

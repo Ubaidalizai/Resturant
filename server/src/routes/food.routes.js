@@ -1,71 +1,56 @@
 import express from 'express';
-import { 
-  addExpense, 
-  deleteExpense, 
-  getAllExpenses, 
-  getExpensesByCatagory, 
-  getExpensesByDateRange, 
-  getTodayExpenses, 
-  updateExpense 
-} from '../controllers/expense.controller.js';
-import { expensesValidations } from '../validators/expenses.validator.js';
+import {
+  addFood,
+  getFoods,
+  deleteFood,
+  updateFood,
+  getFoodBySales,
+  getMenueFoods
+} from '../controllers/food.controller.js';
+import { foodValidation } from '../validators/food.validator.js';
 import { validationMiddleware } from '../middlewares/validationsHandler.utils.js';
 import { userAuthMiddleware } from '../middlewares/userAuth.middleware.js';
 import { authorize } from '../middlewares/authorizeRole.middleware.js';
+import { upload } from '../configs/multer.config.js';
 
-const expensesRouter = express.Router();
+const foodsRouter = express.Router();
 
-expensesRouter.post(
-  '/add', 
-  userAuthMiddleware, 
-  authorize('add_expenses', 'admin_access'), 
-  expensesValidations, 
-  validationMiddleware,  
-  addExpense
+foodsRouter.post(
+  '/add',
+  userAuthMiddleware,
+  authorize('add_foods', 'admin_access'),
+  upload.single('image'),
+  foodValidation,
+  validationMiddleware,
+  addFood
 );
 
-expensesRouter.get(
-  '/all', 
-  userAuthMiddleware, 
-  authorize('view_expenses', 'admin_access'), 
-  getAllExpenses
+foodsRouter.get(
+  '/all',
+  userAuthMiddleware,
+  authorize('view_foods', 'admin_access'),
+  getFoods
 );
 
-expensesRouter.put(
-  '/update/:id', 
+foodsRouter.put(
+  '/update/:id',
   userAuthMiddleware,
   authorize('admin_access'),
-  expensesValidations, 
-  validationMiddleware, 
-  updateExpense
+  upload.single('image'),
+  foodValidation,
+  validationMiddleware,
+  updateFood
 );
 
-expensesRouter.delete(
-  '/delete/:id', 
+foodsRouter.delete(
+  '/delete/:id',
   userAuthMiddleware,
   authorize('admin_access'),
-  deleteExpense
+  deleteFood
 );
 
-expensesRouter.get(
-  '/report', 
-  userAuthMiddleware, 
-  authorize('view_expenses', 'admin_access'), 
-  getExpensesByDateRange
-);
+// additional food routes
+foodsRouter.get('/sales', userAuthMiddleware, authorize('view_foods','admin_access'), getFoodBySales);
+foodsRouter.get('/menu/:menuId', userAuthMiddleware, authorize('view_foods','admin_access'), getMenueFoods);
 
-expensesRouter.get(
-  '/category/:id', 
-  userAuthMiddleware, 
-  authorize('view_expenses', 'admin_access'), 
-  getExpensesByCatagory
-);
-
-expensesRouter.get(
-  '/today/expense', 
-  userAuthMiddleware, 
-  authorize('view_expenses', 'admin_access'), 
-  getTodayExpenses
-);
-
-export default expensesRouter;
+export default foodsRouter;

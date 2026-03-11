@@ -2,10 +2,11 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { AiOutlineDelete } from "react-icons/ai";
-import axios from "axios";
+import { useApi } from "../context/ApiContext";
 
 function Drinks() {
- const [foods, setFoods] = useState([]);
+ const { get, baseURL } = useApi();
+  const [foods, setFoods] = useState([]);
   const [quantities, setQuantities] = useState({});
   const [cart, setCart] = useState({});
   const [table, setTable] = useState("");
@@ -18,7 +19,7 @@ function Drinks() {
   useEffect(() => {
   const fetchFoods = async () => {
     try {
-      const res = await axios.get(`${baseURL}/api/v1/foods/all`);
+      const res = await get('/api/v1/foods/all');
 
     
       const allFoods = res.data.data || [];

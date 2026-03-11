@@ -4,10 +4,11 @@ import MenuTabs from "../Components/garson/MenuTabs";
 import FoodGrid from "../Components/garson/FoodGrid";
 import CartPanel from "../Components/garson/CartPanel";
 import OrderCard from "../Components/garson/OrderCard";
-import { baseURL } from "../configs/baseURL.config";
 import { toast } from "react-toastify";
-import axios from '../configs/axios.config'
+import { useApi } from "../context/ApiContext";
+import Button from "../Components/UI/Button";
 function GarsoonDashboard() {
+  const { get } = useApi();
   const [menus, setMenus] = useState([]);
   const [allFoods, setAllFoods] = useState([]);
   const [tables, setTables] = useState([]);
@@ -24,16 +25,14 @@ function GarsoonDashboard() {
 
   // Fetch tables
   useEffect(() => {
-    axios
-      .get(`${baseURL}/api/v1/tables/all`)
+    get('/api/v1/tables/all')
       .then((res) => setTables(res.data.data))
       .catch((err) => console.error(err));
   }, []);
 
   // Fetch menus
   useEffect(() => {
-    axios
-      .get(`${baseURL}/api/v1/menues/all`)
+    get('/api/v1/menues/all')
       .then((res) => {
         setMenus(res.data.data);
         if (res.data.data.length) setSelectedMenu(res.data.data[0]._id);
@@ -43,8 +42,7 @@ function GarsoonDashboard() {
 
   // Fetch foods
   useEffect(() => {
-    axios
-      .get(`${baseURL}/api/v1/foods/all`)
+    get('/api/v1/foods/all')
       .then((res) => setAllFoods(res.data.data))
       .catch((err) => console.error(err));
   }, []);
@@ -57,7 +55,7 @@ function GarsoonDashboard() {
   // Fetch today's orders
   const fetchOrders = async () => {
     try {
-      const res = await axios.get(`${baseURL}/api/v1/orders/user`, {
+      const res = await get('/api/v1/orders/user', {
         withCredentials: true,
       });
       setOrders(res.data.data);
@@ -93,20 +91,20 @@ function GarsoonDashboard() {
             setSelectedMenu={setSelectedMenu}
           />
 
-          <button
+          <Button
             onClick={fetchOrders}
-            className="px-6 py-2.5 relative -top-3 bg-yellow-500 text-white rounded-lg font-semibold hover:bg-yellow-600 transition"
+            className="px-6 py-2.5 relative -top-3 bg-yellow-500"
           >
             Orders
-          </button>
+          </Button>
 
           {ordersView && (
-            <button
+            <Button
               onClick={() => setOrdersView(false)}
-              className="px-6 py-2.5 relative -top-3 bg-gray-300 text-black rounded-lg font-semibold hover:bg-gray-400 transition"
+              className="px-6 py-2.5 relative -top-3 bg-gray-300 text-black"
             >
               Back to Menu
-            </button>
+            </Button>
           )}
         </div>
 

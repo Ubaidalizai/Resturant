@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
-import axios from "../configs/axios.config";
 import { AiOutlineDelete, AiOutlineEdit, AiOutlinePlus, AiOutlineClose } from "react-icons/ai";
 import { toast } from "react-toastify";
-import { baseURL } from "../configs/baseURL.config";
+import { useApi } from "../context/ApiContext";
+import InputField from "../Components/UI/InputField";
+import Button from "../Components/UI/Button";
 
 function Expenses() {
 
+  const { get, post, del } = useApi();
   //  CATEGORY STATES 
   const [categories, setCategories] = useState([]);
   const [showCatModal, setShowCatModal] = useState(false);
@@ -25,7 +27,7 @@ function Expenses() {
   //  GET CATEGORIES 
   const fetchCategories = async () => {
     try {
-      const res = await axios.get(`${baseURL}/api/v1/expenseCatagories/all`);
+      const res = await get('/api/v1/expenseCatagories/all');
 
       if (Array.isArray(res.data)) {
         setCategories(res.data);
@@ -42,7 +44,7 @@ function Expenses() {
   //  GET EXPENSES 
   const fetchExpenses = async () => {
     try {
-      const res = await axios.get(`${baseURL}/api/v1/expenses/all`);
+      const res = await get('/api/v1/expenses/all');
 
       if (Array.isArray(res.data)) {
         setExpenses(res.data);
@@ -74,7 +76,7 @@ function Expenses() {
   
     const payload = { name, description: description || "" };
 
-    await axios.post(`${baseURL}/api/v1/expenseCatagories/add`, payload);
+    await post(`/api/v1/expenseCatagories/add`, payload);
 
     toast.success("Category Added");
     setName("");
@@ -92,7 +94,7 @@ function Expenses() {
   //  DELETE CATEGORY 
   const deleteCategory = async (id) => {
     try {
-      await axios.delete(`${baseURL}/api/v1/expenseCatagories/delete/${id}`);
+      await del(`/api/v1/expenseCatagories/delete/${id}`);
       toast.success("Category Deleted");
       fetchCategories();
     } catch (err) {
@@ -118,7 +120,7 @@ function Expenses() {
 
     try {
       console.log(catagoryId);
-      await axios.post(`${baseURL}/api/v1/expenses/add`, {
+      await post(`/api/v1/expenses/add`, {
         title,
         catagory: catagoryId,
         amount,
@@ -145,7 +147,7 @@ function Expenses() {
   //  DELETE EXPENSE 
   const deleteExpense = async (id) => {
     try {
-      await axios.delete(`${baseURL}/api/v1/expenses/delete/${id}`);
+      await del(`/api/v1/expenses/delete/${id}`);
       toast.success("Expense Deleted");
       fetchExpenses();
     } catch (err) {
@@ -186,14 +188,14 @@ function Expenses() {
               {editCatId ? "Edit Category" : "Add Category"}
             </h2>
 
-            <input
+            <InputField
               className="border p-2 w-full mb-3"
               placeholder="Category Name"
               value={name}
               onChange={e => setName(e.target.value)}
             />
 
-            <input
+            <InputField
               className="border p-2 w-full mb-4"
               placeholder="Description"
               value={description}
@@ -201,12 +203,12 @@ function Expenses() {
             />
 
             <div className="flex justify-end gap-3">
-              <button onClick={() => setShowCatModal(false)} className="bg-gray-300 px-4 py-2 rounded">
+              <Button onClick={() => setShowCatModal(false)} className="bg-gray-300 text-black">
                 Cancel
-              </button>
-              <button onClick={saveCategory} className="bg-yellow-600 text-white px-4 py-2 rounded">
+              </Button>
+              <Button onClick={saveCategory} className="">
                 Save
-              </button>
+              </Button>
             </div>
 
           </div>
@@ -319,7 +321,12 @@ function Expenses() {
 
             <h2 className="text-xl mb-4">Add Expense</h2>
 
-            <input className="border p-2 w-full mb-3" placeholder="Title" value={title} onChange={e => setTitle(e.target.value)} />
+            <InputField
+              className="border p-2 w-full mb-3"
+              placeholder="Title"
+              value={title}
+              onChange={e => setTitle(e.target.value)}
+            />
 
             <select className="border p-2 w-full mb-3" value={catagoryId} onChange={e => setCatagoryId(e.target.value)}>
               <option value="">Select Category</option>
@@ -328,17 +335,33 @@ function Expenses() {
               ))}
             </select>
 
-            <input className="border p-2 w-full mb-3" type="number" placeholder="Amount" value={amount} onChange={e => setAmount(e.target.value)} />
-            <input className="border p-2 w-full mb-3" type="date" value={date} onChange={e => setDate(e.target.value)} />
-            <input className="border p-2 w-full mb-4" placeholder="Note" value={note} onChange={e => setNote(e.target.value)} />
+            <InputField
+              className="border p-2 w-full mb-3"
+              type="number"
+              placeholder="Amount"
+              value={amount}
+              onChange={e => setAmount(e.target.value)}
+            />
+            <InputField
+              className="border p-2 w-full mb-3"
+              type="date"
+              value={date}
+              onChange={e => setDate(e.target.value)}
+            />
+            <InputField
+              className="border p-2 w-full mb-4"
+              placeholder="Note"
+              value={note}
+              onChange={e => setNote(e.target.value)}
+            />
 
             <div className="flex justify-end gap-3">
-              <button onClick={() => setShowExpModal(false)} className="bg-gray-300 px-4 py-2 rounded">
+              <Button onClick={() => setShowExpModal(false)} className="bg-gray-300 text-black">
                 Cancel
-              </button>
-              <button onClick={addExpense} className="bg-yellow-600 text-white px-4 py-2 rounded">
+              </Button>
+              <Button onClick={addExpense} className="">
                 Save
-              </button>
+              </Button>
             </div>
 
           </div>

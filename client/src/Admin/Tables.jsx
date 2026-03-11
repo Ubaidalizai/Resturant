@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
-import axios from "../configs/axios.config";
+import { useApi } from "../context/ApiContext";
+import { FaChair, FaCheckCircle, FaClock, FaUtensils } from "react-icons/fa";
+import Button from "../Components/UI/Button";
 
 function Tables() {
+  const { get } = useApi();
   const [tables, setTables] = useState([]);
   const [selectedTable, setSelectedTable] = useState(null);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
@@ -9,7 +12,7 @@ function Tables() {
   useEffect(() => {
     const fetchTables = async () => {
       try {
-        const res = await axios.get(`${baseURL}/api/v1/tables/all`);
+        const res = await get('/api/v1/tables/all');
         const backendTables = res.data.data || [];
         const orders = JSON.parse(localStorage.getItem("Orders")) || [];
 
@@ -126,12 +129,12 @@ function Tables() {
               <h2 className="text-3xl font-bold text-yellow-600">
                 Table {selectedTable.number}
               </h2>
-              <button
+              <Button
                 onClick={() => setSelectedTable(null)}
-                className="font-bold text-yellow-600 text-xl"
+                className="font-bold text-yellow-600 text-xl bg-transparent px-0 py-0 shadow-none hover:text-gray-700"
               >
                 X
-              </button>
+              </Button>
             </div>
 
             {selectedTable.orders.map((o, i) => (
@@ -167,12 +170,12 @@ function Tables() {
                   </table>
                 </div>
 
-                <button
+                <Button
                   onClick={() => handleGenerateInvoice(o)}
-                  className="w-full mt-3 bg-yellow-600 text-white py-2 rounded-xl hover:bg-yellow-700 transition"
+                  className="w-full mt-3"
                 >
                   Generate Invoice
-                </button>
+                </Button>
               </div>
             ))}
           </div>
@@ -209,12 +212,12 @@ function Tables() {
             Total: ${selectedInvoice.orderTotal}
           </div>
 
-          <button
+          <Button
             onClick={() => deleteOrderById(selectedInvoice.id)}
-            className="mt-6 bg-yellow-600 text-white px-6 py-2 rounded hover:bg-yellow-700 transition"
+            className="mt-6 px-6 py-2"
           >
             Paid Invoice
-          </button>
+          </Button>
         </div>
       )}
 
