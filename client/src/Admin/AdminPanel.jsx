@@ -42,6 +42,10 @@ function Management() {
     phone: "",
     role: "",
     salary: "",
+    address: "",
+    nationalId: "",
+    employmentType: "",
+    status: "",
     selectedPermissions: [],
     standard: false,
     international: false
@@ -84,11 +88,21 @@ function Management() {
     }
   };
 
+  const fetchStaff = async () => {
+    try {
+      const res = await get('/api/v1/staff/all');
+      setStaff(res.data.data || []);
+    } catch {
+      toast.error("Failed to load staff");
+    }
+  };
+
   useEffect(() => {
     fetchMenus();
     fetchTables();
     fetchGarsons();
     fetchRoles();
+    fetchStaff();
   }, []);
 
   // ---------------- MODAL ----------------
@@ -96,7 +110,7 @@ function Management() {
     if (item) {
       setEditItem(item);
       setNewItem({
-        name: item.name || "",
+        name: item.name || item.role || "",
         catagory: item.catagory || "",
         email: item.email || "",
         password: item.password || "",
@@ -104,7 +118,13 @@ function Management() {
         phone: item.phone || "",
         role: item.role || "",
         salary: item.salary || "",
-        selectedPermissions: item.permissions || [],
+        address: item.address || "",
+        nationalId: item.nationalId || "",
+        employmentType: item.employmentType || "",
+        status: item.status || "",
+        selectedPermissions: Array.isArray(item.permissions)
+          ? item.permissions.map(p => p._id || p)
+          : [],
         standard: item.standard || false,
         international: item.international || false,
       });
@@ -120,6 +140,10 @@ function Management() {
         phone: "",
         role: "",
         salary: "",
+        address: "",
+        nationalId: "",
+        employmentType: "",
+        status: "",
         selectedPermissions: [],
         standard: false,
         international: false,
@@ -195,21 +219,37 @@ function Management() {
       } else if (activeTab === "Role") {
         if (!newItem.name) return toast.error("Please fill role field");
         const payload = {
+          id: editItem?._id,
           role: newItem.name,
           permissions: newItem.selectedPermissions
         };
         if (editItem) {
-          await put(`/api/v1/users/update-role/${editItem._id}`, payload);
+          await put(`/api/v1/role/update`, payload);
           toast.success("Role updated successfully");
         } else {
           await post(`/api/v1/role/add`, payload);
           toast.success("Role added successfully");
         }
-        fetchGarsons();
+        fetchRoles();
       } else if (activeTab === "Staff") {
-        if (!newItem.name || !newItem.phone || !newItem.salary) return toast.error("Please fill all staff fields");
-        // API call for staff
-        toast.success("Staff operation simulated"); // placeholder
+        if (!newItem.name || !newItem.phone || !newItem.salary) return toast.error("Please fill all required staff fields");
+        const payload = {
+          fullName: newItem.name,
+          phone: newItem.phone,
+          address: newItem.address,
+          nationalId: newItem.nationalId,
+          salary: newItem.salary,
+          status: newItem.status,
+          employmentType: newItem.employmentType
+        };
+        if (editItem) {
+          await put(`/api/v1/staff/update/${editItem._id}`, payload);
+          toast.success("Staff updated successfully");
+        } else {
+          await post(`/api/v1/staff/add`, payload);
+          toast.success("Staff added successfully");
+        }
+        fetchStaff();
       }
       closeModal();
     } catch (error) {
@@ -228,12 +268,16 @@ function Management() {
         await del(`/api/v1/tables/delete/${id}`);
         toast.success("Table deleted");
         fetchTables();
-      } else if (activeTab === "Garsons" || activeTab === "Role") {
+      } else if (activeTab === "Garsons") {
         await del(`/api/v1/users/delete/${id}`);
-        toast.success(`${activeTab === "Garsons" ? "Garson" : "Role"} deleted`);
+        toast.success("Garson deleted");
         fetchGarsons();
+      } else if (activeTab === "Role") {
+        await del(`/api/v1/role/delete/${id}`);
+        toast.success("Role deleted");
+        fetchRoles();
       }
-    } catch {
+    } catch (err) {
       toast.error("Delete failed");
     }
   };
@@ -274,7 +318,7 @@ function Management() {
               {activeTab === "Tables" && <><th className="p-4">Table Number</th><th>Capacity</th><th>Actions</th></>}
               {activeTab === "Garsons" && <><th className="p-4">Name</th><th>Email</th><th>Password</th><th>Role</th><th>Phone</th><th>Actions</th></>}
               {activeTab === "Role" && <><th className="p-4">Role</th><th>Permissions</th><th>Actions</th></>}
-              {activeTab === "Staff" && <><th className="p-4">Name</th><th>Phone</th><th>Salary</th><th>Actions</th></>}
+              {activeTab === "Staff" && <><th className="p-4">Name</th><th>Phone</th><th>Address</th><th>Salary</th><th>Status</th><th>Actions</th></>}
             </tr>
           </thead>
           <tbody>
@@ -316,8 +360,10 @@ function Management() {
 
             {activeTab === "Role" && role.map(r => (
               <tr key={r._id} className="border-b hover:bg-gray-50 transition">
-                <td className="p-4 text-black">{r.name}</td>
-                <td className="text-black">{(r.permissions || []).join(", ")}</td>
+                <td className="p-4 text-black">{r.role}</td>
+                <td className="text-black">
+                  {(r.permissions || []).map(p => p.name || p).join(", ")}
+                </td>
                 <td className="flex justify-center gap-4">
                   <button onClick={() => openModal(r)} className="text-blue-500 hover:text-blue-700 transition"><FontAwesomeIcon icon={faEdit} /></button>
                   <button onClick={() => handleDelete(null, r._id)} className="text-red-500 hover:text-red-700 transition"><FontAwesomeIcon icon={faTrash} /></button>
@@ -327,9 +373,11 @@ function Management() {
 
             {activeTab === "Staff" && staff.map(s => (
               <tr key={s._id} className="border-b hover:bg-gray-50 transition">
-                <td className="p-4 text-black">{s.name}</td>
+                <td className="p-4 text-black">{s.fullName}</td>
                 <td className="text-black">{s.phone}</td>
+                <td className="text-black">{s.address || "-"}</td>
                 <td className="text-black">{s.salary}</td>
+                <td className="text-black">{s.status}</td>
                 <td className="flex justify-center gap-4">
                   <button onClick={() => openModal(s)} className="text-blue-500 hover:text-blue-700 transition"><FontAwesomeIcon icon={faEdit} /></button>
                   <button onClick={() => handleDelete(null, s._id)} className="text-red-500 hover:text-red-700 transition"><FontAwesomeIcon icon={faTrash} /></button>
@@ -467,6 +515,38 @@ function Management() {
               {/* Staff */}
               {activeTab === "Staff" && (
                 <>
+                  <InputField
+                    type="text"
+                    placeholder="Address"
+                    value={newItem.address || ""}
+                    onChange={(e) => setNewItem({ ...newItem, address: e.target.value })}
+                  />
+                  <InputField
+                    type="text"
+                    placeholder="National ID"
+                    value={newItem.nationalId || ""}
+                    onChange={(e) => setNewItem({ ...newItem, nationalId: e.target.value })}
+                  />
+                  <select
+                    className="border p-2 rounded w-full"
+                    value={newItem.status || ""}
+                    onChange={(e) => setNewItem({ ...newItem, status: e.target.value })}
+                  >
+                    <option value="">Status</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="terminated">Terminated</option>
+                  </select>
+                  <select
+                    className="border p-2 rounded w-full"
+                    value={newItem.employmentType || ""}
+                    onChange={(e) => setNewItem({ ...newItem, employmentType: e.target.value })}
+                  >
+                    <option value="">Employment Type</option>
+                    <option value="full-time">Full-time</option>
+                    <option value="part-time">Part-time</option>
+                    <option value="contract">Contract</option>
+                  </select>
                   <InputField
                     type="text"
                     placeholder="Name"

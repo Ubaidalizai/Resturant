@@ -17,7 +17,12 @@ export const staffValidation = [
     .matches(/^(?:\+93|93|0)?7[0-9]{8}$/)
     .withMessage("Phone must be a valid Afghan mobile number"),
 
-  ,
+  // address (optional)
+  body("address")
+    .optional()
+    .isString()
+    .withMessage("Address must be a string"),
+
   // salary
   body("salary")
     .notEmpty()
