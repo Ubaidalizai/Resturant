@@ -9,11 +9,11 @@ const UserRouter = express.Router();
 UserRouter.get(
   '/all',
   userAuthMiddleware,
-  authorize('view_users', 'admin_access'),
+  authorize('admin_access', 'view_users'),
   getAllUser
 );
 
-// Get single user → view_users or admin
+// Get single usser → view_users or admin
 UserRouter.get(
   '/single/:userId',
   userAuthMiddleware,
