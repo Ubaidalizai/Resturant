@@ -1,10 +1,12 @@
 // CartPanel.jsx
-import axios from '../../configs/axios.config';
 import TableSelector from "./TableSelector";
-import { baseURL } from "../../configs/baseURL.config";
 import { toast } from "react-toastify";
+import { useApi } from '../../context/ApiContext';
+import InputField from "../UI/InputField";
+import Button from "../UI/Button";
 
 function CartPanel({ cart, setCart, tables, selectedTable, setSelectedTable, currentOrderId, setCurrentOrderId, customer, setCustomer }) {
+  const { post, put } = useApi();
   const items = Object.values(cart);
   const grandTotal = items.reduce((sum, item) => sum + item.price * item.qty, 0);
 
@@ -27,16 +29,14 @@ function CartPanel({ cart, setCart, tables, selectedTable, setSelectedTable, cur
 
       if (currentOrderId) {
         // Update existing order
-        await axios.put(
-          `${baseURL}/api/v1/orders/update/${currentOrderId}`,
+        await put(`/api/v1/orders/update/${currentOrderId}`,
           { items: orderItems },
           { withCredentials: true }
         );
         toast.success("Order updated successfully!");
       } else {
         // Create new order
-        await axios.post(
-          `${baseURL}/api/v1/orders/add`,
+        await post(`/api/v1/orders/add`,
           {
             tableId: selectedTable,
             items: items.map(item => ({ foodId: item._id, quantity: item.qty })),
@@ -62,7 +62,7 @@ function CartPanel({ cart, setCart, tables, selectedTable, setSelectedTable, cur
 
       <div className="mb-4">
         <label className="block text-gray-700 font-bold mb-2">Customer Name</label>
-        <input
+        <InputField
           type="text"
           placeholder="Enter customer name"
           className="border ::placeholder:text-gray-500 rounded py-2 text-black px-3 border-gray-400 w-full focus:outline-none focus:ring-2 focus:ring-yellow-600"
@@ -100,12 +100,12 @@ function CartPanel({ cart, setCart, tables, selectedTable, setSelectedTable, cur
 
       <div className="mt-auto">
         <h3 className="font-bold text-lg text-red-600 mb-4">Total: ${grandTotal}</h3>
-        <button
+        <Button
           onClick={confirmOrder}
-          className="w-full bg-green-600 text-white py-2 rounded-xl font-bold"
+          className="w-full bg-green-600"
         >
           {currentOrderId ? "Update Order" : "Confirm Order"}
-        </button>
+        </Button>
       </div>
     </div>
   );

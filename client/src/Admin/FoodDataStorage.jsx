@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
 import { toast } from "react-toastify";
-import axios from "../configs/axios.config";
-import { baseURL } from "../configs/baseURL.config";
+import { useApi } from "../context/ApiContext";
+import InputField from "../Components/UI/InputField";
+import Button from "../Components/UI/Button";
 
 function FoodDataStorage() {
+  const { get, post, put, del, baseURL } = useApi();
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState(""); 
@@ -15,17 +17,18 @@ function FoodDataStorage() {
   const [modal, setModal] = useState(null);
   const [selectedFood, setSelectedFood] = useState(null);
 
-  // Fetch foods
+  // Fetch foods (extracted so it can be called on demand)
+  const fetchFoods = async () => {
+    try {
+      const res = await get('/api/v1/foods/all');
+      setEnterFoodData(res.data.data || []);
+    } catch (err) {
+      console.log(err.message);
+      toast.error("Failed to fetch foods");
+    }
+  };
+
   useEffect(() => {
-    const fetchFoods = async () => {
-      try {
-        const res = await axios.get(`${baseURL}/api/v1/foods/all`);
-        setEnterFoodData(res.data.data || []);
-      } catch (err) {
-        console.log(err.message);
-        toast.error("Failed to fetch foods");
-      }
-    };
     fetchFoods();
   }, []);
 
@@ -33,7 +36,7 @@ function FoodDataStorage() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await axios.get(`${baseURL}/api/v1/menues/all`);
+        const res = await get('/api/v1/menues/all');
         setCategories(res.data.data || []);
       } catch (err) {
         console.log(err.message);
@@ -60,12 +63,16 @@ function FoodDataStorage() {
 
       formData.append("image", image);
 
-      const res = await axios.post(`${baseURL}/api/v1/foods/add`, formData, {
+      const res = await post(`/api/v1/foods/add`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      setEnterFoodData((prev) => [...prev, res.data]);
-      toast.success(`${res.data.data.name} was added successfully`);
+      // backend returns the new food in res.data.data
+      const created = res.data.data;
+      // refresh list instead of manual push so filters/search remain accurate
+      await fetchFoods();
+      setSearch("");
+      toast.success(`${created.name} was added successfully`);
 
       setName("");
       setPrice("");
@@ -74,7 +81,7 @@ function FoodDataStorage() {
       setModal(null);
     } catch (err) {
       console.log(err);
-      toast.error("Failed to add food");
+      toast.error(err.response?.data?.message || "Failed to add food");
     }
   };
 
@@ -94,35 +101,43 @@ function FoodDataStorage() {
         formData.append("image", image);
       }
 
-      const res = await axios.put(
-        `${baseURL}/api/v1/foods/${selectedFood._id}`,
+      const res = await put(
+        `/api/v1/foods/update/${selectedFood._id}`,
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
 
       const updatedFoods = enterFoodData.map((food) =>
-        food._id === selectedFood._id ? res.data : food
+        food._id === selectedFood._id ? res.data.data : food
       );
       setEnterFoodData(updatedFoods);
+      // also refresh from backend to pick up any server side changes (e.g. new image path)
+      fetchFoods();
       toast.success("Food updated successfully");
 
       setModal(null);
       setSelectedFood(null);
     } catch (err) {
       console.log(err);
-      toast.error("Failed to update food");
+      toast.error(err.response?.data?.message || "Failed to update food");
     }
   };
 
   // Delete Food
-  const deleteFood = async (foodId) => {
+  const deleteFood = async () => {
+    // selectedFood must be set by caller
+    if (!selectedFood) return;
     try {
-      await axios.delete(`${baseURL}/api/v1/foods/delete/${foodId}`);
-      setEnterFoodData((prev) => prev.filter((food) => food._id !== foodId));
-      toast.success("Food deleted successfully");
+      const res = await del(`/api/v1/foods/delete/${selectedFood._id}`);
+      toast.success(res.data?.message || "Food deleted successfully");
+      setEnterFoodData((prev) => prev.filter((f) => f._id !== selectedFood._id));
+      fetchFoods();
     } catch (err) {
       console.log(err);
-      toast.error("Failed to delete food");
+      toast.error(err.response?.data?.message || "Failed to delete food");
+    } finally {
+      setModal(null);
+      setSelectedFood(null);
     }
   };
 
@@ -143,7 +158,7 @@ function FoodDataStorage() {
         Add Food
       </button>
 
-      <input
+      <InputField
         type="text"
         placeholder="Search food by name..."
         value={search}
@@ -159,13 +174,15 @@ function FoodDataStorage() {
             className="bg-white rounded-2xl shadow p-6 flex flex-col items-center"
           >
             <img
-              src={`${baseURL}/${food.image}`}
-              alt={food.name}
+              src={
+                food.image
+                  ? `${baseURL}${food.image}`
+                  : "https://via.placeholder.com/96?text=No+Image"
+              }
+              alt={food.name || "Food"}
               className="w-24 h-24 rounded-full mb-4 object-cover"
             />
             <h2 className="text-xl font-bold text-gray-800">{food.name}</h2>
-
-
             <p className="text-yellow-600 font-bold text-lg mt-2">${food.price}</p>
 
             <div className="flex space-x-4 mt-4">
@@ -182,7 +199,10 @@ function FoodDataStorage() {
               />
               <AiOutlineDelete
                 className="text-red-500 cursor-pointer text-xl"
-                onClick={() => deleteFood(food._id)}
+                onClick={() => {
+                  setSelectedFood(food);
+                  setModal("delete");
+                }}
               />
             </div>
           </div>
@@ -190,7 +210,7 @@ function FoodDataStorage() {
       </div>
 
       {/* Modal */}
-      {modal && (
+      {modal && modal !== "delete" && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="absolute inset-0 backdrop-blur-sm"></div>
           <div className="bg-white rounded-3xl p-8 w-full max-w-md relative shadow-2xl z-10">
@@ -209,7 +229,7 @@ function FoodDataStorage() {
                 {modal === "add" ? "Add Food" : "Edit Food"}
               </h2>
 
-              <input
+              <InputField
                 type="text"
                 placeholder="Food Name"
                 value={name}
@@ -217,7 +237,7 @@ function FoodDataStorage() {
                 className="border-2 border-yellow-600 rounded-xl px-4 py-3 w-full focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
               />
 
-              <input
+              <InputField
                 type="number"
                 placeholder="$Price"
                 value={price}
@@ -250,14 +270,41 @@ function FoodDataStorage() {
                 />
               </label>
 
-              <button
+              <Button
                 onClick={modal === "edit" ? updateFood : null}
                 type={modal === "add" ? "submit" : "button"}
-                className="bg-yellow-600 text-white font-bold py-3 rounded-xl w-full cursor-pointer hover:scale-105 transition"
+                className="w-full"
               >
                 {modal === "add" ? "Add Food" : "Update Food"}
-              </button>
+              </Button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* delete confirmation modal */}
+      {modal === "delete" && selectedFood && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="absolute inset-0 bg-black/30"></div>
+          <div className="bg-white rounded-3xl p-8 w-full max-w-xs relative shadow-2xl z-10 text-center">
+            <h2 className="text-xl font-bold text-red-600 mb-4">Delete Food</h2>
+            <p className="mb-6 text-black">
+              Are you sure you want to remove "{selectedFood.name}"?
+            </p>
+            <div className="flex gap-4 justify-center">
+              <Button
+                onClick={() => { setModal(null); setSelectedFood(null); }}
+                className="bg-gray-300 text-black"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={deleteFood}
+                className="bg-red-600 text-white"
+              >
+                Delete
+              </Button>
+            </div>
           </div>
         </div>
       )}

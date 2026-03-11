@@ -1,15 +1,15 @@
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
-import axios from "axios";
-import { baseURL } from "../configs/baseURL.config";
+import { useApi } from "../context/ApiContext";
 
 function MenusPage() {
+  const { get } = useApi();
   const [menus, setMenus] = useState([]);
 
   useEffect(() => {
     const fetchMenus = async () => {
       try {
-        const res = await axios.get(`${baseURL}/api/v1/menues/all`);
+        const res = await get('/api/v1/menues/all');
 
        
         const menusData = Array.isArray(res.data.data) ? res.data.data : [];

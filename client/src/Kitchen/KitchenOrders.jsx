@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
-import axios from '../configs/axios.config';
+import { useApi } from '../context/ApiContext';
+import Button from "../Components/UI/Button";
 
 function KitchenOrders() {
+  const { get } = useApi();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -53,11 +55,9 @@ function KitchenOrders() {
               >
                 Status: {order.status}
               </p>
-              <button
-                className="mt-4 w-full bg-yellow-600 text-white py-2 rounded-lg hover:bg-yellow-500 transition-colors"
-              >
+              <Button className="mt-4 w-full">
                 Mark as Completed
-              </button>
+              </Button>
             </div>
           ))}
         </div>

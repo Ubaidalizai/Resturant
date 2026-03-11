@@ -2,12 +2,13 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { AiOutlineDelete } from "react-icons/ai";
-import axios from "axios";
+import { useApi } from "../context/ApiContext";
 
 
 function LunchAndDinner() {
-  const { foods, tables: backendTables } = useContext(AppContext);
+  const { get, baseURL } = useApi();
   const [foodsState, setFoodsState] = useState([]);
+  const [backendTables, setBackendTables] = useState([]);
   const [quantities, setQuantities] = useState({});
   const [cart, setCart] = useState({});
   const [table, setTable] = useState("");
@@ -17,12 +18,30 @@ function LunchAndDinner() {
   const [editTableLocked, setEditTableLocked] = useState(false);
 
   
-    // keep a transformed copy of global foods
+    // fetch foods & tables from API
   useEffect(() => {
-    setFoodsState(
-      foods.map((f) => ({ ...f, id: f._id || f.id }))
-    );
-  }, [foods]);
+    const fetchFoods = async () => {
+      try {
+        const res = await get('/api/v1/foods/all');
+        const allFoods = res.data.data || [];
+        setFoodsState(allFoods.map((f) => ({ ...f, id: f._id || f.id })));
+      } catch (err) {
+        console.log(err);
+        toast.error("Failed to load foods");
+      }
+    };
+    const fetchTables = async () => {
+      try {
+        const res = await get('/api/v1/tables/all');
+        setBackendTables(res.data.data || []);
+      } catch (err) {
+        console.log(err);
+        toast.error("Failed to load tables");
+      }
+    };
+    fetchFoods();
+    fetchTables();
+  }, []);
 
 
  
@@ -225,7 +244,7 @@ function LunchAndDinner() {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
         {lunchAndDinnerFoods.map((food) => (
           <div key={food.id} className="bg-white rounded-xl p-4 shadow">
-            <img src={food.image} alt={food.name} className="h-40 w-full object-cover rounded-lg border-[2.5px] border-yellow-600 border-dotted" />
+            <img src={`${baseURL}/${food.image}`} alt={food.name} className="h-40 w-full object-cover rounded-lg border-[2.5px] border-yellow-600 border-dotted" />
             <h2 className="font-semibold text-black">{food.name}</h2>
             <p className="text-yellow-600">${food.price}</p>
 

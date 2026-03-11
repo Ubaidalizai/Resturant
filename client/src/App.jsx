@@ -11,8 +11,7 @@ import OrderHistory from './Admin/OrderHistory';
 import AdminDashboard from './Admin/AdminDashbord';
 import GarsonLogin from './Pages/GarsonsLogin';
 import KitchenPanel from './Kitchen/KitchenPanel';
-import axios from 'axios';
-import { baseURL } from './configs/baseURL.config';
+import { useApi } from './context/ApiContext';
 import GarsoonDashboard from './Pages/GarsoonDashboard';
 import ForggotPasswordPage from './Pages/ForggotPasswordPage';
 import ResetPasswordPage from './Pages/ResetPasswordPage';
@@ -20,6 +19,7 @@ import ResetPasswordPage from './Pages/ResetPasswordPage';
 export const ItemsContext = createContext();
 
 function App() {
+  const { get } = useApi();
   const [isAuth, setIsAuth] = useState(false);
   const [loadingAuth, setLoadingAuth] = useState(true); // to wait for verify check
 
@@ -27,7 +27,7 @@ function App() {
   useEffect(() => {
     const verifyUser = async () => {
       try {
-        const res = await axios.get(`${baseURL}/api/v1/user/verify`, {
+        const res = await get('/api/v1/user/verify', {
           withCredentials: true, // send cookies
         });
 

@@ -9,10 +9,10 @@ import Logo from'../images/logo.jpg';
 import OverviewChart from "./OverviewChart";
 import AdminPanel from './AdminPanel'
 import Expenses from "./Expenses";
-import axios from "../configs/axios.config";
-import { baseURL } from "../configs/baseURL.config";
+import { useApi } from "../context/ApiContext";
 
 function AdminDashboard() {
+  const { get } = useApi();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState("Overview");
   const [orders, setOrders] = useState([]);
@@ -23,15 +23,15 @@ function AdminDashboard() {
 
   useEffect(() => {
     // Fetch today's orders
-    axios.get(`${baseURL}/api/v1/orders/count/daily`)
+    get('/api/v1/orders/count/daily')
       .then(response => {
         setTodayOrders(response.data.data.count);
       })
       .catch(error => {
         console.error("Error fetching today's orders:", error);
       });
-      // Fetcht weekly today  
-      axios.get(`${baseURL}/api/v1/orders/count/weekly`)
+      // Fetch weekly orders
+      get('/api/v1/orders/count/weekly')
       .then(response => {
         setWeekOrders(response.data.data.count);
       })
@@ -39,7 +39,7 @@ function AdminDashboard() {
         console.error("Error fetching this week's orders:", error);
       });
       // Fetch monthly orders
-      axios.get(`${baseURL}/api/v1/orders/count/monthly`)
+      get('/api/v1/orders/count/monthly')
       .then(response => {
         setMonthOrders(response.data.data.count);
       })
@@ -47,7 +47,7 @@ function AdminDashboard() {
         console.error("Error fetching this month's orders:", error);
       });
       // Fetch today's revenue
-      axios.get(`${baseURL}/api/v1/revenue/daily`)
+      get('/api/v1/revenue/daily')
       .then(response => {
         setTodayRevenue(response.data.data.revenue);
       })

@@ -3,8 +3,16 @@ import { asyncHandler } from "../utils/asyncHandler.util.js";
 
 // Get all the user
 export const getAllUser = asyncHandler(async (req, res) => {
-    const users = await User.find({ isDeleted: false }).select(['name', 'email', 'phone', 'address', 'image', 'createdAt']);
-    res.respond(200, "Users fetched successfully", users);
+  const users = await User.find({ isDeleted: false })
+    .select("name email phone address image createdAt role")
+    .populate({
+      path: "role",
+      select: "role"   // this fetches the role name from Role collection
+    });
+
+  console.log("User debugs", users);
+
+  res.respond(200, "Users fetched successfully", users);
 });
 
 // Delete user

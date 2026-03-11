@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
-import axios from "../configs/axios.config";
 import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash, faEdit, faUtensils, faTable, faUser, faUserShield } from "@fortawesome/free-solid-svg-icons";
-import { baseURL } from "../configs/baseURL.config";
+import { useApi } from "../context/ApiContext";
+import InputField from "../Components/UI/InputField";
+import Button from "../Components/UI/Button";
 
 function Management() {
+  const { get, post, put, del, baseURL } = useApi();
   const [activeTab, setActiveTab] = useState("Menus");
   const [modalOpen, setModalOpen] = useState(false);
   const [editItem, setEditItem] = useState(null);
@@ -17,19 +19,19 @@ function Management() {
   const [staff, setStaff] = useState([]);
 
   const [permissions, setPermissions] = useState([]);
-  useEffect(()=>{
-    const fetchPermissions = async ()=>{
+  useEffect(() => {
+    const fetchPermissions = async () => {
       try {
-        const permissions = await axios.get(`${baseURL}/api/v1/permissions`);
+        const permissions = await get('/api/v1/permissions');
         console.log(permissions);
-      setPermissions(permissions.data.data);
+        setPermissions(permissions.data.data);
       } catch (error) {
         console.log("Erro", error)
       }
 
     };
     fetchPermissions();
-  },[])
+  }, [])
   const [newItem, setNewItem] = useState({
     name: "",
     catagory: "",
@@ -45,10 +47,18 @@ function Management() {
     international: false
   });
 
+  const fetchRoles = async () => {
+    try {
+      const res = await get('/api/v1/role/get');
+      setRole(res.data.data.roles || []);
+    } catch (error) {
+      console.log("Role fetch error", error);
+    }
+  };
   // ---------------- FETCH DATA ----------------
   const fetchMenus = async () => {
     try {
-      const res = await axios.get(`${baseURL}/api/v1/menues/all`);
+      const res = await get('/api/v1/menues/all');
       setMenus(res.data.data || []);
     } catch {
       toast.error("Failed to load menus");
@@ -57,7 +67,7 @@ function Management() {
 
   const fetchTables = async () => {
     try {
-      const res = await axios.get(`${baseURL}/api/v1/tables/all`);
+      const res = await get('/api/v1/tables/all');
       setTables(res.data.data || []);
     } catch {
       toast.error("Failed to load tables");
@@ -66,7 +76,7 @@ function Management() {
 
   const fetchGarsons = async () => {
     try {
-      const res = await axios.get(`${baseURL}/api/v1/users/all/`);
+      const res = await get('/api/v1/users/all/');
       setGarsons(res.data.data || []);
       console.log(res);
     } catch {
@@ -78,6 +88,7 @@ function Management() {
     fetchMenus();
     fetchTables();
     fetchGarsons();
+    fetchRoles();
   }, []);
 
   // ---------------- MODAL ----------------
@@ -142,27 +153,27 @@ function Management() {
       if (activeTab === "Menus") {
         if (!newItem.name || !newItem.catagory) return toast.error("Please fill all menu fields");
         if (editItem) {
-          await axios.put(`${baseURL}/api/v1/menues/update/${editItem._id}`, { name: newItem.name, catagory: newItem.catagory });
+          await put(`/api/v1/menues/update/${editItem._id}`, { name: newItem.name, catagory: newItem.catagory });
           toast.success("Menu updated successfully");
         } else {
-          await axios.post(`${baseURL}/api/v1/menues/add`, { name: newItem.name, catagory: newItem.catagory });
+          await post(`/api/v1/menues/add`, { name: newItem.name, catagory: newItem.catagory });
           toast.success("Menu added successfully");
         }
         fetchMenus();
       } else if (activeTab === "Tables") {
         if (!newItem.name || !newItem.capacity) return toast.error("Please fill all table fields");
         if (editItem) {
-          await axios.put(`${baseURL}/api/v1/tables/update/${editItem._id}`, { tableNumber: newItem.name, capacity: Number(newItem.capacity) });
+          await put(`/api/v1/tables/update/${editItem._id}`, { tableNumber: newItem.name, capacity: Number(newItem.capacity) });
           toast.success("Table updated successfully");
         } else {
-          await axios.post(`${baseURL}/api/v1/tables/add`, { tableNumber: newItem.name, capacity: Number(newItem.capacity) });
+          await post(`/api/v1/tables/add`, { tableNumber: newItem.name, capacity: Number(newItem.capacity) });
           toast.success("Table added successfully");
         }
         fetchTables();
       } else if (activeTab === "Garsons") {
         if (!newItem.name || !newItem.email || !newItem.password) return toast.error("Please fill all garson fields");
         if (editItem) {
-          await axios.put(`${baseURL}/api/v1/users/update/${editItem._id}`, {
+          await put(`/api/v1/users/update/${editItem._id}`, {
             name: newItem.name,
             email: newItem.email,
             password: newItem.password,
@@ -171,7 +182,7 @@ function Management() {
           });
           toast.success("Garson updated successfully");
         } else {
-          await axios.post(`${baseURL}/api/v1/user/register/`, {
+          await post(`/api/v1/user/register/`, {
             name: newItem.name,
             email: newItem.email,
             password: newItem.password,
@@ -188,10 +199,10 @@ function Management() {
           permissions: newItem.selectedPermissions
         };
         if (editItem) {
-          await axios.put(`${baseURL}/api/v1/users/update-role/${editItem._id}`, payload);
+          await put(`/api/v1/users/update-role/${editItem._id}`, payload);
           toast.success("Role updated successfully");
         } else {
-          await axios.post(`${baseURL}/api/v1/role/add`, payload);
+          await post(`/api/v1/role/add`, payload);
           toast.success("Role added successfully");
         }
         fetchGarsons();
@@ -210,15 +221,15 @@ function Management() {
   const handleDelete = async (index, id) => {
     try {
       if (activeTab === "Menus") {
-        await axios.delete(`${baseURL}/api/v1/menues/delete/${id}`);
+        await del(`/api/v1/menues/delete/${id}`);
         toast.success("Menu deleted");
         fetchMenus();
       } else if (activeTab === "Tables") {
-        await axios.delete(`${baseURL}/api/v1/tables/delete/${id}`);
+        await del(`/api/v1/tables/delete/${id}`);
         toast.success("Table deleted");
         fetchTables();
       } else if (activeTab === "Garsons" || activeTab === "Role") {
-        await axios.delete(`${baseURL}/api/v1/users/delete/${id}`);
+        await del(`/api/v1/users/delete/${id}`);
         toast.success(`${activeTab === "Garsons" ? "Garson" : "Role"} deleted`);
         fetchGarsons();
       }
@@ -294,7 +305,7 @@ function Management() {
                 <td className="p-4 text-black">{g.name}</td>
                 <td className="text-black">{g.email}</td>
                 <td className="text-black">{g.password}</td>
-                <td className="text-black">{g.role}</td>
+                <td className="text-black">{g.role?.role}</td>
                 <td className="text-black">{g.phone}</td>
                 <td className="flex justify-center gap-4">
                   <button onClick={() => openModal(g)} className="text-blue-500 hover:text-blue-700 transition"><FontAwesomeIcon icon={faEdit} /></button>
@@ -305,7 +316,7 @@ function Management() {
 
             {activeTab === "Role" && role.map(r => (
               <tr key={r._id} className="border-b hover:bg-gray-50 transition">
-                <td className="p-4 text-black">{r.name}</td>  
+                <td className="p-4 text-black">{r.name}</td>
                 <td className="text-black">{(r.permissions || []).join(", ")}</td>
                 <td className="flex justify-center gap-4">
                   <button onClick={() => openModal(r)} className="text-blue-500 hover:text-blue-700 transition"><FontAwesomeIcon icon={faEdit} /></button>
@@ -331,9 +342,9 @@ function Management() {
 
       {/* Add Button */}
       <div className="flex justify-center mt-8">
-        <button onClick={() => openModal()} className="px-6 py-3 bg-yellow-500 text-white rounded-xl shadow-lg hover:scale-105 hover:bg-yellow-600 transition">
+        <Button onClick={() => openModal()}>
           {editItem ? "Update " + activeTab.slice(0, -1) : "Add " + activeTab.slice(0, -1)}
-        </button>
+        </Button>
       </div>
 
       {/* Add/Edit Modal */}
@@ -349,58 +360,106 @@ function Management() {
               {/* Menus */}
               {activeTab === "Menus" && (
                 <>
-                  <input type="text" placeholder="Menu Name" className="border p-2 rounded w-full" value={newItem.name} onChange={(e) => setNewItem({ ...newItem, name: e.target.value })} />
-                  <input type="text" placeholder="Catagory" className="border p-2 rounded w-full" value={newItem.catagory} onChange={(e) => setNewItem({ ...newItem, catagory: e.target.value })} />
+                  <InputField
+                    type="text"
+                    placeholder="Menu Name"
+                    value={newItem.name}
+                    onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
+                  />
+                  <InputField
+                    type="text"
+                    placeholder="Catagory"
+                    value={newItem.catagory}
+                    onChange={(e) => setNewItem({ ...newItem, catagory: e.target.value })}
+                  />
                 </>
               )}
 
               {/* Tables */}
               {activeTab === "Tables" && (
                 <>
-                  <input type="text" placeholder="Table Number" className="border p-2 rounded w-full" value={newItem.name} onChange={(e) => setNewItem({ ...newItem, name: e.target.value })} />
-                  <input type="number" placeholder="Capacity" className="border p-2 rounded w-full" value={newItem.capacity} onChange={(e) => setNewItem({ ...newItem, capacity: e.target.value })} />
+                  <InputField
+                    type="text"
+                    placeholder="Table Number"
+                    value={newItem.name}
+                    onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
+                  />
+                  <InputField
+                    type="number"
+                    placeholder="Capacity"
+                    value={newItem.capacity}
+                    onChange={(e) => setNewItem({ ...newItem, capacity: e.target.value })}
+                  />
                 </>
               )}
 
               {/* Garsons */}
               {activeTab === "Garsons" && (
                 <>
-                  <input type="text" placeholder="Name" className="border p-2 rounded w-full" value={newItem.name} onChange={(e) => setNewItem({ ...newItem, name: e.target.value })} />
-                  <input type="email" placeholder="Email" className="border p-2 rounded w-full" value={newItem.email} onChange={(e) => setNewItem({ ...newItem, email: e.target.value })} />
-                  <input type="password" placeholder="Password" className="border p-2 rounded w-full" value={newItem.password} onChange={(e) => setNewItem({ ...newItem, password: e.target.value })} />
+                  <InputField
+                    type="text"
+                    placeholder="Name"
+                    value={newItem.name}
+                    onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
+                  />
+                  <InputField
+                    type="email"
+                    placeholder="Email"
+                    value={newItem.email}
+                    onChange={(e) => setNewItem({ ...newItem, email: e.target.value })}
+                  />
+                  <InputField
+                    type="password"
+                    placeholder="Password"
+                    value={newItem.password}
+                    onChange={(e) => setNewItem({ ...newItem, password: e.target.value })}
+                  />
                   <select className="border p-2 rounded w-full" value={newItem.role} onChange={(e) => setNewItem({ ...newItem, role: e.target.value })}>
                     <option value="">Select Role</option>
-                    <option value="user">Garson</option>
-                    <option value="chef">Chef</option>
-                    <option value="admin">Admin</option>
+                    {role.map((r) => (
+                      <option key={r._id} value={r._id}>
+                        {r.role}
+                      </option>
+                    ))}
                   </select>
-                  <input type="number" placeholder="Phone" className="border p-2 rounded w-full" value={newItem.phone} onChange={(e) => setNewItem({ ...newItem, phone: e.target.value })} />
+                  <InputField
+                    type="number"
+                    placeholder="Phone"
+                    value={newItem.phone}
+                    onChange={(e) => setNewItem({ ...newItem, phone: e.target.value })}
+                    className="border p-2 rounded w-full"
+                  />
                 </>
               )}
 
               {/* Role */}
               {activeTab === "Role" && (
                 <>
-                  <input type="text" placeholder="Role Name" className="border p-2 rounded w-full" value={newItem.name} onChange={(e) => setNewItem({ ...newItem, name: e.target.value })} />
+                  <InputField
+                    type="text"
+                    placeholder="Role Name"
+                    value={newItem.name}
+                    onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
+                  />
                   <div className="flex flex-wrap gap-2 max-h-32 overflow-auto border p-2 rounded">
                     {permissions.map(p => (
-  <label key={p._id} className="flex items-center gap-1">
-    <input
-      type="checkbox"
-      checked={newItem.selectedPermissions.includes(p._id)}
-      onChange={(e) => {
-        const checked = e.target.checked;
-        const selected = newItem.selectedPermissions;
-        if (checked) {
-          setNewItem({ ...newItem, selectedPermissions: [...selected, p._id] });
-        } else {
-          setNewItem({ ...newItem, selectedPermissions: selected.filter(x => x !== p._id) });
-        }
-      }}
-    />
-    {p.name}
-  </label>
-))}
+                      <label key={p._id} className="flex items-center gap-1">
+                        <input
+                          type="checkbox"
+                          checked={newItem.selectedPermissions.includes(p._id)}
+                          onChange={(e) => {
+                            const checked = e.target.checked;
+                            const selected = newItem.selectedPermissions;
+                            if (checked) {
+                              setNewItem({ ...newItem, selectedPermissions: [...selected, p._id] });
+                            } else {
+                              setNewItem({ ...newItem, selectedPermissions: selected.filter(x => x !== p._id) });
+                            }
+                          }}
+                        />
+                        {p.name}
+                      </label>
+                    ))}
                   </div>
                 </>
               )}
@@ -408,9 +467,24 @@ function Management() {
               {/* Staff */}
               {activeTab === "Staff" && (
                 <>
-                  <input type="text" placeholder="Name" className="border p-2 rounded w-full" value={newItem.name} onChange={(e) => setNewItem({ ...newItem, name: e.target.value })} />
-                  <input type="number" placeholder="Phone" className="border p-2 rounded w-full" value={newItem.phone} onChange={(e) => setNewItem({ ...newItem, phone: e.target.value })} />
-                  <input type="number" placeholder="Salary" className="border p-2 rounded w-full" value={newItem.salary} onChange={(e) => setNewItem({ ...newItem, salary: e.target.value })} />
+                  <InputField
+                    type="text"
+                    placeholder="Name"
+                    value={newItem.name}
+                    onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
+                  />
+                  <InputField
+                    type="number"
+                    placeholder="Phone"
+                    value={newItem.phone}
+                    onChange={(e) => setNewItem({ ...newItem, phone: e.target.value })}
+                  />
+                  <InputField
+                    type="number"
+                    placeholder="Salary"
+                    value={newItem.salary}
+                    onChange={(e) => setNewItem({ ...newItem, salary: e.target.value })}
+                  />
                 </>
               )}
             </div>

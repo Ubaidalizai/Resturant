@@ -4,7 +4,7 @@ export const foodValidation = [
   body("name")
     .trim()
     .notEmpty()
-    .withMessage("Food name is required")
+    .withMessage("Title is required")
     .isString()
     .withMessage("Food name must be a string"),
 

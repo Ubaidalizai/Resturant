@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "../configs/axios.config";
+import { useApi } from "../context/ApiContext";
 import {
   LineChart,
   Line,
@@ -9,25 +9,26 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { baseURL } from "../configs/baseURL.config";
+import InputField from "../Components/UI/InputField";
 
 function OverviewChart() {
+  const { get } = useApi();
   const [chartData, setChartData] = useState([]);
-  const [filter, setFilter] = useState("daily"); // daily, weekly, monthly, custom
+  const [filter, setFilter] = useState("monthly"); // daily, weekly, monthly, custom
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
   // Fetch chart data from API
   const loadChartData = async () => {
     try {
-      let url = `${baseURL}/api/v1/analytics/chart-data`;
+      let endpoint = "/api/v1/analytics/chart-data";
       if (filter === "custom" && startDate && endDate) {
-        url += `?start=${startDate}&end=${endDate}`;
+        endpoint += `?start=${startDate}&end=${endDate}`;
       } else {
-        url += `?type=${filter}`;
+        endpoint += `?type=${filter}`;
       }
 
-      const res = await axios.get(url);
+      const res = await get(endpoint);
       // Format data: revenue as number
       const formattedData = (res.data.data || []).map(item => ({
         ...item,
@@ -84,13 +85,13 @@ function OverviewChart() {
 
         {filter === "custom" && (
           <>
-            <input
+            <InputField
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
               className="border border-gray-300 text-black p-2 rounded w-50"
             />
-            <input
+            <InputField
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
