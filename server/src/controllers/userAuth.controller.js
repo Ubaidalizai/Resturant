@@ -32,18 +32,7 @@ export const registerUser = asyncHandler(async (req, res, next) => {
     address,
     role: roleExists._id
   });
-
-  // Generate tokens
-  const accessToken = generateAccessToken(user._id);
-  const refreshToken = generateRefreshToken(user._id);
-
-  user.refreshToken = refreshToken;
   await user.save();
-
-  // Send tokens to client
-  sentTokenToClient("accessToken", accessToken, res);
-  sentTokenToClient("refreshToken", refreshToken, res);
-
   res.respond(201, "User registered successfully", {
     user: {
       id: user._id,

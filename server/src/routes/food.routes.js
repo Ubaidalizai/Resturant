@@ -28,7 +28,7 @@ foodsRouter.post(
 foodsRouter.get(
   '/all',
   userAuthMiddleware,
-  authorize('view_foods', 'admin_access'),
+  authorize('view_foods', 'admin_access', 'garson_access'),
   getFoods
 );
 

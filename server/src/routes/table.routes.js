@@ -21,7 +21,7 @@ tableRouter.post(
 tableRouter.get(
   '/all',
   userAuthMiddleware,
-  authorize('admin_access'),
+  authorize('admin_access', 'garson_access'),
   getTables
 );
 
