@@ -54,7 +54,7 @@ function LoginForm() {
       if (permissionKeys.some(p => adminKeys.includes(p))) {
         navigate("/admin");
       } else if (permissionKeys.some(p => garsonKeys.includes(p))) {
-        navigate("/garson-dashboard");
+        navigate("/menus");
       } else if (permissionKeys.some(p => kitchenKeys.includes(p))) {
         navigate("/kitchen");
       } else {
