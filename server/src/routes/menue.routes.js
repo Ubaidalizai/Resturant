@@ -10,14 +10,14 @@ const MenueRouter = express.Router();
 MenueRouter.get(
   '/all',
   userAuthMiddleware,
-  authorize('view_menu', 'admin_access'),
+  authorize('view_menu', 'admin_access', 'garson_access'),
   getMenues
 );
 
 MenueRouter.post(
   '/add',
   userAuthMiddleware,
-  authorize('add_menu', 'admin_access'),
+  authorize('add_menu', 'garson_access', 'admin_access'),
   menueValidations,
   validationMiddleware,
   addMenue
@@ -26,14 +26,14 @@ MenueRouter.post(
 MenueRouter.delete(
   '/delete/:menueId',
   userAuthMiddleware,
-  authorize('admin_access'),
+  authorize('admin_access', 'garson_access'),
   deleteMenue
 );
 
 MenueRouter.put(
   '/update/:menueId',
   userAuthMiddleware,
-  authorize('admin_access'),
+  authorize('admin_access', 'garson_access'),
   menueValidations,
   validationMiddleware,
   updateMenue

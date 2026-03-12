@@ -45,7 +45,7 @@ app.use(cookieParser());
 app.use(ResponseMiddleware);
 
 // CORS setup for API and static files
-const FRONTEND_URL = "http://localhost:5174"; // React dev server
+const FRONTEND_URL = "http://localhost:5173"; // React dev server
 app.use(cors({
   origin: FRONTEND_URL,
   methods: ["GET", "POST", "PUT", "DELETE"],
