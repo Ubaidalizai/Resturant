@@ -20,7 +20,7 @@ const userAuthRouter = express.Router();
 userAuthRouter.post(
   "/register",
   userAuthMiddleware,
-  authorize('add_user', 'admin_access'),
+  authorize('panel_access', 'admin_access'),
   registerValidations,
   validationMiddleware,
   registerUser

@@ -7,7 +7,7 @@ import { authorize } from '../middlewares/authorizeRole.middleware.js';
 
 const tableRouter = express.Router();
 tableRouter.use(userAuthMiddleware);
-tableRouter.use(authorize('panel_access', 'admin_access', 'garson_access'));
+tableRouter.use(authorize('panel_access', 'admin_access', 'garson_access', 'table_access'));
 // Add table → admin only
 tableRouter.post(
   '/add',
