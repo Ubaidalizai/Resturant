@@ -105,14 +105,26 @@ export const verifyUser = asyncHandler(async (req, res, next) => {
 
   const userId = req.user.id;
 
-  const user = await User.findById(userId)
-    .select("-password -refreshToken -__v -createdAt -updatedAt");
-
+  const user = await User.findById(userId).populate({
+    path: "role",
+    populate: {
+      path: "permissions",
+      select: "key -_id", // fetch only the key field
+    },
+  });
   if (!user) {
     return next(new ErrorHandler(404, "User not found"));
   }
-
-  res.respond(200, "User verified successfully", { user });
+   const permissions = user.role.permissions.map((p) => p.key);
+  res.respond(200, "User verified successfully", {
+    user: {
+       id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role.name,
+      permissions, // array of keys
+    }
+  });
 });
 
 

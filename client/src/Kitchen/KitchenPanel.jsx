@@ -1,16 +1,22 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { AiOutlineMenu, AiOutlineAppstore } from "react-icons/ai";
 import KitchenOrders from "./KitchenOrders";
 import cooker from '../images/cooker.avif';
+import { ItemsContext } from "../App";
 
 function KitchenPanel() {
   const [activeMenu, setActiveMenu] = useState("Orders");
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
+  const {user} = useContext(ItemsContext);
   const menuItems = [
     { name: "Orders", icon: <AiOutlineAppstore size={20} /> },
   ];
+      // CHECK PERMISSIONS
+  const canAccess = user?.permissions?.some(p =>
+    ["admin_access", "kitchen_access"].includes(p)
+  );
 
+  if (!canAccess) return <></>;
   return (
     <div className="flex min-h-screen bg-gray-100">
 

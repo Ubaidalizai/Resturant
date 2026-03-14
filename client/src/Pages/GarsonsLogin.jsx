@@ -12,7 +12,7 @@ function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const { setIsAuth } = useContext(ItemsContext);
+  const { setIsAuth, setUser } = useContext(ItemsContext);
   const navigate = useNavigate();
 
   const handleLogin = async () => {
@@ -26,28 +26,25 @@ function LoginForm() {
 
       // No need to add `withCredentials` here, it is global now
       const response = await post("/api/v1/user/login", { email, password }, { withCredentials: true });
-
-      console.log("SERVER RESPONSE:", response.data);
-
       if (!response.data.success) {
         toast.error(response.data.message || "Invalid Email or Password");
         return;
       }
-
       const user = response.data.data.user;
       if (!user) {
         toast.error("User not returned from server");
         return;
       }
-
       setIsAuth(true);
+      setUser(user);
       toast.success("Login Successful");
 
       // Get array of permission keys
       const permissionKeys = user.permissions || [];
-
+      console.log(user);
+      console.log(permissionKeys);
       // Define dashboard priorities
-      const adminKeys = ['admin_access', 'add_user', 'update_user', 'delete_user', 'add_role', 'update_role', 'delete_role', 'add_table', 'add_menu'];
+      const adminKeys = ['admin_access', 'table_access', 'panel_access', 'delete_user', 'add_role', 'update_role', 'delete_role', 'add_table', 'add_menu', 'add_food'];
       const garsonKeys = ['order_food', 'garson_access'];
       const kitchenKeys = ['kitchen_access'];
 

@@ -6,12 +6,11 @@ import { userAuthMiddleware } from "../middlewares/userAuth.middleware.js";
 import { authorize } from "../middlewares/authorizeRole.middleware.js";
 
 const Staffrouter = express.Router();
-
+Staffrouter.use(userAuthMiddleware); // Ensure user is authenticated for all role routes
+Staffrouter.use(authorize('admin_access', 'panel_access'));
 // Add new staff → admin only
 Staffrouter.post(
   "/add",
-  userAuthMiddleware,
-  authorize('admin_access'),
   staffValidation,
   validationMiddleware,
   addStaff
@@ -20,24 +19,18 @@ Staffrouter.post(
 // Get all staff → admin only
 Staffrouter.get(
   "/all",
-  userAuthMiddleware,
-  authorize('admin_access'),
   getAllStaff
 );
 
 // Get single staff by ID → admin only
 Staffrouter.get(
   "/:staffId",
-  userAuthMiddleware,
-  authorize('admin_access'),
   getSingleStaff
 );
 
 // Update staff → admin only
 Staffrouter.put(
   "/update/:staffId",
-  userAuthMiddleware,
-  authorize('admin_access'),
   staffValidation,
   validationMiddleware,
   updateStaff
@@ -46,8 +39,6 @@ Staffrouter.put(
 // Delete staff (soft delete) → admin only
 Staffrouter.delete(
   "/delete/:staffId",
-  userAuthMiddleware,
-  authorize('admin_access'),
   deleteStaff
 );
 

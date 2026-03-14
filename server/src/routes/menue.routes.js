@@ -6,18 +6,17 @@ import { userAuthMiddleware } from '../middlewares/userAuth.middleware.js';
 import { authorize } from '../middlewares/authorizeRole.middleware.js';
 
 const MenueRouter = express.Router();
-
+MenueRouter.use(userAuthMiddleware);
+MenueRouter.use(authorize('admin_access', 'garson_access', 'panel_access'));
 MenueRouter.get(
   '/all',
-  userAuthMiddleware,
-  authorize('view_menu', 'admin_access', 'garson_access'),
+
   getMenues
 );
 
 MenueRouter.post(
   '/add',
-  userAuthMiddleware,
-  authorize('add_menu', 'garson_access', 'admin_access'),
+
   menueValidations,
   validationMiddleware,
   addMenue
@@ -25,15 +24,13 @@ MenueRouter.post(
 
 MenueRouter.delete(
   '/delete/:menueId',
-  userAuthMiddleware,
-  authorize('admin_access', 'garson_access'),
+
   deleteMenue
 );
 
 MenueRouter.put(
   '/update/:menueId',
-  userAuthMiddleware,
-  authorize('admin_access', 'garson_access'),
+
   menueValidations,
   validationMiddleware,
   updateMenue

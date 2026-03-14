@@ -21,6 +21,7 @@ export const ItemsContext = createContext();
 function App() {
   const { get } = useApi();
   const [isAuth, setIsAuth] = useState(false);
+  const [user, setUser] = useState(null);
   const [loadingAuth, setLoadingAuth] = useState(true); // to wait for verify check
 
   // Check if user is already logged in
@@ -33,6 +34,7 @@ function App() {
 
         if (res.data.success) {
           setIsAuth(true);
+          setUser(res.data?.data?.user)
         } else {
           setIsAuth(false);
         }
@@ -56,7 +58,7 @@ function App() {
   }
 
   return (
-    <ItemsContext.Provider value={{ isAuth, setIsAuth }}>
+    <ItemsContext.Provider value={{ isAuth, setIsAuth, user, setUser }}>
       <ToastContainer
         position="top-right"
         autoClose={3000}

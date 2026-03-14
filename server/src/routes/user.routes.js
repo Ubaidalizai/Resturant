@@ -4,12 +4,11 @@ import { userAuthMiddleware } from '../middlewares/userAuth.middleware.js';
 import { authorize } from '../middlewares/authorizeRole.middleware.js';
 
 const UserRouter = express.Router();
-
+UserRouter.use(userAuthMiddleware); // Ensure user is authenticated for all user routes
+UserRouter.use(authorize('admin_access', 'panel_access'));
 // Get all users → view_users or admin
 UserRouter.get(
   '/all',
-  userAuthMiddleware,
-  authorize('admin_access', 'view_users'),
   getAllUser
 );
 
@@ -24,24 +23,18 @@ UserRouter.get(
 // Update user → update_user or admin
 UserRouter.put(
   '/update/:userId',
-  userAuthMiddleware,
-  authorize('update_user', 'admin_access'),
   updateUser
 );
 
 // Delete single user → delete_user or admin
 UserRouter.delete(
   '/delete/:userId',
-  userAuthMiddleware,
-  authorize('delete_user', 'admin_access'),
   deleteUser
 );
 
 // Delete all users → admin only
 UserRouter.delete(
   '/delete/',
-  userAuthMiddleware,
-  authorize('admin_access'),
   deleteAllUser
 );
 
