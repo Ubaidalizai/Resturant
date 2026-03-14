@@ -7,11 +7,10 @@ import { authorize } from '../middlewares/authorizeRole.middleware.js';
 
 const OrderRouter = express.Router();
 OrderRouter.use(userAuthMiddleware);
-OrderRouter.use(authorize('admin_access', 'garson_access'));
+OrderRouter.use(authorize('admin_access', 'garson_access', 'order_history_access', 'overview_access'));
 // User orders → garson or admin
 OrderRouter.get(
   '/user', 
- 
   getOrders
 );
 

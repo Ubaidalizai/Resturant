@@ -79,8 +79,6 @@ app.use("/api/v1/permissions", permissionRouter);
 import bcrypt from 'bcrypt'
 // Connect to DB
 connectDB();
-const p = await bcrypt.hash('12345678', 10);
-console.log(p);
 // 404 handler
 app.use((req, res) => {
   res.respond(404, "Route not found");
