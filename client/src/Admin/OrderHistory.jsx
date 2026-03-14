@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { AiOutlineDelete } from "react-icons/ai";
 import { toast } from "react-toastify";
 import { useApi } from "../context/ApiContext";
 import InputField from "../Components/UI/InputField";
+import { ItemsContext } from "../App";
 
 function OrderHistory() {
   const { get } = useApi();
@@ -16,7 +17,7 @@ function OrderHistory() {
   const [modal, setModal] = useState(null);
   const [foodModal, setFoodModal] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
-
+  const {user} = useContext(ItemsContext);
   // Fetch orders
   useEffect(() => {
     get("/api/v1/orders/all")
@@ -81,7 +82,6 @@ function OrderHistory() {
   const endPage = Math.min(totalPages, startPage + visiblePages - 1);
   const pageNumbers = [];
   for (let i = startPage; i <= endPage; i++) pageNumbers.push(i);
-
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-6">
 

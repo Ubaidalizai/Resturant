@@ -14,11 +14,11 @@ import { authorize } from '../middlewares/authorizeRole.middleware.js';
 import { upload } from '../configs/multer.config.js';
 
 const foodsRouter = express.Router();
-
+foodsRouter.use(userAuthMiddleware);
+foodsRouter.use(authorize('admin_access', 'garson_access', 'kitchen_access'));
 foodsRouter.post(
   '/add',
-  userAuthMiddleware,
-  authorize('add_foods', 'admin_access'),
+ 
   upload.single('image'),
   foodValidation,
   validationMiddleware,
@@ -27,15 +27,12 @@ foodsRouter.post(
 
 foodsRouter.get(
   '/all',
-  userAuthMiddleware,
-  authorize('view_foods', 'admin_access', 'garson_access'),
+
   getFoods
 );
 
 foodsRouter.put(
   '/update/:id',
-  userAuthMiddleware,
-  authorize('admin_access'),
   upload.single('image'),
   foodValidation,
   validationMiddleware,
@@ -44,8 +41,6 @@ foodsRouter.put(
 
 foodsRouter.delete(
   '/delete/:id',
-  userAuthMiddleware,
-  authorize('admin_access'),
   deleteFood
 );
 

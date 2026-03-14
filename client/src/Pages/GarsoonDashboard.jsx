@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+// GarsoonDashboard.jsx
+import { useContext, useEffect, useState } from "react";
 import MenuTabs from "../Components/garson/MenuTabs";
 import FoodGrid from "../Components/garson/FoodGrid";
 import CartPanel from "../Components/garson/CartPanel";
@@ -6,7 +7,7 @@ import OrderCard from "../Components/garson/OrderCard";
 import { toast } from "react-toastify";
 import { useApi } from "../context/ApiContext";
 import Button from "../Components/UI/Button";
-
+import { ItemsContext } from "../App";
 function GarsoonDashboard() {
 
   const { get } = useApi();
@@ -22,7 +23,8 @@ function GarsoonDashboard() {
 
   const [orders, setOrders] = useState([]);
   const [ordersView, setOrdersView] = useState(false);
-
+  const {user} = useContext(ItemsContext);
+  // Track current editing order
   const [currentOrderId, setCurrentOrderId] = useState(null);
 
   useEffect(() => {
@@ -90,7 +92,12 @@ function GarsoonDashboard() {
 
     setOrdersView(false);
   };
+    // CHECK PERMISSIONS
+  const canAccess = user?.permissions?.some(p =>
+    ["admin_access", "garson_access"].includes(p)
+  );
 
+  if (!canAccess) return <></>;
   return (
     <div className="min-h-screen bg-gray-100 flex">
 

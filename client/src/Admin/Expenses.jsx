@@ -1,59 +1,47 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { AiOutlineDelete, AiOutlineEdit, AiOutlinePlus, AiOutlineClose } from "react-icons/ai";
 import { toast } from "react-toastify";
 import { useApi } from "../context/ApiContext";
 import InputField from "../Components/UI/InputField";
 import Button from "../Components/UI/Button";
+import { ItemsContext } from "../App";
 
 function Expenses() {
-
   const { get, post, del } = useApi();
-  //  CATEGORY STATES 
+  const { user } = useContext(ItemsContext);
+
+  // CATEGORY STATES
   const [categories, setCategories] = useState([]);
   const [showCatModal, setShowCatModal] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [editCatId, setEditCatId] = useState(null);
 
-  //  EXPENSE STATES 
+  // EXPENSE STATES
   const [expenses, setExpenses] = useState([]);
   const [showExpModal, setShowExpModal] = useState(false);
   const [title, setTitle] = useState("");
-  const [catagoryId, setCatagoryId] = useState("");
+  const [categoryId, setCategoryId] = useState("");
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState("");
   const [note, setNote] = useState("");
 
-  //  GET CATEGORIES 
+  // FETCH CATEGORIES
   const fetchCategories = async () => {
     try {
-      const res = await get('/api/v1/expenseCatagories/all');
-
-      if (Array.isArray(res.data)) {
-        setCategories(res.data);
-      } else {
-        setCategories(res.data.data || []);
-      }
-
+      const res = await get("/api/v1/expenseCatagories/all");
+      setCategories(Array.isArray(res.data) ? res.data : res.data.data || []);
     } catch (err) {
       console.log(err);
       setCategories([]);
     }
   };
 
-  //  GET EXPENSES 
+  // FETCH EXPENSES
   const fetchExpenses = async () => {
     try {
-      const res = await get('/api/v1/expenses/all');
-
-      if (Array.isArray(res.data)) {
-        setExpenses(res.data);
-        console.log(res)
-      } else {
-        setExpenses(res.data.data || []);
-        console.log(res)
-      }
-
+      const res = await get("/api/v1/expenses/all");
+      setExpenses(Array.isArray(res.data) ? res.data : res.data.data || []);
     } catch (err) {
       console.log(err);
       setExpenses([]);
@@ -65,33 +53,21 @@ function Expenses() {
     fetchExpenses();
   }, []);
 
-  //  ADD / UPDATE CATEGORY 
+  // ADD / UPDATE CATEGORY
   const saveCategory = async () => {
-  if (!name) {
-    toast.error("Category name required");
-    return;
-  }
+    if (!name) return toast.error("Category name required");
+    try {
+      await post("/api/v1/expenseCatagories/add", { name, description: description || "" });
+      toast.success(editCatId ? "Category Updated" : "Category Added");
+      setName(""); setDescription(""); setEditCatId(null); setShowCatModal(false);
+      fetchCategories();
+    } catch (err) {
+      console.log(err.response?.data || err);
+      toast.error(err.response?.data?.message || "Operation failed");
+    }
+  };
 
-  try {
-  
-    const payload = { name, description: description || "" };
-
-    await post(`/api/v1/expenseCatagories/add`, payload);
-
-    toast.success("Category Added");
-    setName("");
-    setDescription("");
-    setEditCatId(null);
-    setShowCatModal(false);
-    fetchCategories();
-
-  } catch (err) {
-    console.log(err.response?.data || err);
-    toast.error(err.response?.data?.message || "Operation failed");
-  }
-};
-
-  //  DELETE CATEGORY 
+  // DELETE CATEGORY
   const deleteCategory = async (id) => {
     try {
       await del(`/api/v1/expenseCatagories/delete/${id}`);
@@ -102,7 +78,7 @@ function Expenses() {
     }
   };
 
-  //  EDIT CATEGORY 
+  // EDIT CATEGORY
   const editCategory = (cat) => {
     setEditCatId(cat._id);
     setName(cat.name);
@@ -110,41 +86,21 @@ function Expenses() {
     setShowCatModal(true);
   };
 
-  //  ADD EXPENSE 
+  // ADD EXPENSE
   const addExpense = async () => {
-
-    if (!title || !catagoryId || !amount) {
-      toast.error("Fill required fields");
-      return;
-    }
-
+    if (!title || !categoryId || !amount) return toast.error("Fill required fields");
     try {
-      console.log(catagoryId);
-      await post(`/api/v1/expenses/add`, {
-        title,
-        catagory: catagoryId,
-        amount,
-        date: date,
-        note
-      });
-
-      toast.success('Expenses added successfully');
-      setTitle("");
-      setCatagoryId("");
-      setAmount("");
-      setDate("");
-      setNote("");
-      setShowExpModal(false);
-
+      await post("/api/v1/expenses/add", { title, category: categoryId, amount, date, note });
+      toast.success("Expense added successfully");
+      setTitle(""); setCategoryId(""); setAmount(""); setDate(""); setNote(""); setShowExpModal(false);
       fetchExpenses();
-
     } catch (err) {
       console.log(err);
-      toast.error(err.message);
+      toast.error(err.response?.data?.message || err.message);
     }
   };
 
-  //  DELETE EXPENSE 
+  // DELETE EXPENSE
   const deleteExpense = async (id) => {
     try {
       await del(`/api/v1/expenses/delete/${id}`);
@@ -155,21 +111,14 @@ function Expenses() {
     }
   };
 
+
   return (
     <div className="p-6 text-black">
-
-      <h1 className="text-3xl font-bold text-yellow-600 mb-6">
-        Expenses Management
-      </h1>
+      <h1 className="text-3xl font-bold text-yellow-600 mb-6">Expenses Management</h1>
 
       {/* ADD CATEGORY BUTTON */}
       <button
-        onClick={() => {
-          setShowCatModal(true);
-          setEditCatId(null);
-          setName("");
-          setDescription("");
-        }}
+        onClick={() => { setShowCatModal(true); setEditCatId(null); setName(""); setDescription(""); }}
         className="bg-yellow-600 text-white px-4 py-2 rounded flex items-center gap-2 mb-6"
       >
         <AiOutlinePlus /> Add Category
@@ -179,38 +128,16 @@ function Expenses() {
       {showCatModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg w-[350px] relative">
-
             <button className="absolute right-3 top-3" onClick={() => setShowCatModal(false)}>
               <AiOutlineClose size={20} />
             </button>
-
-            <h2 className="text-xl mb-4">
-              {editCatId ? "Edit Category" : "Add Category"}
-            </h2>
-
-            <InputField
-              className="border p-2 w-full mb-3"
-              placeholder="Category Name"
-              value={name}
-              onChange={e => setName(e.target.value)}
-            />
-
-            <InputField
-              className="border p-2 w-full mb-4"
-              placeholder="Description"
-              value={description}
-              onChange={e => setDescription(e.target.value)}
-            />
-
+            <h2 className="text-xl mb-4">{editCatId ? "Edit Category" : "Add Category"}</h2>
+            <InputField placeholder="Category Name" value={name} onChange={e => setName(e.target.value)} className="border p-2 w-full mb-3" />
+            <InputField placeholder="Description" value={description} onChange={e => setDescription(e.target.value)} className="border p-2 w-full mb-4" />
             <div className="flex justify-end gap-3">
-              <Button onClick={() => setShowCatModal(false)} className="bg-gray-300 text-black">
-                Cancel
-              </Button>
-              <Button onClick={saveCategory} className="">
-                Save
-              </Button>
+              <Button onClick={() => setShowCatModal(false)} className="bg-gray-300 text-black">Cancel</Button>
+              <Button onClick={saveCategory}>Save</Button>
             </div>
-
           </div>
         </div>
       )}
@@ -218,7 +145,6 @@ function Expenses() {
       {/* CATEGORY TABLE */}
       <div className="bg-white shadow-2xl rounded-2xl p-6 mb-8 overflow-x-auto">
         <h2 className="text-xl font-semibold mb-4">Categories</h2>
-
         <table className="w-full border border-gray-200">
           <thead className="bg-yellow-50">
             <tr>
@@ -227,14 +153,9 @@ function Expenses() {
               <th className="p-3 border text-center">Actions</th>
             </tr>
           </thead>
-
           <tbody>
             {categories.length === 0 ? (
-              <tr>
-                <td colSpan="3" className="text-center p-6 text-gray-400">
-                  No categories
-                </td>
-              </tr>
+              <tr><td colSpan="3" className="text-center p-6 text-gray-400">No categories</td></tr>
             ) : (
               categories.map(c => (
                 <tr key={c._id}>
@@ -255,20 +176,14 @@ function Expenses() {
 
       {/* EXPENSE TABLE */}
       <div className="bg-white shadow-2xl rounded-2xl p-6 overflow-x-auto">
-
         <div className="grid md:grid-cols-2 gap-4 mb-4 items-center">
           <h2 className="text-xl font-semibold">All Expenses</h2>
-
           <div className="flex md:justify-end">
-            <button
-              onClick={() => setShowExpModal(true)}
-              className="bg-yellow-600 text-white px-4 py-2 rounded flex gap-2 items-center"
-            >
+            <button onClick={() => setShowExpModal(true)} className="bg-yellow-600 text-white px-4 py-2 rounded flex gap-2 items-center">
               <AiOutlinePlus /> Add Expense
             </button>
           </div>
         </div>
-
         <table className="w-full border border-gray-200">
           <thead className="bg-yellow-50">
             <tr>
@@ -280,28 +195,19 @@ function Expenses() {
               <th className="p-3 border">Action</th>
             </tr>
           </thead>
-
           <tbody>
             {expenses.length === 0 ? (
-              <tr>
-                <td colSpan="6" className="text-center p-6 text-gray-400">
-                  No expenses
-                </td>
-              </tr>
+              <tr><td colSpan="6" className="text-center p-6 text-gray-400">No expenses</td></tr>
             ) : (
               expenses.map(e => (
                 <tr key={e._id} className="text-center">
                   <td className="p-3 border">{e.title}</td>
-                  <td className="p-3 border">{e.catagoryId?.name || "-"}</td>
+                  <td className="p-3 border">{e.category?.name || "-"}</td>
                   <td className="p-3 border text-red-600">${e.amount}</td>
-                  <td className="p-3 border">{e.expensesDate?.slice(0,10)}</td>
+                  <td className="p-3 border">{e.date?.slice(0, 10)}</td>
                   <td className="p-3 border">{e.note}</td>
                   <td className="p-3 border">
-                    <AiOutlineDelete
-                      className="text-red-500 cursor-pointer mx-auto"
-                      size={20}
-                      onClick={() => deleteExpense(e._id)}
-                    />
+                    <AiOutlineDelete className="text-red-500 cursor-pointer mx-auto" size={20} onClick={() => deleteExpense(e._id)} />
                   </td>
                 </tr>
               ))
@@ -314,60 +220,23 @@ function Expenses() {
       {showExpModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg w-full max-w-md relative">
-
-            <button className="absolute right-3 top-3" onClick={() => setShowExpModal(false)}>
-              <AiOutlineClose />
-            </button>
-
+            <button className="absolute right-3 top-3" onClick={() => setShowExpModal(false)}><AiOutlineClose /></button>
             <h2 className="text-xl mb-4">Add Expense</h2>
-
-            <InputField
-              className="border p-2 w-full mb-3"
-              placeholder="Title"
-              value={title}
-              onChange={e => setTitle(e.target.value)}
-            />
-
-            <select className="border p-2 w-full mb-3" value={catagoryId} onChange={e => setCatagoryId(e.target.value)}>
+            <InputField placeholder="Title" value={title} onChange={e => setTitle(e.target.value)} className="border p-2 w-full mb-3" />
+            <select className="border p-2 w-full mb-3" value={categoryId} onChange={e => setCategoryId(e.target.value)}>
               <option value="">Select Category</option>
-              {categories.map(c => (
-                <option key={c._id} value={c._id}>{c.name}</option>
-              ))}
+              {categories.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
             </select>
-
-            <InputField
-              className="border p-2 w-full mb-3"
-              type="number"
-              placeholder="Amount"
-              value={amount}
-              onChange={e => setAmount(e.target.value)}
-            />
-            <InputField
-              className="border p-2 w-full mb-3"
-              type="date"
-              value={date}
-              onChange={e => setDate(e.target.value)}
-            />
-            <InputField
-              className="border p-2 w-full mb-4"
-              placeholder="Note"
-              value={note}
-              onChange={e => setNote(e.target.value)}
-            />
-
+            <InputField type="number" placeholder="Amount" value={amount} onChange={e => setAmount(e.target.value)} className="border p-2 w-full mb-3" />
+            <InputField type="date" value={date} onChange={e => setDate(e.target.value)} className="border p-2 w-full mb-3" />
+            <InputField placeholder="Note" value={note} onChange={e => setNote(e.target.value)} className="border p-2 w-full mb-4" />
             <div className="flex justify-end gap-3">
-              <Button onClick={() => setShowExpModal(false)} className="bg-gray-300 text-black">
-                Cancel
-              </Button>
-              <Button onClick={addExpense} className="">
-                Save
-              </Button>
+              <Button onClick={() => setShowExpModal(false)} className="bg-gray-300 text-black">Cancel</Button>
+              <Button onClick={addExpense}>Save</Button>
             </div>
-
           </div>
         </div>
       )}
-
     </div>
   );
 }

@@ -6,12 +6,11 @@ import { userAuthMiddleware } from '../middlewares/userAuth.middleware.js';
 import { authorize } from '../middlewares/authorizeRole.middleware.js';
 
 const tableRouter = express.Router();
-
+tableRouter.use(userAuthMiddleware);
+tableRouter.use(authorize('panel_access', 'admin_access', 'garson_access'));
 // Add table → admin only
 tableRouter.post(
   '/add',
-  userAuthMiddleware,
-  authorize('admin_access'),
   tableValidation,
   validationMiddleware,
   addTable
@@ -20,24 +19,21 @@ tableRouter.post(
 // Get all tables → admin only
 tableRouter.get(
   '/all',
-  userAuthMiddleware,
-  authorize('admin_access', 'garson_access'),
+
   getTables
 );
 
 // Delete table → admin only
 tableRouter.delete(
   '/delete/:tableId',
-  userAuthMiddleware,
-  authorize('admin_access'),
+
   deleteTable
 );
 
 // Update table → admin only
 tableRouter.put(
   '/update/:tableId',
-  userAuthMiddleware,
-  authorize('admin_access'),
+
   tableValidation,
   validationMiddleware,
   updateTable

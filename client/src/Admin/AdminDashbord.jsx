@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { AiOutlineMenu, AiOutlineTable, AiOutlineAppstore, AiOutlineHistory } from "react-icons/ai";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBurger } from '@fortawesome/free-solid-svg-icons';
@@ -10,6 +10,7 @@ import OverviewChart from "./OverviewChart";
 import AdminPanel from './AdminPanel'
 import Expenses from "./Expenses";
 import { useApi } from "../context/ApiContext";
+import { ItemsContext } from "../App";
 
 function AdminDashboard() {
   const { get } = useApi();
@@ -20,7 +21,7 @@ function AdminDashboard() {
   const [todayOrders, setTodayOrders] = useState([]);
   const [weekOrders, setWeekOrders] = useState([]);
   const [monthOrders, setMonthOrders] = useState([]);
-
+  const {user} = useContext(ItemsContext);
   useEffect(() => {
     // Fetch today's orders
     get('/api/v1/orders/count/daily')
@@ -54,6 +55,7 @@ function AdminDashboard() {
       .catch(error => {
         console.error("Error fetching today's revenue:", error);
       });
+      
   }, []);
 
   return (
@@ -126,7 +128,7 @@ function AdminDashboard() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col md:ml-64">
         <div className="p-6">
-          {activeMenu === "Overview" && (
+          {activeMenu === "Overview" && (user.permissions.includes('overview_access') || user.permissions.includes('admin_access')) && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <h1 className="text-[30px] justify-center text-center mb-[21px] sm:text-[45px] md:col-span-4 font-bold text-yellow-600">
                 Admin Dashboard
@@ -161,12 +163,11 @@ function AdminDashboard() {
               </div>
             </div>
           )}
-
-          {activeMenu === "Tables" && <Tables />}
-          {activeMenu === "OrderHistory" && <OrderHistory />}
-          {activeMenu === "Foods" && <FoodDataStorage />}
-          {activeMenu === "AdminPanel" && <AdminPanel />}
-          {activeMenu === "Expenses" && <Expenses />}
+          {activeMenu === "Tables" && (user.permissions.includes('admin_access') || user.permissions.includes('table_access')) && <Tables />}
+          {activeMenu === "OrderHistory" && (user.permissions.includes('admin_access') || user.permissions.includes('order_history_access')) && <OrderHistory />}
+          {activeMenu === "Foods" && (user.permissions.includes('admin_access') || user.permissions.includes('food_access')) &&  <FoodDataStorage />}
+          {activeMenu === "AdminPanel" && (user.permissions.includes('panel_access') || user.permissions.includes('admin_access')) && <AdminPanel />}
+          {activeMenu === "Expenses" && (user.permissions.includes('admin_access') || user.permissions.includes('expense_access')) && <Expenses />}
         </div>
       </div>
     </div>

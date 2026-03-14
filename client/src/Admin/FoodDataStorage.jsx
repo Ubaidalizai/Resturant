@@ -144,7 +144,7 @@ function FoodDataStorage() {
   const filteredFoods = enterFoodData.filter(
     (food) => food.name && food.name.toLowerCase().includes(search.toLowerCase())
   );
-
+    // CHECK PERMISSIONS
   return (
     <div className="min-h-screen bg-gray-50 p-6 flex flex-col items-center space-y-8">
       <h1 className="text-4xl font-extrabold text-yellow-600 text-center">
