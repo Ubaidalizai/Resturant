@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { AiOutlineDelete } from "react-icons/ai";
 import { useApi } from "../context/ApiContext";
+import ConfirmModel from "../Components/UI/ConfirmModel";
+import useConfirmModel from "../Components/UI/useConfirmModel";
 
 
 
@@ -10,6 +12,7 @@ function BrekFast() {
   const { get, post, put, baseURL } = useApi();
   const [foods, setFoods] = useState([]);
   const [quantities, setQuantities] = useState({});
+  const { confirmState, openConfirm, closeConfirm, handleConfirm } = useConfirmModel();
   const [cart, setCart] = useState({});
   const [table, setTable] = useState(null);
   const [tables, setTables] = useState([]);

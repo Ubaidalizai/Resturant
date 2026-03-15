@@ -11,6 +11,7 @@ import AdminPanel from './AdminPanel'
 import Expenses from "./Expenses";
 import { useApi } from "../context/ApiContext";
 import { ItemsContext } from "../App";
+import ConfirmModel from "../Components/UI/ConfirmModel";
 
 function AdminDashboard() {
   const { get } = useApi();
@@ -21,6 +22,7 @@ function AdminDashboard() {
   const [todayOrders, setTodayOrders] = useState([]);
   const [weekOrders, setWeekOrders] = useState([]);
   const [monthOrders, setMonthOrders] = useState([]);
+  const [showConfirm, setShowConfirm] = useState(false);
   const {user} = useContext(ItemsContext);
   useEffect(() => {
     // Fetch today's orders
@@ -61,6 +63,13 @@ function AdminDashboard() {
   return (
     <div className="flex min-h-screen bg-gray-50 relative overflow-hidden">
       {/* Sidebar */}
+      <ConfirmModel
+  isOpen={showConfirm}
+  title="Delete Food"
+  message="Are you sure you want to delete this food item?"
+  onConfirm={() => setShowConfirm(false)}
+  onCancel={() => setShowConfirm(false)}
+/>
       <div
         className={`fixed top-0 left-0 h-full bg-white shadow-xl transition-transform z-40
         ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 w-64`}>

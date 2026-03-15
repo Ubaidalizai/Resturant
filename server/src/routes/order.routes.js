@@ -17,7 +17,6 @@ OrderRouter.get(
 // Add order → order_food or garson or admin
 OrderRouter.post(
   '/add',
-
   orderValidation,
   validationMiddleware,
   addOrder
@@ -26,28 +25,24 @@ OrderRouter.post(
 // Delete order → garson or admin
 OrderRouter.delete(
   '/delete/:orderId', 
-
   deleteOrder
 );
 
 // Update order → garson or admin
 OrderRouter.put(
   '/update/:orderId',
-
   updateOrder
 );
 
 // Get all orders → garson or admin
 OrderRouter.get(
   '/all',  
-
   getAllOrders
 );
 
 // Order counts → garson or admin
 OrderRouter.get(
   '/count/:type',
-
   orderCounts
 );
 
