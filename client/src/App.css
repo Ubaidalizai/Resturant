@@ -1,0 +1,42 @@
+/* Remove box-shadow globally from tailwind shadow utility classes */
+.shadow,
+.shadow-sm,
+.shadow-md,
+.shadow-lg,
+.shadow-xl,
+.shadow-2xl,
+.shadow-inner,
+.shadow-outline {
+  box-shadow: none !important;
+}
+
+/* Tables should have consistent gray borders and no shadows */
+table,
+table th,
+table td {
+  border: 1px solid #d1d5db !important;
+  border-collapse: collapse;
+}
+
+/* Ensure row separators show for various table styles */
+.table,
+.table-bordered,
+.table-hover,
+.table-striped {
+  border: 1px solid #d1d5db !important;
+  border-collapse: collapse;
+  box-shadow: none !important;
+}
+
+.table th,
+.table td,
+.table-bordered th,
+.table-bordered td {
+  border: 1px solid #d1d5db !important;
+}
+
+/* Cards/table containers only get border if they have table content; avoid forcing borders everywhere */
+.card,
+.card > * {
+  box-shadow: none !important;
+}

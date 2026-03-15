@@ -3,6 +3,8 @@ import { AiOutlineDelete } from "react-icons/ai";
 import { toast } from "react-toastify";
 import { useApi } from "../context/ApiContext";
 import InputField from "../Components/UI/InputField";
+import ConfirmModel from "../Components/UI/ConfirmModel";
+import useConfirmModel from "../Components/UI/useConfirmModel";
 import { ItemsContext } from "../App";
 
 function OrderHistory() {
@@ -17,6 +19,8 @@ function OrderHistory() {
   const [modal, setModal] = useState(null);
   const [foodModal, setFoodModal] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [orderToDelete, setOrderToDelete] = useState(null);
+  const { confirmState, openConfirm, closeConfirm, handleConfirm } = useConfirmModel();
   const {user} = useContext(ItemsContext);
   // Fetch orders
   useEffect(() => {
@@ -154,7 +158,15 @@ function OrderHistory() {
                       <div className="flex justify-center">
                         <AiOutlineDelete
                           className="text-red-500 text-xl cursor-pointer hover:text-red-700"
-                          onClick={() => { setSelectedOrder(order); setModal("delete"); }}
+                          onClick={() => {
+                            setSelectedOrder(order);
+                            setOrderToDelete(order);
+                            openConfirm({
+                              title: "Delete Order",
+                              message: `Are you sure you want to delete this order from ${order.date}?`,
+                              onConfirm: () => deleteOrder(order._id),
+                            });
+                          }}
                         />
                       </div>
                     </td>
@@ -208,6 +220,15 @@ function OrderHistory() {
           </div>
         </>
       )}
+
+      <ConfirmModel
+        isOpen={confirmState.isOpen}
+        title={confirmState.title}
+        message={confirmState.message}
+        onConfirm={handleConfirm}
+        onCancel={() => { closeConfirm(); setOrderToDelete(null); }}
+      />
+
     </div>
   );
 }

@@ -5,6 +5,8 @@ import { faTrash, faEdit, faUtensils, faTable, faUser, faUserShield } from "@for
 import { useApi } from "../context/ApiContext";
 import InputField from "../Components/UI/InputField";
 import Button from "../Components/UI/Button";
+import ConfirmModel from "../Components/UI/ConfirmModel";
+import useConfirmModel from "../Components/UI/useConfirmModel";
 import { ItemsContext } from "../App";
 
 function Management() {
@@ -12,7 +14,9 @@ function Management() {
   const [activeTab, setActiveTab] = useState("Menus");
   const [modalOpen, setModalOpen] = useState(false);
   const [editItem, setEditItem] = useState(null);
+  const [pendingDeleteId, setPendingDeleteId] = useState(null);
   const { user } = useContext(ItemsContext);
+  const { confirmState, openConfirm, closeConfirm, handleConfirm } = useConfirmModel();
   const [menus, setMenus] = useState([]);
   const [tables, setTables] = useState([]);
   const [garsons, setGarsons] = useState([]);
@@ -178,29 +182,50 @@ function Management() {
       else if (activeTab === "Tables") { await del(`/api/v1/tables/delete/${id}`); toast.success("Table deleted"); fetchTables(); } 
       else if (activeTab === "Garsons") { await del(`/api/v1/users/delete/${id}`); toast.success("Garson deleted"); fetchGarsons(); } 
       else if (activeTab === "Role") { await del(`/api/v1/role/delete/${id}`); toast.success("Role deleted"); fetchRoles(); }
+      else if (activeTab === "Staff") { await del(`/api/v1/staff/delete/${id}`); toast.success("Staff deleted"); fetchStaff(); }
     } catch { toast.error("Delete failed"); }
+  };
+
+  const requestDelete = (id) => {
+    setPendingDeleteId(id);
+    openConfirm({
+      title: "Confirm Delete",
+      message: "Are you sure you want to delete this item?",
+      onConfirm: async () => {
+        await handleDelete(null, id);
+        setPendingDeleteId(null);
+      },
+    });
   };
 
   const tabIcons = { Menus: faUtensils, Tables: faTable, Garsons: faUser, Role: faUserShield, Staff: faUser };
 
   return (
     <div className="min-h-screen p-10">
-      <h1 className="text-4xl font-bold text-center mb-10 text-yellow-600">Restaurant Admin Panel</h1>
+      <div className="mb-4">
+        <h1 className="text-3xl font-bold text-left text-yellow-600">Restaurant Admin Panel</h1>
+      </div>
 
       {/* Tabs */}
-      <div className="flex justify-center gap-4 mb-8 flex-wrap">
-        {["Menus", "Tables", "Garsons", "Role", "Staff"].map(tab => (
+      <div className="flex justify-center gap-4 mb-4 flex-wrap">
+        { ["Menus", "Tables", "Garsons", "Role", "Staff"].map(tab => (
           <button key={tab} onClick={() => setActiveTab(tab)}
             className={`px-6 py-2 rounded-xl font-medium shadow transition-all duration-200 flex items-center gap-2
             ${activeTab === tab ? "bg-yellow-500 text-white shadow-lg scale-105" : "bg-white hover:bg-yellow-50 text-black"}`}>
             <FontAwesomeIcon icon={tabIcons[tab]} />{tab}
           </button>
-        ))}
+        )) }
+      </div>
+
+      <div className="flex justify-end mb-6">
+        <Button onClick={() => openModal()} className="px-3 py-1 text-sm">
+          {editItem ? "Update " + activeTab.slice(0, -1) : "Add " + activeTab.slice(0, -1)}
+        </Button>
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-2xl shadow-xl overflow-hidden text-black">
-        <table className="w-full text-center">
+      <div className="bg-white rounded-md overflow-hidden text-black  border-gray-300" id="adminTableContainer">
+        <table id="adminTable" className="w-full text-center border-collapse">
           <thead className="bg-yellow-100 text-black">
             <tr>
               {activeTab === "Menus" && <><th className="p-4">Menu Name</th><th>Category</th><th>Actions</th></>}
@@ -212,12 +237,14 @@ function Management() {
           </thead>
           <tbody>
             {activeTab === "Menus" && menus.map(menu => (
-              <tr key={menu._id} className="border-b hover:bg-gray-50 transition">
-                <td className="p-4">{menu.name}</td>
-                <td>{menu.catagory}</td>
-                <td className="flex justify-center gap-4">
-                  <button onClick={() => openModal(menu)} className="text-blue-500 hover:text-blue-700"><FontAwesomeIcon icon={faEdit} /></button>
-                  <button onClick={() => handleDelete(null, menu._id)} className="text-red-500 hover:text-red-700"><FontAwesomeIcon icon={faTrash} /></button>
+              <tr key={menu._id} className="hover:bg-gray-50 transition">
+                <td className="p-4 border border-gray-300">{menu.name}</td>
+                <td className="p-4 border border-gray-300">{menu.catagory}</td>
+                <td className="p-4 border border-gray-300">
+                  <div className="flex justify-center gap-4">
+                    <button onClick={() => openModal(menu)} className="text-blue-500 hover:text-blue-700"><FontAwesomeIcon icon={faEdit} /></button>
+                    <button onClick={() => requestDelete(menu._id)} className="text-red-500 hover:text-red-700"><FontAwesomeIcon icon={faTrash} /></button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -227,7 +254,7 @@ function Management() {
                 <td>{table.capacity}</td>
                 <td className="flex justify-center gap-4">
                   <button onClick={() => openModal(table)} className="text-blue-500 hover:text-blue-700"><FontAwesomeIcon icon={faEdit} /></button>
-                  <button onClick={() => handleDelete(null, table._id)} className="text-red-500 hover:text-red-700"><FontAwesomeIcon icon={faTrash} /></button>
+                  <button onClick={() => requestDelete(table._id)} className="text-red-500 hover:text-red-700"><FontAwesomeIcon icon={faTrash} /></button>
                 </td>
               </tr>
             ))}
@@ -240,7 +267,7 @@ function Management() {
                 <td>{g.phone}</td>
                 <td className="flex justify-center gap-4">
                   <button onClick={() => openModal(g)} className="text-blue-500 hover:text-blue-700"><FontAwesomeIcon icon={faEdit} /></button>
-                  <button onClick={() => handleDelete(null, g._id)} className="text-red-500 hover:text-red-700"><FontAwesomeIcon icon={faTrash} /></button>
+                  <button onClick={() => requestDelete(g._id)} className="text-red-500 hover:text-red-700"><FontAwesomeIcon icon={faTrash} /></button>
                 </td>
               </tr>
             ))}
@@ -250,7 +277,7 @@ function Management() {
                 <td>{(r.permissions || []).map(p => p.name || p).join(", ")}</td>
                 <td className="flex justify-center gap-4">
                   <button onClick={() => openModal(r)} className="text-blue-500 hover:text-blue-700"><FontAwesomeIcon icon={faEdit} /></button>
-                  <button onClick={() => handleDelete(null, r._id)} className="text-red-500 hover:text-red-700"><FontAwesomeIcon icon={faTrash} /></button>
+                  <button onClick={() => requestDelete(r._id)} className="text-red-500 hover:text-red-700"><FontAwesomeIcon icon={faTrash} /></button>
                 </td>
               </tr>
             ))}
@@ -263,16 +290,12 @@ function Management() {
                 <td>{s.status}</td>
                 <td className="flex justify-center gap-4">
                   <button onClick={() => openModal(s)} className="text-blue-500 hover:text-blue-700"><FontAwesomeIcon icon={faEdit} /></button>
-                  <button onClick={() => handleDelete(null, s._id)} className="text-red-500 hover:text-red-700"><FontAwesomeIcon icon={faTrash} /></button>
+                  <button onClick={() => requestDelete(s._id)} className="text-red-500 hover:text-red-700"><FontAwesomeIcon icon={faTrash} /></button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-      </div>
-
-      <div className="flex justify-center mt-8">
-        <Button onClick={() => openModal()}>{editItem ? "Update " + activeTab.slice(0, -1) : "Add " + activeTab.slice(0, -1)}</Button>
       </div>
 
       {/* Modal */}
@@ -345,6 +368,14 @@ function Management() {
           </div>
         </div>
       )}
+
+      <ConfirmModel
+        isOpen={confirmState.isOpen}
+        title={confirmState.title}
+        message={confirmState.message}
+        onConfirm={handleConfirm}
+        onCancel={() => { closeConfirm(); setPendingDeleteId(null);} }
+      />
     </div>
   );
 }

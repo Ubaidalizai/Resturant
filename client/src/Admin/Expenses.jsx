@@ -4,6 +4,8 @@ import { toast } from "react-toastify";
 import { useApi } from "../context/ApiContext";
 import InputField from "../Components/UI/InputField";
 import Button from "../Components/UI/Button";
+import ConfirmModel from "../Components/UI/ConfirmModel";
+import useConfirmModel from "../Components/UI/useConfirmModel";
 import { ItemsContext } from "../App";
 
 function Expenses() {
@@ -21,6 +23,9 @@ function Expenses() {
   const [expenses, setExpenses] = useState([]);
   const [showExpModal, setShowExpModal] = useState(false);
   const [title, setTitle] = useState("");
+  const [pendingCategoryDelete, setPendingCategoryDelete] = useState(null);
+  const [pendingExpenseDelete, setPendingExpenseDelete] = useState(null);
+  const { confirmState, openConfirm, closeConfirm, handleConfirm } = useConfirmModel();
   const [categoryId, setCategoryId] = useState("");
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState("");
@@ -78,6 +83,18 @@ function Expenses() {
     }
   };
 
+  const requestDeleteCategory = (id) => {
+    setPendingCategoryDelete(id);
+    openConfirm({
+      title: "Delete Category",
+      message: "Are you sure you want to delete this category?",
+      onConfirm: async () => {
+        await deleteCategory(id);
+        setPendingCategoryDelete(null);
+      },
+    });
+  };
+
   // EDIT CATEGORY
   const editCategory = (cat) => {
     setEditCatId(cat._id);
@@ -109,6 +126,18 @@ function Expenses() {
     } catch (err) {
       console.log(err);
     }
+  };
+
+  const requestDeleteExpense = (id) => {
+    setPendingExpenseDelete(id);
+    openConfirm({
+      title: "Delete Expense",
+      message: "Are you sure you want to delete this expense?",
+      onConfirm: async () => {
+        await deleteExpense(id);
+        setPendingExpenseDelete(null);
+      },
+    });
   };
 
 
@@ -164,7 +193,7 @@ function Expenses() {
                   <td className="p-3 border text-center">
                     <div className="flex justify-center gap-4">
                       <AiOutlineEdit className="text-blue-500 cursor-pointer" size={20} onClick={() => editCategory(c)} />
-                      <AiOutlineDelete className="text-red-500 cursor-pointer" size={20} onClick={() => deleteCategory(c._id)} />
+                      <AiOutlineDelete className="text-red-500 cursor-pointer" size={20} onClick={() => requestDeleteCategory(c._id)} />
                     </div>
                   </td>
                 </tr>
@@ -207,7 +236,7 @@ function Expenses() {
                   <td className="p-3 border">{e.date?.slice(0, 10)}</td>
                   <td className="p-3 border">{e.note}</td>
                   <td className="p-3 border">
-                    <AiOutlineDelete className="text-red-500 cursor-pointer mx-auto" size={20} onClick={() => deleteExpense(e._id)} />
+                    <AiOutlineDelete className="text-red-500 cursor-pointer mx-auto" size={20} onClick={() => requestDeleteExpense(e._id)} />
                   </td>
                 </tr>
               ))
@@ -237,6 +266,15 @@ function Expenses() {
           </div>
         </div>
       )}
+
+      <ConfirmModel
+        isOpen={confirmState.isOpen}
+        title={confirmState.title}
+        message={confirmState.message}
+        onConfirm={handleConfirm}
+        onCancel={() => { closeConfirm(); setPendingCategoryDelete(null); setPendingExpenseDelete(null); }}
+      />
+
     </div>
   );
 }

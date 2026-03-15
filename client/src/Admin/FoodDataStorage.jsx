@@ -4,6 +4,8 @@ import { toast } from "react-toastify";
 import { useApi } from "../context/ApiContext";
 import InputField from "../Components/UI/InputField";
 import Button from "../Components/UI/Button";
+import ConfirmModel from "../Components/UI/ConfirmModel";
+import useConfirmModel from "../Components/UI/useConfirmModel";
 
 function FoodDataStorage() {
   const { get, post, put, del, baseURL } = useApi();
@@ -16,6 +18,7 @@ function FoodDataStorage() {
   const [search, setSearch] = useState("");
   const [modal, setModal] = useState(null);
   const [selectedFood, setSelectedFood] = useState(null);
+  const { confirmState, openConfirm, closeConfirm, handleConfirm } = useConfirmModel();
 
   // Fetch foods (extracted so it can be called on demand)
   const fetchFoods = async () => {
@@ -171,7 +174,7 @@ function FoodDataStorage() {
         {filteredFoods.map((food) => (
           <div
             key={food._id}
-            className="bg-white rounded-2xl shadow p-6 flex flex-col items-center"
+            className="bg-white rounded-2xl border border-gray-300 p-6 flex flex-col items-center"
           >
             <img
               src={
@@ -201,7 +204,11 @@ function FoodDataStorage() {
                 className="text-red-500 cursor-pointer text-xl"
                 onClick={() => {
                   setSelectedFood(food);
-                  setModal("delete");
+                  openConfirm({
+                    title: "Delete Food",
+                    message: `Are you sure you want to delete "${food.name}"?`,
+                    onConfirm: deleteFood,
+                  });
                 }}
               />
             </div>
@@ -282,32 +289,13 @@ function FoodDataStorage() {
         </div>
       )}
 
-      {/* delete confirmation modal */}
-      {modal === "delete" && selectedFood && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="absolute inset-0 bg-black/30"></div>
-          <div className="bg-white rounded-3xl p-8 w-full max-w-xs relative shadow-2xl z-10 text-center">
-            <h2 className="text-xl font-bold text-red-600 mb-4">Delete Food</h2>
-            <p className="mb-6 text-black">
-              Are you sure you want to remove "{selectedFood.name}"?
-            </p>
-            <div className="flex gap-4 justify-center">
-              <Button
-                onClick={() => { setModal(null); setSelectedFood(null); }}
-                className="bg-gray-300 text-black"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={deleteFood}
-                className="bg-red-600 text-white"
-              >
-                Delete
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmModel
+        isOpen={confirmState.isOpen}
+        title={confirmState.title}
+        message={confirmState.message}
+        onConfirm={handleConfirm}
+        onCancel={() => { closeConfirm(); setSelectedFood(null); }}
+      />
     </div>
   );
 }
