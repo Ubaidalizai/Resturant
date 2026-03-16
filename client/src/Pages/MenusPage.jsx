@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useApi } from "../context/ApiContext";
 
 function MenusPage() {
   const { get } = useApi();
+  const { t } = useTranslation("common");
   const [menus, setMenus] = useState([]);
 
   useEffect(() => {
@@ -32,17 +34,17 @@ function MenusPage() {
 
        
         <h1 className="text-yellow-600 font-extrabold text-5xl sm:text-6xl text-center drop-shadow-md">
-          Choose Your Favorite Menu
+          {t("ChooseYourFavoriteMenu")}
         </h1>
 
        
         <div className="flex flex-col md:flex-row gap-6">
 
-          <Link to="/breakfast" className="flex flex-col items-center justify-center bg-gradient-to-br from-yellow-400 to-yellow-600 text-black font-bold text-3xl py-12 rounded-3xl shadow-2xl transform transition-all duration-500 hover:scale-105 hover:shadow-yellow-500/60 hover:-translate-y-2 hover:shadow-lg text-center p-5" > Breakfast </Link>
+          <Link to="/breakfast" className="flex flex-col items-center justify-center bg-gradient-to-br from-yellow-400 to-yellow-600 text-black font-bold text-3xl py-12 rounded-3xl shadow-2xl transform transition-all duration-500 hover:scale-105 hover:shadow-yellow-500/60 hover:-translate-y-2 hover:shadow-lg text-center p-5" > {t("Breakfast")} </Link>
 
-          <Link to="/lunch" className="flex flex-col items-center justify-center bg-gradient-to-br from-yellow-400 to-yellow-600 text-black font-bold text-3xl py-12 rounded-3xl shadow-2xl transform transition-all duration-500 hover:scale-105 hover:shadow-yellow-500/60 hover:-translate-y-2 hover:shadow-lg text-center p-5"> Lunch & Dinner </Link>
+          <Link to="/lunch" className="flex flex-col items-center justify-center bg-gradient-to-br from-yellow-400 to-yellow-600 text-black font-bold text-3xl py-12 rounded-3xl shadow-2xl transform transition-all duration-500 hover:scale-105 hover:shadow-yellow-500/60 hover:-translate-y-2 hover:shadow-lg text-center p-5"> {t("LunchAndDinner")} </Link>
 
-          <Link to="/drinks" className="flex flex-col items-center justify-center bg-gradient-to-br from-yellow-400 to-yellow-600 text-black font-bold text-3xl py-12 rounded-3xl shadow-2xl transform transition-all duration-500 hover:scale-105 hover:shadow-yellow-500/60 hover:-translate-y-2 hover:shadow-lg text-center p-5"> Drinks</Link>
+          <Link to="/drinks" className="flex flex-col items-center justify-center bg-gradient-to-br from-yellow-400 to-yellow-600 text-black font-bold text-3xl py-12 rounded-3xl shadow-2xl transform transition-all duration-500 hover:scale-105 hover:shadow-yellow-500/60 hover:-translate-y-2 hover:shadow-lg text-center p-5"> {t("Drinks")}</Link>
 
            {menus.length > 0 ? (
           menus.map((menu) => (

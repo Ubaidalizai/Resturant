@@ -1,5 +1,6 @@
 // GarsoonDashboard.jsx
 import { useContext, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import MenuTabs from "../Components/garson/MenuTabs";
 import FoodGrid from "../Components/garson/FoodGrid";
 import CartPanel from "../Components/garson/CartPanel";
@@ -11,6 +12,7 @@ import { ItemsContext } from "../App";
 function GarsoonDashboard() {
 
   const { get } = useApi();
+  const { t } = useTranslation("common");
 
   const [menus, setMenus] = useState([]);
   const [allFoods, setAllFoods] = useState([]);
@@ -64,7 +66,7 @@ function GarsoonDashboard() {
       setOrdersView(true);
 
     } catch (err) {
-      toast.error("Error fetching orders");
+      toast.error(t("ErrorFetchingOrders"));
     }
   };
 
@@ -115,7 +117,7 @@ function GarsoonDashboard() {
             onClick={fetchOrders}
             className="px-6 py-2.5 relative -top-3 bg-yellow-500"
           >
-            Orders
+            {t("Orders")}
           </Button>
 
           {ordersView && (
@@ -123,7 +125,7 @@ function GarsoonDashboard() {
               onClick={() => setOrdersView(false)}
               className="px-6 py-2.5 relative -top-3 bg-gray-300 text-black"
             >
-              Back to Menu
+              {t("BackToMenu")}
             </Button>
           )}
 
@@ -135,7 +137,7 @@ function GarsoonDashboard() {
 
             {orders.length === 0 ? (
               <p className="text-gray-500">
-                No orders for today
+                {t("NoOrdersForToday")}
               </p>
             ) : (
 

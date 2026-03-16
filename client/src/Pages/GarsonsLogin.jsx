@@ -17,7 +17,7 @@ function LoginForm() {
   const { t } = useTranslation("common");
   const handleLogin = async () => {
     if (!email || !password) {
-      toast.warn("Please fill in both fields");
+      toast.warn(t("PleaseFillBothFields", { defaultValue: "Please fill in both fields" }));
       return;
     }
 
@@ -27,17 +27,17 @@ function LoginForm() {
       // No need to add `withCredentials` here, it is global now
       const response = await post("/api/v1/user/login", { email, password }, { withCredentials: true });
       if (!response.data.success) {
-        toast.error(response.data.message || "Invalid Email or Password");
+        toast.error(response.data.message || t("InvalidEmailOrPassword", { defaultValue: "Invalid Email or Password" }));
         return;
       }
       const user = response.data.data.user;
       if (!user) {
-        toast.error("User not returned from server");
+        toast.error(t("UserNotReturnedFromServer"));
         return;
       }
       setIsAuth(true);
       setUser(user);
-      toast.success("Login Successful");
+      toast.success(response.data.message || t("LoginSuccessful"));
 
       // Get array of permission keys
       const permissionKeys = user.permissions || [];
@@ -55,13 +55,13 @@ function LoginForm() {
       } else if (permissionKeys.some(p => kitchenKeys.includes(p))) {
         navigate("/kitchen");
       } else {
-        toast.error("No dashboard assigned to this account");
+        toast.error(t("NoDashboardAssigned", { defaultValue: "No dashboard assigned to this account" }));
         setIsAuth(false);
       }
 
     } catch (err) {
       console.error(err);
-      toast.error(err.response?.data?.message || "Login failed");
+      toast.error(err.response?.data?.message || t("LoginFailed"));
     } finally {
       setLoading(false);
     }
@@ -75,31 +75,31 @@ function LoginForm() {
         <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-yellow-400 rounded-full opacity-30"></div>
 
         <h1 className="text-center text-4xl sm:text-4xl font-extrabold text-yellow-600 mb-8">
-         
+          {t("Login")}
         </h1>
 
         <div className="flex flex-col space-y-6">
           <InputField
             type="text"
-            placeholder="Email Address"
+            placeholder={t("EmailAddress", { defaultValue: "Email Address" })}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="border-2 border-yellow-600 rounded-xl px-5 py-3 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
           />
           <InputField
             type="password"
-            placeholder="Password"
+            placeholder={t("Password", { defaultValue: "Password" })}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="border-2 border-yellow-600 rounded-xl px-5 py-3 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition"
           />
           <div className="text-center">
             <Link to="/forgot-password" className="text-yellow-600 hover:underline">
-              Forgot Password?
+              {t("ForgotPassword", { defaultValue: "Forgot Password?" })}
             </Link>
           </div>
           <Button onClick={handleLogin} className="w-full">
-            Login
+            {t("Login")}
           </Button>
         </div>
       </div>

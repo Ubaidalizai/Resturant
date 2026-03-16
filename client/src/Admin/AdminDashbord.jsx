@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { AiOutlineMenu, AiOutlineTable, AiOutlineAppstore, AiOutlineHistory } from "react-icons/ai";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBurger } from '@fortawesome/free-solid-svg-icons';
+import { useTranslation } from "react-i18next";
 import Tables from "./Tables";
 import OrderHistory from "./OrderHistory";
 import FoodDataStorage from './FoodDataStorage';
@@ -15,6 +16,7 @@ import ConfirmModel from "../Components/UI/ConfirmModel";
 
 function AdminDashboard() {
   const { get } = useApi();
+  const { t } = useTranslation("common");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState("Overview");
   const [orders, setOrders] = useState([]);
@@ -84,7 +86,7 @@ function AdminDashboard() {
               activeMenu === "Overview" ? "bg-yellow-100" : ""
             }`}>
             <AiOutlineAppstore size={20} />
-            <span>Overview</span>
+            <span>{t("Overview")}</span>
           </div>
 
             <div
@@ -93,7 +95,7 @@ function AdminDashboard() {
               activeMenu === "AdminPanel" ? "bg-yellow-100" : ""
             }`}>
             <AiOutlineAppstore size={20} />
-            <span>Admin Panel</span>
+            <span>{t("AdminPanel")}</span>
           </div>
 
           <div
@@ -102,7 +104,7 @@ function AdminDashboard() {
               activeMenu === "Foods" ? "bg-yellow-100" : ""
             }`}>
             <FontAwesomeIcon icon={faBurger} />
-            <span>Foods</span>
+            <span>{t("Foods")}</span>
           </div>
 
           <div
@@ -111,7 +113,7 @@ function AdminDashboard() {
               activeMenu === "Tables" ? "bg-yellow-100" : ""
             }`}>
             <AiOutlineTable size={20} />
-            <span>Tables</span>
+            <span>{t("Tables")}</span>
           </div>
 
           <div
@@ -120,7 +122,7 @@ function AdminDashboard() {
               activeMenu === "Expenses" ? "bg-yellow-100" : ""
             }`}>
             <AiOutlineTable size={20} />
-            <span>Expenses</span>
+            <span>{t("Expenses")}</span>
           </div>
 
           <div
@@ -129,7 +131,7 @@ function AdminDashboard() {
               activeMenu === "OrderHistory" ? "bg-yellow-100" : ""
             }`}>
             <AiOutlineHistory size={20} />
-            <span>Order History</span>
+            <span>{t("OrderHistory")}</span>
           </div>
         </nav>
       </div>
@@ -140,27 +142,27 @@ function AdminDashboard() {
           {activeMenu === "Overview" && (user.permissions.includes('overview_access') || user.permissions.includes('admin_access')) && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <h1 className="text-[30px] justify-center text-center mb-[21px] sm:text-[45px] md:col-span-4 font-bold text-yellow-600">
-                Admin Dashboard
+                {t("AdminDashboard")}
               </h1>
 
               <div className="col-span-4 flex flex-row w-full justify-center space-x-[30px]">
                 <div className="bg-white rounded-3xl shadow-2xl p-6 flex flex-col items-center hover:scale-105 transition-transform">
-                  <h3 className="text-gray-500 font-semibold">Last Month Orders</h3>
+                  <h3 className="text-gray-500 font-semibold">{t("LastMonthOrders")}</h3>
                   <p className="text-yellow-600 text-3xl font-bold mt-2">{monthOrders}</p>
                 </div>
 
                 <div className="bg-white rounded-3xl shadow-2xl p-6 flex flex-col items-center hover:scale-105 transition-transform">
-                  <h3 className="text-gray-500 font-semibold">Last Week Orders</h3>
+                  <h3 className="text-gray-500 font-semibold">{t("LastWeekOrders")}</h3>
                   <p className="text-yellow-600 text-3xl font-bold mt-2">{weekOrders}</p>
                 </div>
 
                 <div className="bg-white rounded-3xl shadow-2xl p-6 flex flex-col items-center hover:scale-105 transition-transform">
-                  <h3 className="text-gray-500 font-semibold">Today Orders</h3>
+                  <h3 className="text-gray-500 font-semibold">{t("TodayOrders")}</h3>
                   <p className="text-yellow-600 text-3xl font-bold mt-2">{todayOrders}</p>
                 </div>
 
                 <div className="bg-white rounded-3xl shadow-2xl p-6 flex flex-col items-center hover:scale-105 transition-transform">
-                  <h3 className="text-gray-500 font-semibold">Today Revenue</h3>
+                  <h3 className="text-gray-500 font-semibold">{t("TodayRevenue")}</h3>
                   <p className="text-yellow-600 text-3xl font-bold mt-2">
                     ${todayRevenue.toFixed(2)}
                   </p>

@@ -1,5 +1,6 @@
 import { Route, Routes, Navigate } from 'react-router-dom';
 import { createContext, useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import './App.css';
 import BrekFast from './Components/BrekFast';
 import LunchAndDinner from './Components/LunchAndDinner';
@@ -15,11 +16,13 @@ import { useApi } from './context/ApiContext';
 import GarsoonDashboard from './Pages/GarsoonDashboard';
 import ForggotPasswordPage from './Pages/ForggotPasswordPage';
 import ResetPasswordPage from './Pages/ResetPasswordPage';
+import LanguageSwitcher from './Components/UI/LanguageSwitcher';
 
 export const ItemsContext = createContext();
 
 function App() {
   const { get } = useApi();
+  const { t } = useTranslation("common");
   const [isAuth, setIsAuth] = useState(false);
   const [user, setUser] = useState(null);
   const [loadingAuth, setLoadingAuth] = useState(true); // to wait for verify check
@@ -52,7 +55,7 @@ function App() {
   if (loadingAuth) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p>Checking authentication..</p>
+        <p>{t("CheckingAuthentication")}</p>
       </div>
     );
   }
@@ -68,6 +71,8 @@ function App() {
         pauseOnHover
         theme="light"
       />
+
+      <LanguageSwitcher />
 
       <Routes>
         <Route path='/' element={<GarsonLogin />} />

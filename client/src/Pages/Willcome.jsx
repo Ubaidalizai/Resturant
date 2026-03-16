@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import background from "../images/willcome.jpg";
 import RestaurantLoader from'./RestaurantLoader';
 import Button from "../Components/UI/Button";
@@ -7,6 +8,7 @@ import Button from "../Components/UI/Button";
 function Welcome() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const { t } = useTranslation("common");
 
   const handleOrderNow = () => {
     setLoading(true);
@@ -33,25 +35,25 @@ function Welcome() {
 
       <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-4 space-y-6">
         <h1 className="text-5xl md:text-8xl font-extrabold text-white">
-          Welcome
+          {t("welcome")}
         </h1>
 
         <p className="text-xl md:text-3xl text-gray-200">
-          Experience the Taste of Real Food
+          {t("ExperienceTasteOfRealFood", { defaultValue: "Experience the Taste of Real Food" })}
         </p>
 
         <Button
           onClick={handleOrderNow}
           className="mt-4 bg-yellow-600 px-8 py-4 rounded-full text-lg shadow-xl animate-bounce hover:shadow-amber-300 scale-105 transition-all duration-300"
         >
-          Order Now
+          {t("OrderNow", { defaultValue: "Order Now" })}
         </Button>
 
         <Button
           onClick={() => navigate("/login")}
           className="text-white bg-transparent px-0 py-0 shadow-none hover:underline"
         >
-          Login
+          {t("Login")}
         </Button>
       </div>
     </div>

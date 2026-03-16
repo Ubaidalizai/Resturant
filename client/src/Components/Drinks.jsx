@@ -2,10 +2,12 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { AiOutlineDelete } from "react-icons/ai";
+import { useTranslation } from "react-i18next";
 import { useApi } from "../context/ApiContext";
 
 function Drinks() {
  const { get, baseURL } = useApi();
+ const { t } = useTranslation("common");
   const [foods, setFoods] = useState([]);
   const [quantities, setQuantities] = useState({});
   const [cart, setCart] = useState({});
@@ -35,7 +37,7 @@ function Drinks() {
       console.log(formattedFoods);
     } catch (err) {
       console.log(err.message);
-      toast.error("Failed to fetch foods");
+      toast.error(t("FailedToFetchFoods", { defaultValue: "Failed to fetch foods" }));
     }
   };
 
@@ -74,7 +76,7 @@ function Drinks() {
   
   const openOrderModal = () => {
     if (!Object.keys(cart).length) {
-      toast.error("No food added");
+      toast.error(t("NoFoodAdded", { defaultValue: "No food added" }));
       return;
     }
     setShowOrderModal(true);
@@ -83,7 +85,7 @@ function Drinks() {
 
   const confirmOrder = () => {
     if (!table) {
-      toast.error("Select table number");
+      toast.error(t("SelectTableNumber", { defaultValue: "Select table number" }));
       return;
     }
 
@@ -97,7 +99,7 @@ function Drinks() {
     }));
 
     if (!items.length) {
-      toast.error("No items in cart");
+      toast.error(t("NoItemsInCart", { defaultValue: "No items in cart" }));
       return;
     }
 
@@ -160,7 +162,7 @@ function Drinks() {
  
   const updateOrder = () => {
     if (!table) {
-      toast.error("Select table number");
+      toast.error(t("SelectTableNumber", { defaultValue: "Select table number" }));
       return;
     }
 
@@ -174,7 +176,7 @@ function Drinks() {
     }));
 
     if (!items.length) {
-      toast.error("No items in cart");
+      toast.error(t("NoItemsInCart", { defaultValue: "No items in cart" }));
       return;
     }
 

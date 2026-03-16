@@ -2,11 +2,13 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { AiOutlineDelete } from "react-icons/ai";
+import { useTranslation } from "react-i18next";
 import { useApi } from "../context/ApiContext";
 
 
 function LunchAndDinner() {
   const { get, baseURL } = useApi();
+  const { t } = useTranslation("common");
   const [foodsState, setFoodsState] = useState([]);
   const [backendTables, setBackendTables] = useState([]);
   const [quantities, setQuantities] = useState({});
@@ -27,7 +29,7 @@ function LunchAndDinner() {
         setFoodsState(allFoods.map((f) => ({ ...f, id: f._id || f.id })));
       } catch (err) {
         console.log(err);
-        toast.error("Failed to load foods");
+        toast.error(t("FailedToLoadFoods", { defaultValue: "Failed to load foods" }));
       }
     };
     const fetchTables = async () => {
@@ -36,7 +38,7 @@ function LunchAndDinner() {
         setBackendTables(res.data.data || []);
       } catch (err) {
         console.log(err);
-        toast.error("Failed to load tables");
+        toast.error(t("FailedToLoadTables", { defaultValue: "Failed to load tables" }));
       }
     };
     fetchFoods();
@@ -76,7 +78,7 @@ function LunchAndDinner() {
   
   const openOrderModal = () => {
     if (!Object.keys(cart).length) {
-      toast.error("No food added");
+      toast.error(t("NoFoodAdded", { defaultValue: "No food added" }));
       return;
     }
     setShowOrderModal(true);
@@ -85,7 +87,7 @@ function LunchAndDinner() {
 
   const confirmOrder = () => {
     if (!table) {
-      toast.error("Select table number");
+      toast.error(t("SelectTableNumber", { defaultValue: "Select table number" }));
       return;
     }
 
@@ -99,7 +101,7 @@ function LunchAndDinner() {
     }));
 
     if (!items.length) {
-      toast.error("No items in cart");
+      toast.error(t("NoItemsInCart", { defaultValue: "No items in cart" }));
       return;
     }
 
@@ -162,7 +164,7 @@ function LunchAndDinner() {
  
   const updateOrder = () => {
     if (!table) {
-      toast.error("Select table number");
+      toast.error(t("SelectTableNumber", { defaultValue: "Select table number" }));
       return;
     }
 
@@ -176,7 +178,7 @@ function LunchAndDinner() {
     }));
 
     if (!items.length) {
-      toast.error("No items in cart");
+      toast.error(t("NoItemsInCart", { defaultValue: "No items in cart" }));
       return;
     }
 

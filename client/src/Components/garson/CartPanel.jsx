@@ -1,5 +1,6 @@
 import TableSelector from "./TableSelector";
 import { toast } from "react-toastify";
+import { useTranslation } from "react-i18next";
 import { useApi } from '../../context/ApiContext';
 import InputField from "../UI/InputField";
 import Button from "../UI/Button";
@@ -17,6 +18,7 @@ function CartPanel({
 }) {
 
   const { post, put } = useApi();
+  const { t } = useTranslation("common");
 
   const items = Object.values(cart);
 
@@ -34,13 +36,13 @@ function CartPanel({
   const confirmOrder = async () => {
 
     if (!selectedTable)
-      return toast.error("Select a table first");
+      return toast.error(t("SelectATableFirst", { defaultValue: "Select a table first" }));
 
     if (items.length === 0)
-      return toast.error("Add some food first");
+      return toast.error(t("AddSomeFoodFirst", { defaultValue: "Add some food first" }));
 
     if (!customer || customer.trim() === "")
-      return toast.error("Please enter customer name");
+      return toast.error(t("PleaseEnterCustomerName", { defaultValue: "Please enter customer name" }));
 
     try {
 
@@ -87,7 +89,7 @@ function CartPanel({
       toast.error(
         err.response?.data?.message ||
         err.message ||
-        "Error processing order"
+        t("ErrorProcessingOrder", { defaultValue: "Error processing order" })
       );
     }
   };
@@ -126,7 +128,7 @@ function CartPanel({
         {items.length === 0 ? (
 
           <p className="text-gray-500">
-            No items in cart
+            {t("NoItemsInCart", { defaultValue: "No items in cart" })}
           </p>
 
         ) : (

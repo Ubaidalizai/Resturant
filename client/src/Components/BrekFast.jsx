@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { AiOutlineDelete } from "react-icons/ai";
+import { useTranslation } from "react-i18next";
 import { useApi } from "../context/ApiContext";
 import ConfirmModel from "../Components/UI/ConfirmModel";
 import useConfirmModel from "../Components/UI/useConfirmModel";
@@ -10,6 +11,7 @@ import useConfirmModel from "../Components/UI/useConfirmModel";
 
 function BrekFast() {
   const { get, post, put, baseURL } = useApi();
+  const { t } = useTranslation("common");
   const [foods, setFoods] = useState([]);
   const [quantities, setQuantities] = useState({});
   const { confirmState, openConfirm, closeConfirm, handleConfirm } = useConfirmModel();
@@ -41,7 +43,7 @@ function BrekFast() {
       console.log(formattedFoods);
     } catch (err) {
       console.log(err.message);
-      toast.error("Failed to fetch foods");
+      toast.error(t("FailedToLoadFoods", { defaultValue: "Failed to load foods" }));
     }
   };
 
@@ -57,7 +59,7 @@ function BrekFast() {
         console.log("TABLE API RESPONSE:", res.data);
         setTables(res.data.data || []);
       } catch (err) {
-        toast.error('Table is not loaded');
+        toast.error(t("TableNotLoaded", { defaultValue: "Table is not loaded" }));
       }
     };
     fetchTables();
@@ -91,7 +93,7 @@ function BrekFast() {
 
   const openOrderModal = () => {
     if (!Object.keys(cart).length) {
-      toast.error("No food added");
+      toast.error(t("NoFoodAdded", { defaultValue: "No food added" }));
       return;
     }
     setShowOrderModal(true);
@@ -105,7 +107,7 @@ function BrekFast() {
   // ✅ CONFIRM ORDER → DATABASE
   const confirmOrder = async () => {
   if (!table) {
-    toast.error("Select table number");
+    toast.error(t("SelectTableNumber", { defaultValue: "Select table number" }));
     return;
   }
 
@@ -115,7 +117,7 @@ function BrekFast() {
   }));
 
   if (!items.length) {
-    toast.error("No items in cart");
+    toast.error(t("NoItemsInCart", { defaultValue: "No items in cart" }));
     return;
   }
 
@@ -135,10 +137,10 @@ function BrekFast() {
       setTable(null);
       setShowOrderModal(false);
     } else {
-      toast.error(res.data.message || "Order failed");
+      toast.error(res.data.message || t("OrderFailed", { defaultValue: "Order failed" }));
     }
   } catch (err) {
-    toast.error("Server error while placing order" || res.err.message);
+    toast.error(t("ServerErrorWhilePlacingOrder", { defaultValue: "Server error while placing order" }) || err.message);
   }
   console.log(res)
 };
@@ -162,7 +164,7 @@ function BrekFast() {
       );
 
       if (!res.data.success) {
-        toast.error("No order found for this table");
+        toast.error(t("NoOrderFoundForThisTable", { defaultValue: "No order found for this table" }));
         return;
       }
 
@@ -186,14 +188,14 @@ function BrekFast() {
       setQuantities(newQty);
       setEditTableLocked(true);
     } catch (err) {
-      toast.error("Error loading order");
+      toast.error(t("ErrorLoadingOrder", { defaultValue: "Error loading order" }));
     }
   };
 
   // ✅ UPDATE ORDER → DATABASE
   const updateOrder = async () => {
     if (!table || !currentOrderId) {
-      toast.error("Select table number");
+      toast.error(t("SelectTableNumber", { defaultValue: "Select table number" }));
       return;
     }
 
@@ -205,7 +207,7 @@ function BrekFast() {
     }));
 
     if (!items.length) {
-      toast.error("No items in cart");
+      toast.error(t("NoItemsInCart", { defaultValue: "No items in cart" }));
       return;
     }
 

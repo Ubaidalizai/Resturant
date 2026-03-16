@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { AiOutlineDelete, AiOutlineEdit, AiOutlinePlus, AiOutlineClose } from "react-icons/ai";
 import { toast } from "react-toastify";
+import { useTranslation } from "react-i18next";
 import { useApi } from "../context/ApiContext";
 import InputField from "../Components/UI/InputField";
 import Button from "../Components/UI/Button";
@@ -10,6 +11,7 @@ import { ItemsContext } from "../App";
 
 function Expenses() {
   const { get, post, del } = useApi();
+  const { t } = useTranslation("common");
   const { user } = useContext(ItemsContext);
 
   // CATEGORY STATES
@@ -60,15 +62,15 @@ function Expenses() {
 
   // ADD / UPDATE CATEGORY
   const saveCategory = async () => {
-    if (!name) return toast.error("Category name required");
+    if (!name) return toast.error(t("CategoryNameRequired", { defaultValue: "Category name required" }));
     try {
       await post("/api/v1/expenseCatagories/add", { name, description: description || "" });
-      toast.success(editCatId ? "Category Updated" : "Category Added");
+      toast.success(editCatId ? t("CategoryUpdated", { defaultValue: "Category Updated" }) : t("CategoryAdded", { defaultValue: "Category Added" }));
       setName(""); setDescription(""); setEditCatId(null); setShowCatModal(false);
       fetchCategories();
     } catch (err) {
       console.log(err.response?.data || err);
-      toast.error(err.response?.data?.message || "Operation failed");
+      toast.error(err.response?.data?.message || t("OperationFailed", { defaultValue: "Operation failed" }));
     }
   };
 
