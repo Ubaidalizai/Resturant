@@ -1,10 +1,16 @@
-
 class ErrorHandler extends Error {
-    constructor(statusCode, message = "Some thing went wrong") {
-        super(message);
-        this.success = false;
-        this.statusCode = statusCode;
-        Error.captureStackTrace(this, this.constructor);
-    }
+  /**
+   * @param {number} statusCode - HTTP status code
+   * @param {string} message - Human-readable message
+   * @param {string} errorCode - Optional machine-readable code
+   */
+  constructor(statusCode, message = "Something went wrong", errorCode = null) {
+    super(message);
+    this.success = false;
+    this.statusCode = statusCode;
+    this.errorCode = errorCode; // This is your machine-readable error code
+    Error.captureStackTrace(this, this.constructor);
+  }
 }
+
 export default ErrorHandler;
