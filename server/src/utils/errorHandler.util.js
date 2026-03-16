@@ -1,3 +1,5 @@
+import { toMessageCode } from "./localization.util.js";
+
 class ErrorHandler extends Error {
   /**
    * @param {number} statusCode - HTTP status code
@@ -8,7 +10,8 @@ class ErrorHandler extends Error {
     super(message);
     this.success = false;
     this.statusCode = statusCode;
-    this.errorCode = errorCode; // This is your machine-readable error code
+    // Derive a machine-readable error code from the message if not provided
+    this.errorCode = errorCode || toMessageCode(message);
     Error.captureStackTrace(this, this.constructor);
   }
 }

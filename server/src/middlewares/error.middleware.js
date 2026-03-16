@@ -1,6 +1,12 @@
+import { ErrorLog } from "../models/ErrorLog.model.js";
+import { getLangFromReq, translate, toMessageCode } from "../utils/localization.util.js";
+
 export const ErrorMiddlware = async (err, req, res, next) => {
   const statusCode = err.statusCode || err.status || 500;
-  const message = err.message || "Internal server error";
+  const lang = getLangFromReq(req);
+  const errorCode = err.errorCode || toMessageCode(err.message);
+  const message = translate(errorCode, lang) || err.message || "Internal server error";
+
   // Save the error log to the database if the environment is production
   if (process.env.NODE_ENV === "production") {
     try {
@@ -19,11 +25,14 @@ export const ErrorMiddlware = async (err, req, res, next) => {
     }
     return res.status(statusCode).json({
       success: false,
-      message: "Something went wrong",
+      code: errorCode,
+      message: translate("SOMETHING_WENT_WRONG", lang) || "Something went wrong",
     });
   }
+
   res.status(statusCode).json({
     success: false,
-    message: message,
+    code: errorCode,
+    message,
   });
 };
