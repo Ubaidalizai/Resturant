@@ -6,7 +6,7 @@ import RestaurantLoader from './RestaurantLoader';
 import { useApi } from '../context/ApiContext';
 import InputField from "../Components/UI/InputField";
 import Button from "../Components/UI/Button";
-
+import { useTranslation } from "react-i18next";
 function LoginForm() {
   const { post } = useApi();
   const [email, setEmail] = useState('');
@@ -14,7 +14,7 @@ function LoginForm() {
   const [loading, setLoading] = useState(false);
   const { setIsAuth, setUser } = useContext(ItemsContext);
   const navigate = useNavigate();
-
+  const { t } = useTranslation("common");
   const handleLogin = async () => {
     if (!email || !password) {
       toast.warn("Please fill in both fields");
@@ -75,7 +75,7 @@ function LoginForm() {
         <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-yellow-400 rounded-full opacity-30"></div>
 
         <h1 className="text-center text-4xl sm:text-4xl font-extrabold text-yellow-600 mb-8">
-          Welcome
+         
         </h1>
 
         <div className="flex flex-col space-y-6">
