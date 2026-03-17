@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -8,6 +9,7 @@ import {
   faTable,
   faUser,
   faUserShield,
+  faPlus,
 } from "@fortawesome/free-solid-svg-icons";
 import { useApi } from "../context/ApiContext";
 import InputField from "../Components/UI/InputField";
@@ -17,6 +19,7 @@ import useConfirmModel from "../Components/UI/useConfirmModel";
 import { ItemsContext } from "../App";
 
 function Management() {
+  const { t } = useTranslation("common");
   const { get, post, put, del } = useApi();
   const { user } = useContext(ItemsContext);
 
@@ -80,7 +83,7 @@ function Management() {
       const res = await get("/api/v1/menues/all");
       setMenus(res.data.data || []);
     } catch {
-      toast.error("Failed to load menus");
+      toast.error(t("FailedToLoadMenus", { defaultValue: "Failed to load menus" }));
     }
   };
 
@@ -89,7 +92,7 @@ function Management() {
       const res = await get("/api/v1/tables/all");
       setTables(res.data.data || []);
     } catch {
-      toast.error("Failed to load tables");
+      toast.error(t("FailedToLoadTables", { defaultValue: "Failed to load tables" }));
     }
   };
 
@@ -98,7 +101,7 @@ function Management() {
       const res = await get("/api/v1/users/all/");
       setGarsons(res.data.data || []);
     } catch {
-      toast.error("Failed to load garsons");
+      toast.error(t("FailedToLoadGarsons", { defaultValue: "Failed to load garsons" }));
     }
   };
 
@@ -107,7 +110,7 @@ function Management() {
       const res = await get("/api/v1/staff/all");
       setStaff(res.data.data || []);
     } catch {
-      toast.error("Failed to load staff");
+      toast.error(t("FailedToLoadStaff", { defaultValue: "Failed to load staff" }));
     }
   };
 
@@ -119,6 +122,36 @@ function Management() {
   const closeModal = () => {
     setModalOpen(false);
     setEditItem(null);
+  };
+
+  const getAddLabel = () => {
+    if (activeTab === "Menus") return t("AddMenu", { defaultValue: "Add Menu" });
+    if (activeTab === "Tables") return t("AddTable", { defaultValue: "Add Table" });
+    if (activeTab === "Garsons") return t("AddGarson", { defaultValue: "Add Garson" });
+    if (activeTab === "Role") return t("AddRole", { defaultValue: "Add Role" });
+    if (activeTab === "Staff") return t("AddStaff", { defaultValue: "Add Staff" });
+    return t("Add", { defaultValue: "Add" });
+  };
+
+  const handleAdd = () => {
+    setEditItem(null);
+    setNewItem({
+      name: "",
+      catagory: "",
+      username: "",
+      email: "",
+      password: "",
+      capacity: "",
+      phone: "",
+      role: "",
+      salary: "",
+      address: "",
+      nationalId: "",
+      employmentType: "",
+      status: "",
+      selectedPermissions: [],
+    });
+    openModal();
   };
 
   const handleDelete = async (id) => {
@@ -140,9 +173,9 @@ function Management() {
         fetchStaff();
       }
 
-      toast.success("Deleted successfully");
+      toast.success(t("DeletedSuccessfully", { defaultValue: "Deleted successfully" }));
     } catch {
-      toast.error("Delete failed");
+      toast.error(t("DeleteFailed", { defaultValue: "Delete failed" }));
     }
   };
 
@@ -150,8 +183,10 @@ function Management() {
     setPendingDeleteId(id);
 
     openConfirm({
-      title: "Confirm Delete",
-      message: "Are you sure you want to delete this item?",
+      title: t("ConfirmDelete", { defaultValue: "Confirm Delete" }),
+      message: t("ConfirmDeleteMessage", {
+        defaultValue: "Are you sure you want to delete this item?",
+      }),
       onConfirm: async () => {
         await handleDelete(id);
         setPendingDeleteId(null);
@@ -170,10 +205,10 @@ function Management() {
   return (
     <div className="min-h-screen p-10">
       <h1 className="text-3xl font-bold text-yellow-600 mb-6">
-        Restaurant Admin Panel
+        {t("RestaurantAdminPanel", { defaultValue: "Restaurant Admin Panel" })}
       </h1>
 
-      <div className="flex gap-4 mb-6 flex-wrap justify-center">
+      <div className="flex gap-4 flex-wrap justify-center mb-2">
         {["Menus", "Tables", "Garsons", "Role", "Staff"].map((tab) => (
           <button
             key={tab}
@@ -186,9 +221,19 @@ function Management() {
             }`}
           >
             <FontAwesomeIcon icon={tabIcons[tab]} />
-            {tab}
+            {t(tab, { defaultValue: tab })}
           </button>
         ))}
+      </div>
+
+      <div className="flex justify-end mb-6">
+        <button
+          onClick={handleAdd}
+          className="px-5 py-2 rounded-xl bg-yellow-500 text-white hover:bg-yellow-600 transition mt-2"
+        >
+          <FontAwesomeIcon icon={faPlus} className="mr-2" />
+          {getAddLabel()}
+        </button>
       </div>
 
       <div className="bg-white rounded-md overflow-hidden text-black border border-gray-50">
@@ -197,46 +242,46 @@ function Management() {
             <tr>
               {activeTab === "Menus" && (
                 <>
-                  <th className="p-4 border border-gray-200">Menu</th>
-                  <th className="border border-gray-300">Category</th>
-                  <th className="border border-gray-300">Actions</th>
+                  <th className="p-4 border border-gray-200">{t("Menu", { defaultValue: "Menu" })}</th>
+                  <th className="border border-gray-300">{t("Category", { defaultValue: "Category" })}</th>
+                  <th className="border border-gray-300">{t("Actions", { defaultValue: "Actions" })}</th>
                 </>
               )}
 
               {activeTab === "Tables" && (
                 <>
-                  <th className="p-4 border border-gray-300">Table</th>
-                  <th className="border border-gray-300">Capacity</th>
-                  <th className="border border-gray-300">Actions</th>
+                  <th className="p-4 border border-gray-300">{t("Table", { defaultValue: "Table" })}</th>
+                  <th className="border border-gray-300">{t("Capacity", { defaultValue: "Capacity" })}</th>
+                  <th className="border border-gray-300">{t("Actions", { defaultValue: "Actions" })}</th>
                 </>
               )}
 
               {activeTab === "Garsons" && (
                 <>
-                  <th className="p-4 border border-gray-300">Name</th>
-                  <th className="border border-gray-300">Email</th>
-                  <th className="border border-gray-300">Role</th>
-                  <th className="border border-gray-300">Phone</th>
-                  <th className="border border-gray-300">Actions</th>
+                  <th className="p-4 border border-gray-300">{t("Name", { defaultValue: "Name" })}</th>
+                  <th className="border border-gray-300">{t("Email", { defaultValue: "Email" })}</th>
+                  <th className="border border-gray-300">{t("Role", { defaultValue: "Role" })}</th>
+                  <th className="border border-gray-300">{t("Phone", { defaultValue: "Phone" })}</th>
+                  <th className="border border-gray-300">{t("Actions", { defaultValue: "Actions" })}</th>
                 </>
               )}
 
               {activeTab === "Role" && (
                 <>
-                  <th className="p-4 border border-gray-300">Role</th>
-                  <th className="border border-gray-300">Permissions</th>
-                  <th className="border border-gray-300">Actions</th>
+                  <th className="p-4 border border-gray-300">{t("Role", { defaultValue: "Role" })}</th>
+                  <th className="border border-gray-300">{t("Permissions", { defaultValue: "Permissions" })}</th>
+                  <th className="border border-gray-300">{t("Actions", { defaultValue: "Actions" })}</th>
                 </>
               )}
 
               {activeTab === "Staff" && (
                 <>
-                  <th className="p-4 border border-gray-300">Name</th>
-                  <th className="border border-gray-300">Phone</th>
-                  <th className="border border-gray-300">Address</th>
-                  <th className="border border-gray-300">Salary</th>
-                  <th className="border border-gray-300">Status</th>
-                  <th className="border border-gray-300">Actions</th>
+                  <th className="p-4 border border-gray-300">{t("Name", { defaultValue: "Name" })}</th>
+                  <th className="border border-gray-300">{t("Phone", { defaultValue: "Phone" })}</th>
+                  <th className="border border-gray-300">{t("Address", { defaultValue: "Address" })}</th>
+                  <th className="border border-gray-300">{t("Salary", { defaultValue: "Salary" })}</th>
+                  <th className="border border-gray-300">{t("Status", { defaultValue: "Status" })}</th>
+                  <th className="border border-gray-300">{t("Actions", { defaultValue: "Actions" })}</th>
                 </>
               )}
             </tr>

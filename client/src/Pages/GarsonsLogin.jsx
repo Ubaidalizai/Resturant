@@ -7,6 +7,7 @@ import { useApi } from '../context/ApiContext';
 import InputField from "../Components/UI/InputField";
 import Button from "../Components/UI/Button";
 import { useTranslation } from "react-i18next";
+import { getTranslatedServerMessage } from "../utils/serverMessageTranslator";
 function LoginForm() {
   const { post } = useApi();
   const [email, setEmail] = useState('');
@@ -27,7 +28,7 @@ function LoginForm() {
       // No need to add `withCredentials` here, it is global now
       const response = await post("/api/v1/user/login", { email, password }, { withCredentials: true });
       if (!response.data.success) {
-        toast.error(response.data.message || t("InvalidEmailOrPassword", { defaultValue: "Invalid Email or Password" }));
+        toast.error(getTranslatedServerMessage(response.data.message, t) || t("InvalidEmailOrPassword", { defaultValue: "Invalid Email or Password" }));
         return;
       }
       const user = response.data.data.user;
@@ -37,7 +38,7 @@ function LoginForm() {
       }
       setIsAuth(true);
       setUser(user);
-      toast.success(response.data.message || t("LoginSuccessful"));
+      toast.success(getTranslatedServerMessage(response.data.message, t) || t("LoginSuccessful"));
 
       // Get array of permission keys
       const permissionKeys = user.permissions || [];
@@ -61,7 +62,7 @@ function LoginForm() {
 
     } catch (err) {
       console.error(err);
-      toast.error(err.response?.data?.message || t("LoginFailed"));
+      toast.error(getTranslatedServerMessage(err.response?.data?.message, t) || t("LoginFailed"));
     } finally {
       setLoading(false);
     }

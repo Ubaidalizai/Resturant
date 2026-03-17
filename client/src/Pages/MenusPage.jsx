@@ -28,7 +28,7 @@ function MenusPage() {
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center px-6">
-      <title>Menus Page</title>
+      <title>{t("MenusPageTitle", { defaultValue: "Menus Page" })}</title>
       
       <div className="flex flex-col items-center gap-10">
 
@@ -54,7 +54,7 @@ function MenusPage() {
               to={`/menu/${menu._id}`}
               className="flex flex-col items-center justify-center bg-gradient-to-br from-yellow-400 to-yellow-600 text-black font-bold text-3xl py-12 rounded-3xl shadow-2xl transform transition-all duration-500 hover:scale-105 hover:shadow-yellow-500/60 hover:-translate-y-2 hover:shadow-lg text-center p-5"
             >
-              {menu.name || "Unnamed Menu"}
+              {menu.name || t("UnnamedMenu", { defaultValue: "Unnamed Menu" })}
             </Link>
 
             

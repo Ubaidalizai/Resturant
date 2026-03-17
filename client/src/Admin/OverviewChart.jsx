@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useApi } from "../context/ApiContext";
+import { useTranslation } from "react-i18next";
 import {
   LineChart,
   Line,
@@ -12,9 +13,10 @@ import {
 import InputField from "../Components/UI/InputField";
 
 function OverviewChart() {
+  const { t, i18n } = useTranslation("common");
   const { get } = useApi();
   const [chartData, setChartData] = useState([]);
-  const [filter, setFilter] = useState("monthly"); // daily, weekly, monthly, custom
+  const [filter, setFilter] = useState("monthly"); // all, daily, weekly, monthly, custom
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
@@ -48,15 +50,16 @@ function OverviewChart() {
 
   const getDateRangeText = () => {
     if (filter === "custom" && startDate && endDate) return `${startDate} → ${endDate}`;
-    if (filter === "daily") return "Last 7 Days";
-    if (filter === "weekly") return "Last 4 Weeks";
-    if (filter === "monthly") return "Last 6 Months";
+    if (filter === "daily") return t("Last7Days", { defaultValue: "Last 7 Days" });
+    if (filter === "weekly") return t("Last4Weeks", { defaultValue: "Last 4 Weeks" });
+    if (filter === "monthly") return t("Last6Months", { defaultValue: "Last 6 Months" });
     return "";
   };
 
   // Tooltip formatter
   const tooltipFormatter = (value, name) => {
-    if (name === "Revenue ($)") return `$${Number(value).toLocaleString()}`;
+    if (name === t("Revenue", { defaultValue: "Revenue" })) return `${t("CurrencySymbol", { defaultValue: "$" })}${Number(value).toLocaleString(i18n.language)}`;
+    if (name === t("Orders", { defaultValue: "Orders" })) return Number(value);
     return value;
   };
 
@@ -64,7 +67,7 @@ function OverviewChart() {
     <div className="bg-white rounded-3xl shadow-2xl p-6 w-full">
       {/* Title */}
       <h2 className="text-xl font-bold text-yellow-600 mb-2 text-center">
-        Revenue & Orders Overview
+        {t("RevenueOrdersOverview", { defaultValue: "Revenue & Orders Overview" })}
       </h2>
 
       {/* Selected date range */}
@@ -77,10 +80,10 @@ function OverviewChart() {
           onChange={(e) => setFilter(e.target.value)}
           className="border border-gray-300 text-black p-2 rounded w-50 outline-yellow-600"
         >
-          <option value="daily">Daily</option>
-          <option value="weekly">Weekly</option>
-          <option value="monthly">Monthly</option>
-          <option value="custom">Custom Range</option>
+          <option value="daily">{t("daily", { defaultValue: "Daily" })}</option>
+          <option value="weekly">{t("weekly", { defaultValue: "Weekly" })}</option>
+          <option value="monthly">{t("monthly", { defaultValue: "Monthly" })}</option>
+          <option value="custom">{t("custom", { defaultValue: "Custom" })}</option>
         </select>
 
         {filter === "custom" && (
@@ -106,15 +109,14 @@ function OverviewChart() {
         <LineChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-          <YAxis tickFormatter={(value) => `$${value.toLocaleString()}`} />
+          <YAxis tickFormatter={(value) => `${t("CurrencySymbol", { defaultValue: "$" })}${value.toLocaleString(i18n.language)}`} />
           <Tooltip formatter={tooltipFormatter} />
-          {/* df */}
           <Line
             type="monotone"
             dataKey="revenue"
             stroke="#facc90"
             strokeWidth={3}
-            name="Revenue ($)"
+            name={t("Revenue", { defaultValue: "Revenue" })}
             dot={{ r: 4 }}
           />
           <Line
@@ -122,7 +124,7 @@ function OverviewChart() {
             dataKey="orders"
             stroke="#ef4444"
             strokeWidth={2}
-            name="Orders"
+            name={t("Orders", { defaultValue: "Orders" })}
             dot={{ r: 4 }}
           />
         </LineChart>

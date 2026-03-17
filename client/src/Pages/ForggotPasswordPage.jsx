@@ -6,6 +6,7 @@ import RestaurantLoader from "./RestaurantLoader";
 import { useApi } from "../context/ApiContext";
 import InputField from "../Components/UI/InputField";
 import Button from "../Components/UI/Button";
+import { getTranslatedServerMessage } from "../utils/serverMessageTranslator";
 
 const ForgotPasswordPage = () => {
   const { t } = useTranslation("common");
@@ -22,13 +23,13 @@ const ForgotPasswordPage = () => {
       setLoading(true);
       const res = await post(`/api/v1/user/forgot-password`, { email });
       if (res.data.success) {
-        toast.success(res.data.message || t("ResetLinkSent"));
+        toast.success(getTranslatedServerMessage(res.data.message, t) || t("ResetLinkSent"));
       } else {
-        toast.error(res.data.message || t("FailedToSendResetLink"));
+        toast.error(getTranslatedServerMessage(res.data.message, t) || t("FailedToSendResetLink"));
       }
     } catch (err) {
       console.error(err);
-      toast.error(err.response?.data?.message || t("AnErrorOccurred"));
+      toast.error(getTranslatedServerMessage(err.response?.data?.message, t) || t("AnErrorOccurred"));
     } finally {
       setLoading(false);
     }

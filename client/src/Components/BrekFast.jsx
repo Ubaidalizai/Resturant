@@ -131,7 +131,7 @@ function BrekFast() {
     );
 
     if (res.data.success) {
-      toast.success("Order placed ✅");
+      toast.success(t("OrderPlaced", { defaultValue: "Order placed ✅" }));
       setCart({});
       setQuantities({});
       setTable(null);
@@ -222,7 +222,7 @@ const res = await put(
       );
 
       if (res.data.success) {
-        toast.success("Order updated ✅");
+        toast.success(t("OrderUpdated", { defaultValue: "Order updated ✅" }));
         setCart({});
         setQuantities({});
         setTable("");
@@ -230,10 +230,10 @@ const res = await put(
         setShowEditModal(false);
         setCurrentOrderId(null);
       } else {
-        toast.error("Update failed");
+        toast.error(t("UpdateFailed", { defaultValue: "Update failed" }));
       }
     } catch (err) {
-      toast.error("Server error while updating order");
+      toast.error(t("ServerErrorWhileUpdatingOrder", { defaultValue: "Server error while updating order" }));
     }
   };
 
@@ -247,8 +247,8 @@ const res = await put(
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-6">
        
         <div className="flex items-center gap-4">
-          <Link to="/menus" className="text-black flex items-center gap-2 px-4 py-2 rounded-xl   border border-gray-300 bg-white hover:bg-gray-100 transition shadow-sm font-semibold"> Back </Link> 
-          <Link to="/" className="text-3xl sm:text-4xl font-bold text-yellow-600"> Breakfast </Link>
+          <Link to="/menus" className="text-black flex items-center gap-2 px-4 py-2 rounded-xl   border border-gray-300 bg-white hover:bg-gray-100 transition shadow-sm font-semibold">{t("Back", { defaultValue: "Back" })}</Link> 
+          <Link to="/" className="text-3xl sm:text-4xl font-bold text-yellow-600">{t("Breakfast", { defaultValue: "Breakfast" })}</Link>
         </div>
 
         <div className="flex gap-4">
@@ -257,7 +257,7 @@ const res = await put(
             onClick={openOrderModal}
             className="bg-yellow-600 text-white px-6 py-3 rounded-xl font-bold"
           >
-            Order ({Object.keys(cart).length})
+            {t("Order", { defaultValue: "Order" })} ({Object.keys(cart).length})
           </button>
 
           {/* Edit Button */}
@@ -265,7 +265,7 @@ const res = await put(
             onClick={openEditOrder}
             className="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold"
           >
-            Order Edit
+            {t("OrderEdit", { defaultValue: "Order Edit" })}
           </button>
         </div>
       </div>
@@ -286,7 +286,7 @@ const res = await put(
               </div>
 
               <button className="bg-green-500 text-white px-4 py-2 rounded font-semibold text-sm" onClick={() => toggleCart(food)}>
-                {cart[food.id] ? "Added ✓" : "Add"}
+                {cart[food.id] ? t("Added", { defaultValue: "Added ✓" }) : t("Add", { defaultValue: "Add" })}
               </button>
             </div>
           </div>
@@ -297,17 +297,17 @@ const res = await put(
       {showOrderModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 w-[90%] max-w-4xl shadow-xl">
-            <h2 className="text-2xl font-bold text-yellow-600 mb-4">Order Details</h2>
+            <h2 className="text-2xl font-bold text-yellow-600 mb-4">{t("OrderDetails", { defaultValue: "Order Details" })}</h2>
 
             {/* Table of Selected Foods */}
             <table className="w-full border text-black">
               <thead className="bg-yellow-100">
                 <tr>
-                  <th className="p-2">Food</th>
-                  <th className="p-2">Price</th>
-                  <th className="p-2">Qty</th>
-                  <th className="p-2">Total</th>
-                  <th className="p-2">Action</th>
+                  <th className="p-2">{t("Food", { defaultValue: "Food" })}</th>
+                  <th className="p-2">{t("Price", { defaultValue: "Price" })}</th>
+                  <th className="p-2">{t("Qty", { defaultValue: "Qty" })}</th>
+                  <th className="p-2">{t("Total", { defaultValue: "Total" })}</th>
+                  <th className="p-2">{t("Action", { defaultValue: "Action" })}</th>
                 </tr>
               </thead>
               <tbody>
@@ -319,7 +319,7 @@ const res = await put(
                     <td className="p-2">${item.price * item.qty}</td>
                     <td className="p-2">
                       <button onClick={() => deleteItem(item.id)} className="flex items-center justify-center gap-1 text-red-600">
-                        <AiOutlineDelete /> Delete
+                        <AiOutlineDelete /> {t("Delete", { defaultValue: "Delete" })}
                       </button>
                     </td>
                   </tr>
@@ -329,27 +329,27 @@ const res = await put(
 
             {/* Grand Total */}
             <div className="flex justify-end items-center mt-4">
-              <h3 className="font-bold text-lg text-red-600">Grand Total: ${grandTotal}</h3>
+              <h3 className="font-bold text-lg text-red-600">{t("GrandTotal", { defaultValue: "Grand Total" })}: ${grandTotal}</h3>
             </div>
 
             {/* Table Selection & Buttons */}
             <div className="flex justify-between items-center mt-6 gap-4">
               <select value={table || ""} onChange={(e) => setTable(e.target.value)} className="px-4 py-2 rounded-xl bg-yellow-600 text-white font-semibold">
-                <option value="">Select Table</option>
+                <option value="">{t("SelectTable", { defaultValue: "Select Table" })}</option>
                 {tables.map((t, i) => (
                     <option key={t._id || i} value={t._id}>
-                      Table {t.tableNumber || t.number || i + 1}
+                      {t("TableWithNumber", { defaultValue: "Table {{number}}", number: t.tableNumber || t.number || i + 1 })}
                     </option>
                   ))}
               </select>
 
               <div className="flex gap-4">
                 <button onClick={() => setShowOrderModal(false)} className="px-4 py-2 border rounded flex items-center gap-2 text-black">
-                  <AiOutlineDelete /> Cancel
+                  <AiOutlineDelete /> {t("Cancel", { defaultValue: "Cancel" })}
                 </button>
 
                 <button onClick={confirmOrder} className="bg-green-600 text-white px-6 py-2 rounded-xl">
-                  Confirm Order
+                  {t("ConfirmOrder", { defaultValue: "Confirm Order" })}
                 </button>
               </div>
             </div>
@@ -361,14 +361,14 @@ const res = await put(
       {showEditModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 w-[90%] max-w-4xl shadow-xl">
-            <h2 className="text-2xl font-bold text-yellow-600 mb-4">Edit Order</h2>
+            <h2 className="text-2xl font-bold text-yellow-600 mb-4">{t("EditOrder", { defaultValue: "Edit Order" })}</h2>
 
             {/* Table Selection if not locked */}
             {!editTableLocked && (
               <select value={table} onChange={(e) => handleTableSelectEdit(e.target.value)} className="mb-4 px-4 py-2 rounded-xl bg-yellow-600 text-white font-semibold">
-                <option value="">Select Table</option>
+                <option value="">{t("SelectTable", { defaultValue: "Select Table" })}</option>
                 {[1, 2, 3, 4, 5, 6].map((t) => (
-                  <option key={t} value={String(t)}>Table {t}</option>
+                  <option key={t} value={String(t)}>{t("TableWithNumber", { defaultValue: "Table {{number}}", number: t })}</option>
                 ))}
               </select>
             )}
@@ -377,11 +377,11 @@ const res = await put(
             <table className="w-full border text-black">
               <thead className="bg-yellow-100">
                 <tr>
-                  <th className="p-2">Food</th>
-                  <th className="p-2">Price</th>
-                  <th className="p-2">Qty</th>
-                  <th className="p-2">Total</th>
-                  <th className="p-2">Action</th>
+                  <th className="p-2">{t("Food", { defaultValue: "Food" })}</th>
+                  <th className="p-2">{t("Price", { defaultValue: "Price" })}</th>
+                  <th className="p-2">{t("Qty", { defaultValue: "Qty" })}</th>
+                  <th className="p-2">{t("Total", { defaultValue: "Total" })}</th>
+                  <th className="p-2">{t("Action", { defaultValue: "Action" })}</th>
                 </tr>
               </thead>
               <tbody>
@@ -393,7 +393,7 @@ const res = await put(
                     <td className="p-2">${item.price * item.qty}</td>
                     <td className="p-2">
                       <button onClick={() => deleteItem(item.id)} className="flex items-center justify-center gap-1 text-red-600">
-                        <AiOutlineDelete /> Delete
+                        <AiOutlineDelete /> {t("Delete", { defaultValue: "Delete" })}
                       </button>
                     </td>
                   </tr>
@@ -403,17 +403,17 @@ const res = await put(
 
             {/* Grand Total */}
             <div className="flex justify-end items-center mt-4">
-              <h3 className="font-bold text-lg text-red-600">Grand Total: ${grandTotal}</h3>
+              <h3 className="font-bold text-lg text-red-600">{t("GrandTotal", { defaultValue: "Grand Total" })}: ${grandTotal}</h3>
             </div>
 
             {/* Buttons */}
             <div className="flex justify-end gap-4 mt-6">
               <button onClick={() => setShowEditModal(false)} className="bg-yellow-600 text-white px-4 py-2 rounded-xl">
-                Foods
+                {t("Foods", { defaultValue: "Foods" })}
               </button>
 
               <button onClick={updateOrder} className="bg-green-600 text-white px-6 py-2 rounded-xl">
-                Update
+                {t("Update", { defaultValue: "Update" })}
               </button>
             </div>
           </div>

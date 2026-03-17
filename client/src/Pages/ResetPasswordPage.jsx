@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import { useApi } from '../context/ApiContext';
 import InputField from "../Components/UI/InputField";
 import Button from "../Components/UI/Button";
+import { getTranslatedServerMessage } from "../utils/serverMessageTranslator";
 
 const ResetPasswordPage = () => {
     const { t } = useTranslation("common");
@@ -40,16 +41,16 @@ const ResetPasswordPage = () => {
             }
             const res = await post(`/api/v1/user/reset-password`, { password, token });
             if (res.data.success) {
-                toast.success(res.data.message || t("PasswordResetSuccessful"));
+                toast.success(getTranslatedServerMessage(res.data.message, t) || t("PasswordResetSuccessful"));
                 setTimeout(() => {
                     window.location.href = "/"; // Redirect to login page after success
                 }, 2000);
             } else {
-                toast.error(res.data.message || t("FailedToResetPassword"));
+                toast.error(getTranslatedServerMessage(res.data.message, t) || t("FailedToResetPassword"));
             }
         } catch (err) {
             console.error(err);
-            toast.error(err.response?.data?.message || t("AnErrorOccurred"));
+            toast.error(getTranslatedServerMessage(err.response?.data?.message, t) || t("AnErrorOccurred"));
         } finally {
             setLoading(false);
         }

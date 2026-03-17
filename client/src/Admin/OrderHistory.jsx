@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { AiOutlineDelete } from "react-icons/ai";
 import { toast } from "react-toastify";
+import { useTranslation } from "react-i18next";
 import { useApi } from "../context/ApiContext";
 import InputField from "../Components/UI/InputField";
 import ConfirmModel from "../Components/UI/ConfirmModel";
@@ -8,6 +9,7 @@ import useConfirmModel from "../Components/UI/useConfirmModel";
 import { ItemsContext } from "../App";
 
 function OrderHistory() {
+  const { t } = useTranslation("common");
   const { get } = useApi();
   const [orders, setOrders] = useState([]);
   const [filter, setFilter] = useState("all");
@@ -78,7 +80,7 @@ function OrderHistory() {
   const deleteOrder = (id) => {
     const updated = orders.filter((o) => o._id !== id);
     setOrders(updated);
-    toast.success("Order deleted successfully");
+    toast.success(t("OrderDeletedSuccessfully", { defaultValue: "Order deleted successfully" }));
   };
 
   // Determine which page numbers to display
@@ -90,7 +92,7 @@ function OrderHistory() {
     <div className="min-h-screen bg-gray-50 p-4 md:p-6">
 
       <h1 className="text-3xl md:text-4xl font-extrabold text-yellow-600 text-center mb-6">
-        Order History
+        {t("OrderHistory", { defaultValue: "Order History" })}
       </h1>
 
       {/* Filter Section */}
@@ -103,7 +105,7 @@ function OrderHistory() {
               className={`px-4 py-2 rounded-xl font-semibold transition
                 ${filter === f ? "bg-yellow-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-yellow-100"}`}
             >
-              {f.charAt(0).toUpperCase() + f.slice(1)}
+              {t(f, { defaultValue: f.charAt(0).toUpperCase() + f.slice(1) })}
             </button>
           ))}
         </div>
@@ -129,7 +131,7 @@ function OrderHistory() {
       {/* Orders Table */}
       {currentOrders.length === 0 ? (
         <div className="bg-yellow-50 p-6 rounded-3xl text-center font-semibold text-gray-500 shadow-xl">
-          No orders found
+          {t("NoOrdersFound", { defaultValue: "No orders found" })}
         </div>
       ) : (
         <>
@@ -137,11 +139,11 @@ function OrderHistory() {
             <table className="w-full text-center min-w-[600px]">
               <thead className="bg-yellow-100">
                 <tr>
-                  <th className="py-3">Foods</th>
-                  <th className="py-3">Qty</th>
-                  <th className="py-3">Total</th>
-                  <th className="py-3">Date</th>
-                  <th className="py-3 text-center">Action</th>
+                  <th className="py-3">{t("Foods", { defaultValue: "Foods" })}</th>
+                  <th className="py-3">{t("Qty", { defaultValue: "Qty" })}</th>
+                  <th className="py-3">{t("Total", { defaultValue: "Total" })}</th>
+                  <th className="py-3">{t("Date", { defaultValue: "Date" })}</th>
+                  <th className="py-3 text-center">{t("Action", { defaultValue: "Action" })}</th>
                 </tr>
               </thead>
               <tbody>
@@ -162,8 +164,11 @@ function OrderHistory() {
                             setSelectedOrder(order);
                             setOrderToDelete(order);
                             openConfirm({
-                              title: "Delete Order",
-                              message: `Are you sure you want to delete this order from ${order.date}?`,
+                              title: t("DeleteOrder", { defaultValue: "Delete Order" }),
+                              message: t("ConfirmDeleteOrderMessage", {
+                                date: order.date,
+                                defaultValue: `Are you sure you want to delete this order from ${order.date}?`,
+                              }),
                               onConfirm: () => deleteOrder(order._id),
                             });
                           }}
@@ -179,7 +184,7 @@ function OrderHistory() {
           {/* Pagination Section */}
           <div className="flex flex-col items-center gap-4 mt-6">
             <div className="flex items-center gap-3">
-              <span className="font-semibold text-gray-700">Pages:</span>
+              <span className="font-semibold text-gray-700">{t("Pages", { defaultValue: "Pages:" })}</span>
               <select
                 value={visiblePages}
                 onChange={(e) => { setVisiblePages(Number(e.target.value)); setCurrentPage(1); }}
@@ -198,7 +203,7 @@ function OrderHistory() {
                 disabled={currentPage === 1}
                 className="bg-yellow-600 text-white px-4 py-2 rounded-lg disabled:opacity-40"
               >
-                Previous
+                {t("Previous", { defaultValue: "Previous" })}
               </button>
 
               <span className="font-semibold text-gray-800">{currentPage} / {totalPages}</span>
@@ -208,14 +213,14 @@ function OrderHistory() {
                 disabled={currentPage === totalPages}
                 className="bg-yellow-600 text-white px-4 py-2 rounded-lg disabled:opacity-40"
               >
-                Next
+                {t("Next", { defaultValue: "Next" })}
               </button>
             </div>
           </div>
 
           {/* Grand Total */}
           <div className="max-w-sm ml-auto mt-4 bg-yellow-50 p-4 rounded-3xl shadow-2xl flex justify-between font-bold">
-            <span className="text-yellow-600">Grand Total ({filter.charAt(0).toUpperCase() + filter.slice(1)} Orders)</span>
+            <span className="text-yellow-600">{t("GrandTotal", { defaultValue: "Grand Total" })} ({t(filter, { defaultValue: filter.charAt(0).toUpperCase() + filter.slice(1) })} {t("Orders", { defaultValue: "Orders" })})</span>
             <span className="text-red-600">${grandTotal.toFixed(2)}</span>
           </div>
         </>

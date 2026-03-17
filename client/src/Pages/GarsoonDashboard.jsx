@@ -144,7 +144,7 @@ function GarsoonDashboard() {
               orders.map((order) => {
 
                 const tableNumber =
-                  order.tableId?.tableNumber || "N/A";
+                  order.tableId?.tableNumber || t("NotAvailable", { defaultValue: "N/A" });
 
                 const itemNames = order.items
                   .filter((i) => i.foodId)

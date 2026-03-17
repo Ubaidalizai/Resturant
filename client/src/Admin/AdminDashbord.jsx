@@ -66,12 +66,12 @@ function AdminDashboard() {
     <div className="flex min-h-screen bg-gray-50 relative overflow-hidden">
       {/* Sidebar */}
       <ConfirmModel
-  isOpen={showConfirm}
-  title="Delete Food"
-  message="Are you sure you want to delete this food item?"
-  onConfirm={() => setShowConfirm(false)}
-  onCancel={() => setShowConfirm(false)}
-/>
+        isOpen={showConfirm}
+        title={t("DeleteFood", { defaultValue: "Delete Food" })}
+        message={t("ConfirmDeleteFoodMessage", { defaultValue: "Are you sure you want to delete this food item?" })}
+        onConfirm={() => setShowConfirm(false)}
+        onCancel={() => setShowConfirm(false)}
+      />
       <div
         className={`fixed top-0 left-0 h-full bg-white shadow-xl transition-transform z-40
         ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 w-64`}>

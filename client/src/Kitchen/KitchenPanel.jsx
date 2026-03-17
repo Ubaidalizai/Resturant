@@ -1,15 +1,17 @@
 import React, { useContext, useState } from "react";
 import { AiOutlineMenu, AiOutlineAppstore } from "react-icons/ai";
+import { useTranslation } from "react-i18next";
 import KitchenOrders from "./KitchenOrders";
 import cooker from '../images/cooker.avif';
 import { ItemsContext } from "../App";
 
 function KitchenPanel() {
+  const { t } = useTranslation("common");
   const [activeMenu, setActiveMenu] = useState("Orders");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const {user} = useContext(ItemsContext);
   const menuItems = [
-    { name: "Orders", icon: <AiOutlineAppstore size={20} /> },
+    { key: "Orders", label: t("Orders", { defaultValue: "Orders" }), icon: <AiOutlineAppstore size={20} /> },
   ];
       // CHECK PERMISSIONS
   const canAccess = user?.permissions?.some(p =>
@@ -27,23 +29,23 @@ function KitchenPanel() {
       >
         {/* Cooker Image on Top */}
         <div className="flex flex-col items-center mb-6">
-          <img src={cooker} alt="cooker" className="w-50 h-50 " />
+          <img src={cooker} alt={t("CookerImageAlt", { defaultValue: "Cooker" })} className="w-50 h-50" />
         </div>
 
         {/* Menu Items in Vertical Center */}
         <nav className="flex flex-col gap-4 px-6">
           {menuItems.map((menu) => (
             <div
-              key={menu.name}
-              onClick={() => setActiveMenu(menu.name)}
+              key={menu.key}
+              onClick={() => setActiveMenu(menu.key)}
               className={`flex items-center gap-3 p-3 rounded cursor-pointer transition-all
-                ${activeMenu === menu.name
+                ${activeMenu === menu.key
                   ? "bg-yellow-100 text-yellow-700 font-semibold"
                   : "text-gray-700 hover:bg-yellow-50 hover:text-yellow-600"
                 }`}
             >
               {menu.icon}
-              <span className="text-base">{menu.name}</span>
+              <span className="text-base">{menu.label}</span>
             </div>
           ))}
         </nav>
@@ -60,7 +62,7 @@ function KitchenPanel() {
           >
             <AiOutlineMenu />
           </button>
-          <h2 className="text-lg font-bold text-yellow-600">{activeMenu}</h2>
+          <h2 className="text-lg font-bold text-yellow-600">{t(activeMenu, { defaultValue: activeMenu })}</h2>
         </div>
 
         {/* Page Content */}

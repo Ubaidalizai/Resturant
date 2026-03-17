@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useApi } from "../context/ApiContext";
 import { FaChair, FaCheckCircle, FaClock, FaUtensils } from "react-icons/fa";
 import Button from "../Components/UI/Button";
 
 function Tables() {
+  const { t, i18n } = useTranslation("common");
   const { get } = useApi();
   const [tables, setTables] = useState([]);
   const [selectedTable, setSelectedTable] = useState(null);
@@ -72,17 +74,17 @@ function Tables() {
       {!selectedInvoice && (
         <>
           <h1 className="text-4xl font-extrabold text-yellow-600 text-center mb-8">
-            Tables
+            {t("Tables", { defaultValue: "Tables" })}
           </h1>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {tables.map((t) => {
-              const hasOrders = t.orders.length > 0;
+            {tables.map((tableData) => {
+              const hasOrders = tableData.orders.length > 0;
 
               return (
                 <div
-                  key={t.number}
-                  onClick={() => setSelectedTable(t)}
+                  key={tableData.number}
+                  onClick={() => setSelectedTable(tableData)}
                   className="relative cursor-pointer transform transition duration-300 hover:-translate-y-1 hover:shadow-2xl bg-white rounded-3xl border border-gray-200"
                 >
                   <div className="p-6">
@@ -91,20 +93,19 @@ function Tables() {
                     </div>
 
                     <h2 className="text-2xl font-semibold text-gray-900 text-center">
-                      Table {t.number}
-                    </h2>
-
+                        {t("TableWithNumber", { defaultValue: "Table {{number}}", number: tableData.number })}
+                      </h2>
                     {/* Modern status indicator without harsh colors */}
                     <div className="mt-3 flex justify-center items-center space-x-2 text-gray-700">
                       {hasOrders ? (
                         <>
                           <FaClock className="text-yellow-500 text-lg" />
-                          <span className="text-md font-medium">In Use</span>
+                          <span className="text-md font-medium">{t("InUse", { defaultValue: "In Use" })}</span>
                         </>
                       ) : (
                         <>
                           <FaCheckCircle className="text-yellow-600 text-lg" />
-                          <span className="text-md font-medium">Free</span>
+                          <span className="text-md font-medium">{t("Free", { defaultValue: "Free" })}</span>
                         </>
                       )}
                     </div>
@@ -127,7 +128,7 @@ function Tables() {
             {/* unchanged modal content */}
             <div className="flex justify-between mb-6">
               <h2 className="text-3xl font-bold text-yellow-600">
-                Table {selectedTable.number}
+                {t("TableWithNumber", { number: selectedTable.number })}
               </h2>
               <Button
                 onClick={() => setSelectedTable(null)}
@@ -144,18 +145,18 @@ function Tables() {
               >
                 <div className="flex justify-between mb-3 items-center">
                   <h3 className="font-bold text-lg text-yellow-600">
-                    Customer {i + 1}
+                    {t("Customer", { defaultValue: "Customer" })} {i + 1}
                   </h3>
-                  <span className="font-bold text-red-600">${o.orderTotal}</span>
+                  <span className="font-bold text-red-600">{t("CurrencySymbol", { defaultValue: "$" })}{o.orderTotal}</span>
                 </div>
 
                 <div className="overflow-x-auto text-black">
                   <table className="w-full border-collapse text-center">
                     <thead className="bg-yellow-100">
                       <tr>
-                        <th className="py-2">Food</th>
-                        <th className="py-2">Qty</th>
-                        <th className="py-2">Total</th>
+                        <th className="py-2">{t("Food", { defaultValue: "Food" })}</th>
+                        <th className="py-2">{t("Qty", { defaultValue: "Qty" })}</th>
+                        <th className="py-2">{t("Total", { defaultValue: "Total" })}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -174,7 +175,7 @@ function Tables() {
                   onClick={() => handleGenerateInvoice(o)}
                   className="w-full mt-3"
                 >
-                  Generate Invoice
+                  {t("GenerateInvoice", { defaultValue: "Generate Invoice" })}
                 </Button>
               </div>
             ))}
@@ -185,16 +186,16 @@ function Tables() {
       {selectedInvoice && (
         <div className="print-area bg-white p-10 text-black">
           {/* unchanged invoice UI */}
-          <h2 className="text-3xl font-bold text-center mb-4">Invoice</h2>
-          <p className="text-center">Table {selectedTable.number}</p>
-          <p className="text-center mb-6">{new Date().toLocaleDateString()}</p>
+          <h2 className="text-3xl font-bold text-center mb-4">{t("Invoice", { defaultValue: "Invoice" })}</h2>
+          <p className="text-center">{t("Table", { defaultValue: "Table" })} {selectedTable.number}</p>
+          <p className="text-center mb-6">{new Date().toLocaleDateString(i18n.language || 'en-US')}</p>
 
           <table className="w-full border-collapse text-center border">
             <thead>
               <tr>
-                <th className="border p-2">Name</th>
-                <th className="border p-2">Amount</th>
-                <th className="border p-2">Quantity</th>
+                <th className="border p-2">{t("Name")}</th>
+                <th className="border p-2">{t("Amount")}</th>
+                <th className="border p-2">{t("Quantity")}</th>
               </tr>
             </thead>
             <tbody>
@@ -209,14 +210,14 @@ function Tables() {
           </table>
 
           <div className="text-right mt-6 font-bold text-xl">
-            Total: ${selectedInvoice.orderTotal}
+            {t("Total", { defaultValue: "Total" })}: {t("CurrencySymbol", { defaultValue: "$" })}{selectedInvoice.orderTotal}
           </div>
 
           <Button
             onClick={() => deleteOrderById(selectedInvoice.id)}
             className="mt-6 px-6 py-2"
           >
-            Paid Invoice
+            {t("PaidInvoice", { defaultValue: "Paid Invoice" })}
           </Button>
         </div>
       )}

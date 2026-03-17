@@ -59,7 +59,7 @@ function CartPanel({
           { withCredentials: true }
         );
 
-        toast.success("Order updated successfully!");
+        toast.success(t("OrderUpdatedSuccessfully", { defaultValue: "Order updated successfully" }));
 
       } else {
 
@@ -76,7 +76,7 @@ function CartPanel({
           { withCredentials: true }
         );
 
-        toast.success("Order placed successfully!");
+        toast.success(t("OrderPlacedSuccessfully", { defaultValue: "Order placed successfully" }));
       }
 
       setCart({});
@@ -98,18 +98,18 @@ function CartPanel({
     <div className="sticky top-0 h-screen w-full md:w-80 bg-gray-50 shadow-xl p-6 flex flex-col">
 
       <h2 className="text-2xl font-bold text-yellow-600 mb-4">
-        Cart
+        {t("Cart", { defaultValue: "Cart" })}
       </h2>
 
       <div className="mb-4">
 
         <label className="block text-gray-700 font-bold mb-2">
-          Customer Name
+          {t("CustomerName", { defaultValue: "Customer Name" })}
         </label>
 
         <InputField
           type="text"
-          placeholder="Enter customer name"
+          placeholder={t("EnterCustomerName", { defaultValue: "Enter customer name" })}
           className="border placeholder:text-gray-500 rounded py-2 text-black px-3 border-gray-400 w-full focus:outline-none focus:ring-2 focus:ring-yellow-600"
           value={customer}
           onChange={(e) => setCustomer(e.target.value)}
@@ -168,14 +168,16 @@ function CartPanel({
       <div className="mt-auto">
 
         <h3 className="font-bold text-lg text-red-600 mb-4">
-          Total: ${grandTotal}
+          {t("Total", { defaultValue: "Total" })}: ${grandTotal}
         </h3>
 
         <Button
           onClick={confirmOrder}
           className="w-full bg-green-600"
         >
-          {currentOrderId ? "Update Order" : "Confirm Order"}
+          {currentOrderId
+            ? t("UpdateOrder", { defaultValue: "Update Order" })
+            : t("ConfirmOrder", { defaultValue: "Confirm Order" })}
         </Button>
 
       </div>
