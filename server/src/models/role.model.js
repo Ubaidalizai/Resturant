@@ -4,9 +4,7 @@ const roleSchema = new mongoose.Schema({
   role: {
     type: String,
     required: true,
-    unique: true
   },
-
   permissions: [
     {
       type: mongoose.Schema.Types.ObjectId,

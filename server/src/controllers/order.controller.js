@@ -40,6 +40,9 @@ export const addOrder = asyncHandler(async (req, res) => {
     isPaid: false, 
     customer
   });
+  table.isOccupied = true;
+  await table.save();
+  console.log(table);
   res.respond(201, "Order placed successfully", newOrder);
 });
 
