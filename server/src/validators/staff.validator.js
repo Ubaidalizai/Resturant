@@ -30,17 +30,6 @@ export const staffValidation = [
     .isFloat({ min: 0 })
     .withMessage("Salary must be a positive number"),
 
-  // employment type
-  body("employmentType")
-    .optional()
-    .isIn(["full-time", "part-time", "contract"])
-    .withMessage("Invalid employment type"),
-
-  // status
-  body("status")
-    .optional()
-    .isIn(["active", "inactive", "terminated"])
-    .withMessage("Invalid status"),
 
   // national ID (optional)
   body("nationalId")

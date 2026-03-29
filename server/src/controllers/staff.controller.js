@@ -10,9 +10,6 @@ export const addStaff = asyncHandler(async (req, res) => {
     nationalId,
     salary,
     image,
-    hireDate,
-    employmentType,
-    status
   } = req.body;
 
   // Optional: check if phone or nationalId already exists
@@ -26,9 +23,6 @@ export const addStaff = asyncHandler(async (req, res) => {
     nationalId,
     salary,
     image,
-    hireDate,
-    employmentType,
-    status
   });
   console.log(newStaff)
   res.respond(201, "Staff added successfully", newStaff);
