@@ -16,7 +16,8 @@ import ConfirmModel from "../Components/UI/ConfirmModel";
 
 function AdminDashboard() {
   const { get } = useApi();
-  const { t } = useTranslation("common");
+  const { t, i18n } = useTranslation("common");
+  const isRTL = i18n.language === "ps";
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState("Overview");
   const [orders, setOrders] = useState([]);
@@ -73,8 +74,8 @@ function AdminDashboard() {
         onCancel={() => setShowConfirm(false)}
       />
       <div
-        className={`fixed top-0 left-0 h-full bg-white shadow-xl transition-transform z-40
-        ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 w-64`}>
+        className={`fixed top-0 ${isRTL ? "right-0" : "left-0"} h-full bg-white shadow-xl transition-transform z-40
+        ${sidebarOpen ? "translate-x-0" : isRTL ? "translate-x-full" : "-translate-x-full"} md:translate-x-0 w-64`}>
         <div className="p-6 border-b border-gray-200 flex flex-row justify-center items-center">
           <img src={Logo} alt="Logo" className="w-[150px] h-[150px]" />
         </div>
@@ -137,7 +138,7 @@ function AdminDashboard() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col md:ml-64">
+      <div className={`flex-1 flex flex-col ${isRTL ? "md:mr-64" : "md:ml-64"}`}>
         <div className="p-6">
           {activeMenu === "Overview" && (user.permissions.includes('overview_access') || user.permissions.includes('admin_access')) && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

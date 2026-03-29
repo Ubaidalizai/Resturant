@@ -28,6 +28,7 @@ function OrderHistory() {
   useEffect(() => {
     get("/api/v1/orders/all")
       .then((res) => {
+        console.log(res.data.data)
         const formatted = res.data.data
           .filter((order) => order.isPaid)
           .map((order) => ({
@@ -41,6 +42,7 @@ function OrderHistory() {
               quantity: item.quantity,
             })),
           }));
+          console.log(formatted);
         setOrders(formatted);
       })
       .catch((err) => console.error("Error fetching orders:", err));

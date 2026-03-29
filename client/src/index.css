@@ -13,3 +13,36 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+[dir="ltr"] {
+  direction: ltr;
+}
+
+[dir="rtl"] {
+  direction: rtl;
+}
+
+[dir="rtl"] .text-left {
+  text-align: right !important;
+}
+
+[dir="rtl"] .text-right {
+  text-align: left !important;
+}
+
+[dir="rtl"] .justify-end {
+  justify-content: flex-start !important;
+}
+
+[dir="rtl"] .justify-start {
+  justify-content: flex-end !important;
+}
+
+[dir="rtl"] .float-right {
+  float: left !important;
+}
+
+[dir="rtl"] .float-left {
+  float: right !important;
+}
+

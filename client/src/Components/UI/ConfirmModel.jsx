@@ -2,7 +2,8 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 
 const ConfirmModel = ({ isOpen, title, message, onConfirm, onCancel }) => {
-  const { t } = useTranslation("common");
+  const { t, i18n } = useTranslation("common");
+  const isRTL = i18n.language === "ps";
   if (!isOpen) return null;
 
   return (
@@ -25,7 +26,7 @@ const ConfirmModel = ({ isOpen, title, message, onConfirm, onCancel }) => {
         </p>
 
         {/* Buttons */}
-        <div className="flex justify-end gap-3">
+        <div className={`flex ${isRTL ? "justify-start" : "justify-end"} gap-3`}>
           {/* Cancel */}
           <button
             onClick={onCancel}

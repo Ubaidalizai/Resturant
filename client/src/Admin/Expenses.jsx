@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 import { useApi } from "../context/ApiContext";
 import InputField from "../Components/UI/InputField";
+import { getTranslatedServerMessage } from "../utils/serverMessageTranslator";
 import Button from "../Components/UI/Button";
 import ConfirmModel from "../Components/UI/ConfirmModel";
 import useConfirmModel from "../Components/UI/useConfirmModel";
@@ -11,7 +12,8 @@ import { ItemsContext } from "../App";
 
 function Expenses() {
   const { get, post, del } = useApi();
-  const { t } = useTranslation("common");
+  const { t, i18n } = useTranslation("common");
+  const isRTL = i18n.language === "ps";
   const { user } = useContext(ItemsContext);
 
   // CATEGORY STATES
@@ -70,7 +72,7 @@ function Expenses() {
       fetchCategories();
     } catch (err) {
       console.log(err.response?.data || err);
-      toast.error(err.response?.data?.message || t("OperationFailed", { defaultValue: "Operation failed" }));
+      toast.error(getTranslatedServerMessage(err.response?.data?.message, t) || t("OperationFailed", { defaultValue: "Operation failed" }));
     }
   };
 
@@ -109,13 +111,14 @@ function Expenses() {
   const addExpense = async () => {
     if (!title || !categoryId || !amount) return toast.error(t("FillRequiredFields", { defaultValue: "Fill required fields" }));
     try {
-      await post("/api/v1/expenses/add", { title, category: categoryId, amount, date, note });
+      console.log("Catagory id", categoryId)
+      await post("/api/v1/expenses/add", { title, catagory: categoryId, amount, date, note });
       toast.success(t("ExpenseAddedSuccessfully", { defaultValue: "Expense added successfully" }));
       setTitle(""); setCategoryId(""); setAmount(""); setDate(""); setNote(""); setShowExpModal(false);
       fetchExpenses();
     } catch (err) {
       console.log(err);
-      toast.error(err.response?.data?.message || err.message);
+      toast.error(getTranslatedServerMessage(err.response?.data?.message, t) || err.message || t("OperationFailed", { defaultValue: "Operation failed" }));
     }
   };
 
@@ -147,35 +150,19 @@ function Expenses() {
     <div className="p-6 text-black">
       <h1 className="text-3xl font-bold text-yellow-600 mb-6">{t("ExpensesManagement", { defaultValue: "Expenses Management" })}</h1>
 
-      {/* ADD CATEGORY BUTTON */}
-      <button
-        onClick={() => { setShowCatModal(true); setEditCatId(null); setName(""); setDescription(""); }}
-        className="bg-yellow-600 text-white px-4 py-2 rounded flex items-center gap-2 mb-6"
-      >
-<AiOutlinePlus /> {t("AddCategory", { defaultValue: "Add Category" })}
-      </button>
-
-      {/* CATEGORY MODAL */}
-      {showCatModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg w-[350px] relative">
-            <button className="absolute right-3 top-3" onClick={() => setShowCatModal(false)}>
-              <AiOutlineClose size={20} />
-            </button>
-            <h2 className="text-xl mb-4">{editCatId ? t("EditCategory", { defaultValue: "Edit Category" }) : t("AddCategory", { defaultValue: "Add Category" })}</h2>
-            <InputField placeholder={t("CategoryName", { defaultValue: "Category Name" })} value={name} onChange={e => setName(e.target.value)} className="border p-2 w-full mb-3" />
-            <InputField placeholder={t("Description", { defaultValue: "Description" })} value={description} onChange={e => setDescription(e.target.value)} className="border p-2 w-full mb-4" />
-            <div className="flex justify-end gap-3">
-              <Button onClick={() => setShowCatModal(false)} className="bg-gray-300 text-black">{t("Cancel", { defaultValue: "Cancel" })}</Button>
-              <Button onClick={saveCategory}>{t("Save", { defaultValue: "Save" })}</Button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* CATEGORY TABLE */}
       <div className="bg-white shadow-2xl rounded-2xl p-6 mb-8 overflow-x-auto">
-        <h2 className="text-xl font-semibold mb-4">{t("Categories", { defaultValue: "Categories" })}</h2>
+        <div className="grid md:grid-cols-2 gap-4 mb-4 items-center">
+          <h2 className="text-xl font-semibold">{t("Categories", { defaultValue: "Categories" })}</h2>
+          <div className={isRTL ? "flex justify-start" : "flex justify-end"}>
+            <button
+              onClick={() => { setShowCatModal(true); setEditCatId(null); setName(""); setDescription(""); }}
+              className="bg-yellow-600 text-white px-4 py-2 rounded flex items-center gap-2"
+            >
+              <AiOutlinePlus /> {t("AddCategory", { defaultValue: "Add Category" })}
+            </button>
+          </div>
+        </div>
         <table className="w-full border border-gray-200">
           <thead className="bg-yellow-50">
             <tr>
@@ -205,11 +192,29 @@ function Expenses() {
         </table>
       </div>
 
+      {/* CATEGORY MODAL */}
+      {showCatModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg w-[350px] relative">
+            <button className="absolute right-3 top-3" onClick={() => setShowCatModal(false)}>
+              <AiOutlineClose size={20} />
+            </button>
+            <h2 className="text-xl mb-4">{editCatId ? t("EditCategory", { defaultValue: "Edit Category" }) : t("AddCategory", { defaultValue: "Add Category" })}</h2>
+            <InputField placeholder={t("CategoryName", { defaultValue: "Category Name" })} value={name} onChange={e => setName(e.target.value)} className="border p-2 w-full mb-3" />
+            <InputField placeholder={t("Description", { defaultValue: "Description" })} value={description} onChange={e => setDescription(e.target.value)} className="border p-2 w-full mb-4" />
+            <div className="flex justify-end gap-3">
+              <Button onClick={() => setShowCatModal(false)} className="bg-gray-300 text-black">{t("Cancel", { defaultValue: "Cancel" })}</Button>
+              <Button onClick={saveCategory}>{t("Save", { defaultValue: "Save" })}</Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* EXPENSE TABLE */}
       <div className="bg-white shadow-2xl rounded-2xl p-6 overflow-x-auto">
         <div className="grid md:grid-cols-2 gap-4 mb-4 items-center">
           <h2 className="text-xl font-semibold">{t("AllExpenses", { defaultValue: "All Expenses" })}</h2>
-          <div className="flex md:justify-end">
+          <div className={isRTL ? "flex justify-start" : "flex justify-end"}>
             <button onClick={() => setShowExpModal(true)} className="bg-yellow-600 text-white px-4 py-2 rounded flex gap-2 items-center">
               <AiOutlinePlus /> {t("AddExpense", { defaultValue: "Add Expense" })}
             </button>

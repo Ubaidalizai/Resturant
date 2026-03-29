@@ -2,6 +2,7 @@ import TableSelector from "./TableSelector";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 import { useApi } from '../../context/ApiContext';
+import { getTranslatedServerMessage } from "../../utils/serverMessageTranslator";
 import InputField from "../UI/InputField";
 import Button from "../UI/Button";
 
@@ -87,7 +88,7 @@ function CartPanel({
     } catch (err) {
 
       toast.error(
-        err.response?.data?.message ||
+        getTranslatedServerMessage(err.response?.data?.message, t) ||
         err.message ||
         t("ErrorProcessingOrder", { defaultValue: "Error processing order" })
       );

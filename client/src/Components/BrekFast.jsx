@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { AiOutlineDelete } from "react-icons/ai";
 import { useTranslation } from "react-i18next";
 import { useApi } from "../context/ApiContext";
+import { getTranslatedServerMessage } from "../utils/serverMessageTranslator";
 import ConfirmModel from "../Components/UI/ConfirmModel";
 import useConfirmModel from "../Components/UI/useConfirmModel";
 
@@ -11,7 +12,8 @@ import useConfirmModel from "../Components/UI/useConfirmModel";
 
 function BrekFast() {
   const { get, post, put, baseURL } = useApi();
-  const { t } = useTranslation("common");
+  const { t, i18n } = useTranslation("common");
+  const isRTL = i18n.language === "ps";
   const [foods, setFoods] = useState([]);
   const [quantities, setQuantities] = useState({});
   const { confirmState, openConfirm, closeConfirm, handleConfirm } = useConfirmModel();
@@ -131,16 +133,16 @@ function BrekFast() {
     );
 
     if (res.data.success) {
-      toast.success(t("OrderPlaced", { defaultValue: "Order placed ✅" }));
+      toast.success(getTranslatedServerMessage(res.data.message, t) || t("OrderPlaced", { defaultValue: "Order placed ✅" }));
       setCart({});
       setQuantities({});
       setTable(null);
       setShowOrderModal(false);
     } else {
-      toast.error(res.data.message || t("OrderFailed", { defaultValue: "Order failed" }));
+      toast.error(getTranslatedServerMessage(res.data.message, t) || t("OrderFailed", { defaultValue: "Order failed" }));
     }
   } catch (err) {
-    toast.error(t("ServerErrorWhilePlacingOrder", { defaultValue: "Server error while placing order" }) || err.message);
+    toast.error(getTranslatedServerMessage(err.response?.data?.message, t) || t("ServerErrorWhilePlacingOrder", { defaultValue: "Server error while placing order" }));
   }
   console.log(res)
 };

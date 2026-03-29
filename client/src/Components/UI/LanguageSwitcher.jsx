@@ -9,11 +9,15 @@ const languages = [
 
 export default function LanguageSwitcher() {
   const { i18n } = useTranslation();
+  const isRTL = i18n.language === "ps";
 
   const setLanguage = (lang) => {
     i18n.changeLanguage(lang);
     localStorage.setItem("hotel_lang", lang);
     axios.defaults.headers.common["Accept-Language"] = lang;
+
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === "ps" ? "rtl" : "ltr";
   };
 
   useEffect(() => {
@@ -22,7 +26,7 @@ export default function LanguageSwitcher() {
   }, []);
 
   return (
-    <div className="fixed top-4 right-4 z-50 flex items-center gap-2 rounded-full bg-white/80 p-2 shadow-lg backdrop-blur">
+    <div className={`fixed top-4 ${isRTL ? "left-4" : "right-4"} z-50 flex items-center gap-2 rounded-full bg-white/80 p-2 shadow-lg backdrop-blur`}>
       {languages.map((lang) => (
         <button
           key={lang.code}

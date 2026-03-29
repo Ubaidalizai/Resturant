@@ -7,6 +7,7 @@ import InputField from "../Components/UI/InputField";
 import Button from "../Components/UI/Button";
 import ConfirmModel from "../Components/UI/ConfirmModel";
 import useConfirmModel from "../Components/UI/useConfirmModel";
+import { getTranslatedServerMessage } from "../utils/serverMessageTranslator";
 
 function FoodDataStorage() {
   const { t } = useTranslation("common");
@@ -77,7 +78,7 @@ function FoodDataStorage() {
       // refresh list instead of manual push so filters/search remain accurate
       await fetchFoods();
       setSearch("");
-      toast.success(t("FoodAddedSuccessfully", { defaultValue: `${created.name} was added successfully` }));
+      toast.success(getTranslatedServerMessage(res.data?.message, t) || t("FoodAddedSuccessfully", { defaultValue: `${created.name} was added successfully` }));
 
       setName("");
       setPrice("");
@@ -86,7 +87,7 @@ function FoodDataStorage() {
       setModal(null);
     } catch (err) {
       console.log(err);
-      toast.error(err.response?.data?.message || t("FailedToAddFood", { defaultValue: "Failed to add food" }));
+      toast.error(getTranslatedServerMessage(err.response?.data?.message, t) || t("FailedToAddFood", { defaultValue: "Failed to add food" }));
     }
   };
 
@@ -118,13 +119,13 @@ function FoodDataStorage() {
       setEnterFoodData(updatedFoods);
       // also refresh from backend to pick up any server side changes (e.g. new image path)
       fetchFoods();
-      toast.success(t("FoodUpdatedSuccessfully", { defaultValue: "Food updated successfully" }));
+      toast.success(getTranslatedServerMessage(res.data?.message, t) || t("FoodUpdatedSuccessfully", { defaultValue: "Food updated successfully" }));
 
       setModal(null);
       setSelectedFood(null);
     } catch (err) {
       console.log(err);
-      toast.error(err.response?.data?.message || t("FailedToUpdateFood", { defaultValue: "Failed to update food" }));
+      toast.error(getTranslatedServerMessage(err.response?.data?.message, t) || t("FailedToUpdateFood", { defaultValue: "Failed to update food" }));
     }
   };
 
@@ -134,12 +135,12 @@ function FoodDataStorage() {
     if (!selectedFood) return;
     try {
       const res = await del(`/api/v1/foods/delete/${selectedFood._id}`);
-      toast.success(res.data?.message || t("FoodDeletedSuccessfully", { defaultValue: "Food deleted successfully" }));
+      toast.success(getTranslatedServerMessage(res.data?.message, t) || t("FoodDeletedSuccessfully", { defaultValue: "Food deleted successfully" }));
       setEnterFoodData((prev) => prev.filter((f) => f._id !== selectedFood._id));
       fetchFoods();
     } catch (err) {
       console.log(err);
-      toast.error(err.response?.data?.message || t("FailedToDeleteFood", { defaultValue: "Failed to delete food" }));
+      toast.error(getTranslatedServerMessage(err.response?.data?.message, t) || t("FailedToDeleteFood", { defaultValue: "Failed to delete food" }));
     } finally {
       setModal(null);
       setSelectedFood(null);
@@ -149,19 +150,21 @@ function FoodDataStorage() {
   const filteredFoods = enterFoodData.filter(
     (food) => food.name && food.name.toLowerCase().includes(search.toLowerCase())
   );
-    // CHECK PERMISSIONS
+
   return (
     <div className="min-h-screen bg-gray-50 p-6 flex flex-col items-center space-y-8">
       <h1 className="text-4xl font-extrabold text-yellow-600 text-center">
         {t("FoodsStorage", { defaultValue: "Foods Storage" })}
       </h1>
 
-      <button
-        onClick={() => setModal("add")}
-        className="bg-yellow-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:scale-105 transition"
-      >
-        {t("AddFood", { defaultValue: "Add Food" })}
-      </button>
+      <div className="w-full flex justify-center mb-4">
+        <button
+          onClick={() => setModal("add")}
+          className="bg-yellow-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:scale-105 transition"
+        >
+          {t("AddFood", { defaultValue: "Add Food" })}
+        </button>
+      </div>
 
       <InputField
         type="text"
