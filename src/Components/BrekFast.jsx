@@ -1,0 +1,437 @@
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
+import { AiOutlineDelete, AiOutlineClose } from "react-icons/ai";
+import { useTranslation } from "react-i18next";
+import { useApi } from "../context/ApiContext";
+import { getTranslatedServerMessage } from "../utils/serverMessageTranslator";
+import ConfirmModel from "../Components/UI/ConfirmModel";
+import useConfirmModel from "../Components/UI/useConfirmModel";
+
+
+
+function BrekFast() {
+  const { get, post, put, baseURL } = useApi();
+  const { t, i18n } = useTranslation("common");
+  const isRTL = i18n.language === "ps";
+  const [foods, setFoods] = useState([]);
+  const [quantities, setQuantities] = useState({});
+  const { confirmState, openConfirm, closeConfirm, handleConfirm } = useConfirmModel();
+  const [cart, setCart] = useState({});
+  const [table, setTable] = useState(null);
+  const [tables, setTables] = useState([]);
+
+  const [showOrderModal, setShowOrderModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editTableLocked, setEditTableLocked] = useState(false);
+
+  
+  useEffect(() => {
+  const fetchFoods = async () => {
+    try {
+      const res = await get('/api/v1/foods/all');
+
+    
+      const allFoods = res.data.data || [];
+
+     
+      const formattedFoods = allFoods.map((f) => ({
+        ...f,
+        id: f._id,
+      }));
+
+      setFoods(formattedFoods);
+
+      console.log(formattedFoods);
+    } catch (err) {
+      console.log(err.message);
+      toast.error(t("FailedToLoadFoods", { defaultValue: "Failed to load foods" }));
+    }
+  };
+
+  fetchFoods();
+}, []);
+
+
+  
+  useEffect(() => {
+    const fetchTables = async () => {
+      try {
+        const res = await get('/api/v1/tables/all');
+        console.log("TABLE API RESPONSE:", res.data);
+        setTables(res.data.data || []);
+      } catch (err) {
+        toast.error(t("TableNotLoaded", { defaultValue: "Table is not loaded" }));
+      }
+    };
+    fetchTables();
+  }, []);
+
+  const increase = (id) =>
+    setQuantities((p) => ({ ...p, [id]: (p[id] || 1) + 1 }));
+
+  const decrease = (id) =>
+    setQuantities((p) => ({ ...p, [id]: Math.max(1, (p[id] || 1) - 1) }));
+
+  const toggleCart = (food) => {
+    const qty = quantities[food.id] || 1;
+    setCart((p) => {
+      if (p[food.id]) {
+        const copy = { ...p };
+        delete copy[food.id];
+        return copy;
+      }
+      return { ...p, [food.id]: { ...food, qty } };
+    });
+  };
+
+  const deleteItem = (id) => {
+    setCart((p) => {
+      const copy = { ...p };
+      delete copy[id];
+      return copy;
+    });
+  };
+
+  const openOrderModal = () => {
+    if (!Object.keys(cart).length) {
+      toast.error(t("NoFoodAdded", { defaultValue: "No food added" }));
+      return;
+    }
+    setShowOrderModal(true);
+  };
+
+  const grandTotal = Object.values(cart).reduce(
+    (s, i) => s + i.price * i.qty,
+    0
+  );
+
+  // ✅ CONFIRM ORDER → DATABASE
+  const confirmOrder = async () => {
+  if (!table) {
+    toast.error(t("SelectTableNumber", { defaultValue: "Select table number" }));
+    return;
+  }
+
+  const items = Object.values(cart).map((i) => ({
+    foodId: i.id,
+    quantity: i.qty,
+  }));
+
+  if (!items.length) {
+    toast.error(t("NoItemsInCart", { defaultValue: "No items in cart" }));
+    return;
+  }
+
+  try {
+    const res = await post(
+      `/api/v1/orders/add`,
+      {
+        tableId: table,
+        items
+      }
+    );
+
+    if (res.data.success) {
+      toast.success(getTranslatedServerMessage(res.data.message, t) || t("OrderPlaced", { defaultValue: "Order placed ✅" }));
+      setCart({});
+      setQuantities({});
+      setTable(null);
+      setShowOrderModal(false);
+    } else {
+      toast.error(getTranslatedServerMessage(res.data.message, t) || t("OrderFailed", { defaultValue: "Order failed" }));
+    }
+  } catch (err) {
+    toast.error(getTranslatedServerMessage(err.response?.data?.message, t) || t("ServerErrorWhilePlacingOrder", { defaultValue: "Server error while placing order" }));
+  }
+  console.log(res)
+};
+
+  const openEditOrder = () => {
+    if (!editTableLocked) {
+      setCart({});
+      setQuantities({});
+      setTable("");
+    }
+    setShowEditModal(true);
+  };
+
+  // ✅ LOAD ORDER FROM DATABASE
+  const handleTableSelectEdit = async (tableId) => {
+    setTable(tableId);
+
+    try {
+      const res = await get(
+        `/api/v1/orders/table/${tableId}`
+      );
+
+      if (!res.data.success) {
+        toast.error(t("NoOrderFoundForThisTable", { defaultValue: "No order found for this table" }));
+        return;
+      }
+
+      const order = res.data.data;
+      setCurrentOrderId(order._id);
+
+      const newCart = {};
+      const newQty = {};
+
+      order.items.forEach((i) => {
+        newCart[i.food] = {
+          id: i.food,
+          name: i.name,
+          price: i.price,
+          qty: i.quantity,
+        };
+        newQty[i.food] = i.quantity;
+      });
+
+      setCart(newCart);
+      setQuantities(newQty);
+      setEditTableLocked(true);
+    } catch (err) {
+      toast.error(t("ErrorLoadingOrder", { defaultValue: "Error loading order" }));
+    }
+  };
+
+  // ✅ UPDATE ORDER → DATABASE
+  const updateOrder = async () => {
+    if (!table || !currentOrderId) {
+      toast.error(t("SelectTableNumber", { defaultValue: "Select table number" }));
+      return;
+    }
+
+    const items = Object.values(cart).map((i) => ({
+      food: i.id,
+      name: i.name,
+      price: i.price,
+      quantity: i.qty,
+    }));
+
+    if (!items.length) {
+      toast.error(t("NoItemsInCart", { defaultValue: "No items in cart" }));
+      return;
+    }
+
+    try {
+const res = await put(
+      `/api/v1/orders/update/${currentOrderId}`,
+        {
+          table,
+          items,
+          totalAmount: grandTotal,
+        }
+      );
+
+      if (res.data.success) {
+        toast.success(t("OrderUpdated", { defaultValue: "Order updated ✅" }));
+        setCart({});
+        setQuantities({});
+        setTable("");
+        setEditTableLocked(false);
+        setShowEditModal(false);
+        setCurrentOrderId(null);
+      } else {
+        toast.error(t("UpdateFailed", { defaultValue: "Update failed" }));
+      }
+    } catch (err) {
+      toast.error(t("ServerErrorWhileUpdatingOrder", { defaultValue: "Server error while updating order" }));
+    }
+  };
+
+  const breakfastFoods = foods.filter(
+    (f) => f.catagory?.toLowerCase() === "breakfast");
+  return (
+    <div className="min-h-screen bg-gray-100 px-4 pb-10">
+
+      {/* Header */}
+  
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-6">
+       
+        <div className="flex items-center gap-4">
+          <Link to="/menus" className="text-black flex items-center gap-2 px-4 py-2 rounded-xl   border border-gray-300 bg-white hover:bg-gray-100 transition shadow-sm font-semibold">{t("Back", { defaultValue: "Back" })}</Link> 
+          <Link to="/" className="text-3xl sm:text-4xl font-bold text-yellow-600">{t("Breakfast", { defaultValue: "Breakfast" })}</Link>
+        </div>
+
+        <div className="flex gap-4">
+          {/* Order Button */}
+          <button
+            onClick={openOrderModal}
+            className="bg-yellow-600 text-white px-6 py-3 rounded-xl font-bold"
+          >
+            {t("Order", { defaultValue: "Order" })} ({Object.keys(cart).length})
+          </button>
+
+          {/* Edit Button */}
+          <button
+            onClick={openEditOrder}
+            className="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold"
+          >
+            {t("OrderEdit", { defaultValue: "Order Edit" })}
+          </button>
+        </div>
+      </div>
+    
+      {/* Food Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
+        {breakfastFoods.map((food) => (
+          <div key={food.id} className="bg-white rounded-xl p-4 shadow">
+            <img src={`${baseURL}/${food.image}`} alt={food.name} className="h-40 w-full object-cover rounded-lg border-[2.5px] border-yellow-600 border-dotted" />
+            <h2 className="font-semibold text-black">{food.name}</h2>
+            <p className="text-yellow-600">${food.price}</p>
+
+            <div className="flex justify-between items-center">
+              <div className="flex gap-3">
+                <button className="w-8 h-8 border rounded border-yellow-500 text-yellow-600" onClick={() => decrease(food.id)}>−</button>
+                <span className="text-yellow-600">{quantities[food.id] || 1}</span>
+                <button className="w-8 h-8 border rounded border-yellow-500 text-yellow-600" onClick={() => increase(food.id)}>+</button>
+              </div>
+
+              <button className="bg-green-500 text-white px-4 py-2 rounded font-semibold text-sm" onClick={() => toggleCart(food)}>
+                {cart[food.id] ? t("Added", { defaultValue: "Added ✓" }) : t("Add", { defaultValue: "Add" })}
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/*ORDER MODAL*/}
+      {showOrderModal && (
+        <div className="modal-backdrop" onClick={() => setShowOrderModal(false)}>
+          <div className="modal-card rounded-xl p-6 w-[90%] max-w-4xl shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <button type="button" className="modal-close-button" onClick={() => setShowOrderModal(false)}>
+              <AiOutlineClose size={18} />
+            </button>
+            <h2 className="text-2xl font-bold text-yellow-600 mb-4">{t("OrderDetails", { defaultValue: "Order Details" })}</h2>
+
+            {/* Table of Selected Foods */}
+            <table className="w-full border text-black">
+              <thead className="bg-yellow-100">
+                <tr>
+                  <th className="p-2">{t("Food", { defaultValue: "Food" })}</th>
+                  <th className="p-2">{t("Price", { defaultValue: "Price" })}</th>
+                  <th className="p-2">{t("Qty", { defaultValue: "Qty" })}</th>
+                  <th className="p-2">{t("Total", { defaultValue: "Total" })}</th>
+                  <th className="p-2">{t("Action", { defaultValue: "Action" })}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.values(cart).map((item) => (
+                  <tr key={item.id} className="text-center border-t">
+                    <td className="p-2">{item.name}</td>
+                    <td className="p-2">${item.price}</td>
+                    <td className="p-2">{item.qty}</td>
+                    <td className="p-2">${item.price * item.qty}</td>
+                    <td className="p-2">
+                      <button onClick={() => deleteItem(item.id)} className="flex items-center justify-center gap-1 text-red-600">
+                        <AiOutlineDelete /> {t("Delete", { defaultValue: "Delete" })}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {/* Grand Total */}
+            <div className="flex justify-end items-center mt-4">
+              <h3 className="font-bold text-lg text-red-600">{t("GrandTotal", { defaultValue: "Grand Total" })}: ${grandTotal}</h3>
+            </div>
+
+            {/* Table Selection & Buttons */}
+            <div className="flex justify-between items-center mt-6 gap-4">
+              <select value={table || ""} onChange={(e) => setTable(e.target.value)} className="px-4 py-2 rounded-xl bg-yellow-600 text-white font-semibold">
+                <option value="">{t("SelectTable", { defaultValue: "Select Table" })}</option>
+                {tables.map((t, i) => (
+                    <option key={t._id || i} value={t._id}>
+                      {t("TableWithNumber", { defaultValue: "Table {{number}}", number: t.tableNumber || t.number || i + 1 })}
+                    </option>
+                  ))}
+              </select>
+
+              <div className="flex gap-4">
+                <button onClick={() => setShowOrderModal(false)} className="px-4 py-2 border rounded flex items-center gap-2 text-black">
+                  <AiOutlineDelete /> {t("Cancel", { defaultValue: "Cancel" })}
+                </button>
+
+                <button onClick={confirmOrder} className="bg-green-600 text-white px-6 py-2 rounded-xl">
+                  {t("ConfirmOrder", { defaultValue: "Confirm Order" })}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/*EDIT MODAL*/}
+      {showEditModal && (
+        <div className="modal-backdrop" onClick={() => setShowEditModal(false)}>
+          <div className="modal-card rounded-xl p-6 w-[90%] max-w-4xl shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <button type="button" className="modal-close-button" onClick={() => setShowEditModal(false)}>
+              <AiOutlineClose size={18} />
+            </button>
+            <h2 className="text-2xl font-bold text-yellow-600 mb-4">{t("EditOrder", { defaultValue: "Edit Order" })}</h2>
+
+            {/* Table Selection if not locked */}
+            {!editTableLocked && (
+              <select value={table} onChange={(e) => handleTableSelectEdit(e.target.value)} className="mb-4 px-4 py-2 rounded-xl bg-yellow-600 text-white font-semibold">
+                <option value="">{t("SelectTable", { defaultValue: "Select Table" })}</option>
+                {[1, 2, 3, 4, 5, 6].map((t) => (
+                  <option key={t} value={String(t)}>{t("TableWithNumber", { defaultValue: "Table {{number}}", number: t })}</option>
+                ))}
+              </select>
+            )}
+
+            {/* Table of Foods */}
+            <table className="w-full border text-black">
+              <thead className="bg-yellow-100">
+                <tr>
+                  <th className="p-2">{t("Food", { defaultValue: "Food" })}</th>
+                  <th className="p-2">{t("Price", { defaultValue: "Price" })}</th>
+                  <th className="p-2">{t("Qty", { defaultValue: "Qty" })}</th>
+                  <th className="p-2">{t("Total", { defaultValue: "Total" })}</th>
+                  <th className="p-2">{t("Action", { defaultValue: "Action" })}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.values(cart).map((item) => (
+                  <tr key={item.id} className="text-center border-t">
+                    <td className="p-2">{item.name}</td>
+                    <td className="p-2">${item.price}</td>
+                    <td className="p-2">{item.qty}</td>
+                    <td className="p-2">${item.price * item.qty}</td>
+                    <td className="p-2">
+                      <button onClick={() => deleteItem(item.id)} className="flex items-center justify-center gap-1 text-red-600">
+                        <AiOutlineDelete /> {t("Delete", { defaultValue: "Delete" })}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {/* Grand Total */}
+            <div className="flex justify-end items-center mt-4">
+              <h3 className="font-bold text-lg text-red-600">{t("GrandTotal", { defaultValue: "Grand Total" })}: ${grandTotal}</h3>
+            </div>
+
+            {/* Buttons */}
+            <div className="flex justify-end gap-4 mt-6">
+              <button onClick={() => setShowEditModal(false)} className="bg-yellow-600 text-white px-4 py-2 rounded-xl">
+                {t("Foods", { defaultValue: "Foods" })}
+              </button>
+
+              <button onClick={updateOrder} className="bg-green-600 text-white px-6 py-2 rounded-xl">
+                {t("Update", { defaultValue: "Update" })}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default BrekFast;
+
+
+
