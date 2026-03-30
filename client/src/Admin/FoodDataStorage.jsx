@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
+import { AiOutlineEdit, AiOutlineDelete, AiOutlineClose } from "react-icons/ai";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 import { useApi } from "../context/ApiContext";
@@ -223,14 +223,14 @@ function FoodDataStorage() {
 
       {/* Modal */}
       {modal && modal !== "delete" && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="absolute inset-0 backdrop-blur-sm"></div>
-          <div className="bg-white rounded-3xl p-8 w-full max-w-md relative shadow-2xl z-10">
+        <div className="modal-backdrop" onClick={() => setModal(null)}>
+          <div className="modal-card rounded-3xl p-8 w-full max-w-md relative shadow-2xl z-10" onClick={(e) => e.stopPropagation()}>
             <button
-              onClick={() => setModal(null)}
-              className="absolute top-4 right-4 font-bold text-yellow-600 text-xl cursor-pointer"
-            >
-              X
+                type="button"
+                onClick={() => setModal(null)}
+                className="modal-close-button"
+              >
+                <AiOutlineClose size={18} />
             </button>
 
             <form

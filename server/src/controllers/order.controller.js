@@ -72,9 +72,59 @@ export const getOrders = asyncHandler(async (req, res) => {
 // Get all orders for admin
 export const getAllOrders = asyncHandler(async (req, res) => {
     const orders = await Order.find({ isDeleted: false })
-        .populate('tableId', 'number')
+        .populate('tableId', 'tableNumber')
         .populate('items.foodId', 'name price');
     res.respond(200, "Orders fetched successfully", orders);
+});
+
+// Get kitchen orders for kitchen staff
+export const getKitchenOrders = asyncHandler(async (req, res) => {
+    const orders = await Order.find({
+        isDeleted: false,
+        status: { $nin: ["Completed"] }
+    })
+        .populate('tableId', 'tableNumber')
+        .populate('items.foodId', 'name price');
+
+    res.respond(200, "Kitchen orders fetched successfully", orders);
+});
+
+// Get orders by table
+export const getOrdersByTable = asyncHandler(async (req, res) => {
+    const { tableId } = req.params;
+    if (!tableId) return res.respond(400, "Table ID is required");
+
+    const orders = await Order.find({
+        tableId,
+        isDeleted: false,
+        isPaid: false,
+    })
+        .populate('tableId', 'tableNumber')
+        .populate('items.foodId', 'name price');
+
+    res.respond(200, "Table orders fetched successfully", orders);
+});
+
+export const updateOrderStatus = asyncHandler(async (req, res) => {
+    const { orderId } = req.params;
+    const { status } = req.body;
+    const validStatuses = ["Pending", "In Kitchen", "Ready", "Completed"];
+
+    if (!status || !validStatuses.includes(status)) {
+        return res.respond(400, "Invalid status. Use Pending, In Kitchen, Ready, or Completed");
+    }
+
+    const updatedOrder = await Order.findByIdAndUpdate(
+        orderId,
+        { status },
+        { new: true }
+    )
+        .populate('tableId', 'tableNumber')
+        .populate('items.foodId', 'name price');
+
+    if (!updatedOrder) return res.respond(404, "Order not found");
+
+    res.respond(200, "Order status updated successfully", updatedOrder);
 });
 
 // Get single order

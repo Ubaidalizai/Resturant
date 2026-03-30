@@ -21,8 +21,13 @@ const orderSchema = new mongoose.Schema(
       ref: "Table",
     },
     totalAmount: {
-      type: Number, 
+      type: Number,
       default: 0
+    },
+    status: {
+      type: String,
+      enum: ["Pending", "In Kitchen", "Ready", "Completed"],
+      default: "Pending"
     },
     isPaid: {
       type: Boolean,

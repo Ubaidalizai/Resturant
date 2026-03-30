@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
-import { AiOutlineDelete } from "react-icons/ai";
+import { AiOutlineDelete, AiOutlineClose } from "react-icons/ai";
 import { useTranslation } from "react-i18next";
 import { useApi } from "../context/ApiContext";
 import { getTranslatedServerMessage } from "../utils/serverMessageTranslator";
@@ -297,8 +297,11 @@ const res = await put(
 
       {/*ORDER MODAL*/}
       {showOrderModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 w-[90%] max-w-4xl shadow-xl">
+        <div className="modal-backdrop" onClick={() => setShowOrderModal(false)}>
+          <div className="modal-card rounded-xl p-6 w-[90%] max-w-4xl shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <button type="button" className="modal-close-button" onClick={() => setShowOrderModal(false)}>
+              <AiOutlineClose size={18} />
+            </button>
             <h2 className="text-2xl font-bold text-yellow-600 mb-4">{t("OrderDetails", { defaultValue: "Order Details" })}</h2>
 
             {/* Table of Selected Foods */}
@@ -361,8 +364,11 @@ const res = await put(
 
       {/*EDIT MODAL*/}
       {showEditModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 w-[90%] max-w-4xl shadow-xl">
+        <div className="modal-backdrop" onClick={() => setShowEditModal(false)}>
+          <div className="modal-card rounded-xl p-6 w-[90%] max-w-4xl shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <button type="button" className="modal-close-button" onClick={() => setShowEditModal(false)}>
+              <AiOutlineClose size={18} />
+            </button>
             <h2 className="text-2xl font-bold text-yellow-600 mb-4">{t("EditOrder", { defaultValue: "Edit Order" })}</h2>
 
             {/* Table Selection if not locked */}

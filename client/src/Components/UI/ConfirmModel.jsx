@@ -1,5 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import { AiOutlineClose } from "react-icons/ai";
+import Button from "./Button";
 
 const ConfirmModel = ({ isOpen, title, message, onConfirm, onCancel }) => {
   const { t, i18n } = useTranslation("common");
@@ -8,13 +10,16 @@ const ConfirmModel = ({ isOpen, title, message, onConfirm, onCancel }) => {
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center bg-black/50 z-50"
-      onClick={onCancel}   // click on background closes modal
+      className="modal-backdrop"
+      onClick={onCancel}
     >
       <div
-        className="bg-white w-[400px] rounded-lg shadow-xl p-6"
-        onClick={(e) => e.stopPropagation()} // prevent closing when clicking inside modal
+        className="modal-card w-[400px] p-6"
+        onClick={(e) => e.stopPropagation()}
       >
+        <button type="button" className="modal-close-button" onClick={onCancel}>
+          <AiOutlineClose size={18} />
+        </button>
         {/* Title */}
         <h2 className="text-lg font-semibold text-gray-800 mb-3">
           {title || t("ConfirmAction", { defaultValue: "Confirm Action" })}
@@ -26,22 +31,22 @@ const ConfirmModel = ({ isOpen, title, message, onConfirm, onCancel }) => {
         </p>
 
         {/* Buttons */}
-        <div className={`flex ${isRTL ? "justify-start" : "justify-end"} gap-3`}>
-          {/* Cancel */}
-          <button
+        <div className={`flex flex-col sm:flex-row ${isRTL ? "sm:justify-start" : "sm:justify-end"} gap-3`}>
+          <Button
+            variant="secondary"
             onClick={onCancel}
-            className="px-4 py-2 rounded-md bg-gray-300 hover:bg-gray-400 text-gray-800 transition"
+            className="min-w-[110px]"
           >
             {t("Cancel", { defaultValue: "Cancel" })}
-          </button>
+          </Button>
 
-          {/* Delete */}
-          <button
+          <Button
+            variant="danger"
             onClick={onConfirm}
-            className="px-4 py-2 rounded-md bg-red-600 hover:bg-red-700 text-white transition"
+            className="min-w-[110px]"
           >
             {t("Delete", { defaultValue: "Delete" })}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

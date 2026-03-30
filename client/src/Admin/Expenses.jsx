@@ -194,10 +194,10 @@ function Expenses() {
 
       {/* CATEGORY MODAL */}
       {showCatModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg w-[350px] relative">
-            <button className="absolute right-3 top-3" onClick={() => setShowCatModal(false)}>
-              <AiOutlineClose size={20} />
+        <div className="modal-backdrop" onClick={() => setShowCatModal(false)}>
+          <div className="modal-card p-6 w-[350px] relative" onClick={(e) => e.stopPropagation()}>
+            <button type="button" className="modal-close-button" onClick={() => setShowCatModal(false)}>
+              <AiOutlineClose size={18} />
             </button>
             <h2 className="text-xl mb-4">{editCatId ? t("EditCategory", { defaultValue: "Edit Category" }) : t("AddCategory", { defaultValue: "Add Category" })}</h2>
             <InputField placeholder={t("CategoryName", { defaultValue: "Category Name" })} value={name} onChange={e => setName(e.target.value)} className="border p-2 w-full mb-3" />
@@ -254,9 +254,11 @@ function Expenses() {
 
       {/* EXPENSE MODAL */}
       {showExpModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg w-full max-w-md relative">
-            <button className="absolute right-3 top-3" onClick={() => setShowExpModal(false)}><AiOutlineClose /></button>
+        <div className="modal-backdrop" onClick={() => setShowExpModal(false)}>
+          <div className="modal-card p-6 w-full max-w-md relative" onClick={(e) => e.stopPropagation()}>
+            <button type="button" className="modal-close-button" onClick={() => setShowExpModal(false)}>
+              <AiOutlineClose size={18} />
+            </button>
             <h2 className="text-xl mb-4">{t("AddExpense", { defaultValue: "Add Expense" })}</h2>
             <InputField placeholder={t("Title", { defaultValue: "Title" })} value={title} onChange={e => setTitle(e.target.value)} className="border p-2 w-full mb-3" />
             <select className="border p-2 w-full mb-3" value={categoryId} onChange={e => setCategoryId(e.target.value)}>

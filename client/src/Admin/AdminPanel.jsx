@@ -558,10 +558,10 @@ function Management() {
 
       {/* MODAL (single dynamic modal similar style to Expenses component) */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg w-full max-w-md relative">
-            <button className="absolute right-3 top-3" onClick={closeModal}>
-              <AiOutlineClose size={20} />
+        <div className="modal-backdrop" onClick={closeModal}>
+          <div className="modal-card p-6 w-full max-w-md relative" onClick={(e) => e.stopPropagation()}>
+            <button type="button" className="modal-close-button" onClick={closeModal}>
+              <AiOutlineClose size={18} />
             </button>
 
             <h2 className="text-xl mb-4">

@@ -74,6 +74,12 @@ function OrderHistory() {
   const indexOfFirstOrder = indexOfLastOrder - ordersPerPage;
   const currentOrders = filteredOrders.slice(indexOfFirstOrder, indexOfLastOrder);
 
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages || 1);
+    }
+  }, [currentPage, totalPages]);
+
   const grandTotal = filteredOrders.reduce((sum, o) => sum + Number(o.orderTotal), 0);
 
   const nextPage = () => setCurrentPage((p) => Math.min(p + 1, totalPages));
