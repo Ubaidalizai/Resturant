@@ -18,13 +18,21 @@ const storage = multer.diskStorage({
     }
 });
 
-// File filter (optional, only images)
+// File filter: only allow images
 const fileFilter = (req, file, cb) => {
-    if (file.mimetype.startsWith("image/")) {
+    if (file.mimetype && file.mimetype.startsWith("image/")) {
         cb(null, true);
     } else {
-        cb(new Error("Only image files are allowed!"), false);
+        // Pass a custom error to be handled by error middleware
+        const err = new multer.MulterError("LIMIT_UNEXPECTED_FILE", file.fieldname);
+        err.message = "Only image files are allowed!";
+        cb(err, false);
     }
 };
 
-export const upload = multer({ storage, fileFilter });
+// 5MB file size limit
+const limits = {
+    fileSize: 5 * 1024 * 1024, // 5MB
+};
+
+export const upload = multer({ storage, fileFilter, limits });

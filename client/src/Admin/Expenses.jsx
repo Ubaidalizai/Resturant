@@ -11,7 +11,7 @@ import useConfirmModel from "../Components/UI/useConfirmModel";
 import { ItemsContext } from "../App";
 
 function Expenses() {
-  const { get, post, del } = useApi();
+  const { get, post, del, put } = useApi();
   const { t, i18n } = useTranslation("common");
   const isRTL = i18n.language === "ps";
   const { user } = useContext(ItemsContext);
@@ -29,6 +29,7 @@ function Expenses() {
   const [title, setTitle] = useState("");
   const [pendingCategoryDelete, setPendingCategoryDelete] = useState(null);
   const [pendingExpenseDelete, setPendingExpenseDelete] = useState(null);
+  const [editExpId, setEditExpId] = useState(null);
   const { confirmState, openConfirm, closeConfirm, handleConfirm } = useConfirmModel();
   const [categoryId, setCategoryId] = useState("");
   const [amount, setAmount] = useState("");
@@ -107,19 +108,35 @@ function Expenses() {
     setShowCatModal(true);
   };
 
-  // ADD EXPENSE
-  const addExpense = async () => {
+  // ADD OR UPDATE EXPENSE
+  const saveExpense = async () => {
     if (!title || !categoryId || !amount) return toast.error(t("FillRequiredFields", { defaultValue: "Fill required fields" }));
     try {
-      console.log("Catagory id", categoryId)
-      await post("/api/v1/expenses/add", { title, catagory: categoryId, amount, date, note });
-      toast.success(t("ExpenseAddedSuccessfully", { defaultValue: "Expense added successfully" }));
-      setTitle(""); setCategoryId(""); setAmount(""); setDate(""); setNote(""); setShowExpModal(false);
+      if (editExpId) {
+          // Update expense (use PUT)
+          await put(`/api/v1/expenses/update/${editExpId}`, { title, catagory: categoryId, amount, date, note });
+          toast.success(t("ExpenseUpdatedSuccessfully", { defaultValue: "Expense updated successfully" }));
+      } else {
+        // Add expense
+        await post("/api/v1/expenses/add", { title, catagory: categoryId, amount, date, note });
+        toast.success(t("ExpenseAddedSuccessfully", { defaultValue: "Expense added successfully" }));
+      }
+      setTitle(""); setCategoryId(""); setAmount(""); setDate(""); setNote(""); setShowExpModal(false); setEditExpId(null);
       fetchExpenses();
     } catch (err) {
       console.log(err);
       toast.error(getTranslatedServerMessage(err.response?.data?.message, t) || err.message || t("OperationFailed", { defaultValue: "Operation failed" }));
     }
+  };
+  // EDIT EXPENSE
+  const editExpense = (exp) => {
+    setEditExpId(exp._id);
+    setTitle(exp.title);
+    setCategoryId(exp.catagoryId?._id || "");
+    setAmount(exp.amount);
+    setDate(exp.expensesDate ? exp.expensesDate.slice(0, 10) : "");
+    setNote(exp.note);
+    setShowExpModal(true);
   };
 
   // DELETE EXPENSE
@@ -228,22 +245,26 @@ function Expenses() {
               <th className="p-3 border">{t("Amount", { defaultValue: "Amount" })}</th>
               <th className="p-3 border">{t("Date", { defaultValue: "Date" })}</th>
               <th className="p-3 border">{t("Note", { defaultValue: "Note" })}</th>
-              <th className="p-3 border">{t("Action", { defaultValue: "Action" })}</th>
+              <th className="p-3 border">{t("Actions", { defaultValue: "Actions" })}</th>
             </tr>
           </thead>
           <tbody>
+          {console.log("Expenses", expenses)}
             {expenses.length === 0 ? (
               <tr><td colSpan="6" className="text-center p-6 text-gray-400">{t("NoExpenses", { defaultValue: "No expenses" })}</td></tr>
             ) : (
               expenses.map(e => (
                 <tr key={e._id} className="text-center">
                   <td className="p-3 border">{e.title}</td>
-                  <td className="p-3 border">{e.category?.name || "-"}</td>
+                  <td className="p-3 border">{e.catagoryId?.name || "-"}</td>
                   <td className="p-3 border text-red-600">${e.amount}</td>
-                  <td className="p-3 border">{e.date?.slice(0, 10)}</td>
+                  <td className="p-3 border">{e.expensesDate?.slice(0, 10)}</td>
                   <td className="p-3 border">{e.note}</td>
                   <td className="p-3 border">
-                    <AiOutlineDelete className="text-red-500 cursor-pointer mx-auto" size={20} onClick={() => requestDeleteExpense(e._id)} />
+                    <div className="flex justify-center gap-4">
+                      <AiOutlineEdit className="text-blue-500 cursor-pointer" size={20} onClick={() => editExpense(e)} />
+                      <AiOutlineDelete className="text-red-500 cursor-pointer" size={20} onClick={() => requestDeleteExpense(e._id)} />
+                    </div>
                   </td>
                 </tr>
               ))
@@ -254,12 +275,12 @@ function Expenses() {
 
       {/* EXPENSE MODAL */}
       {showExpModal && (
-        <div className="modal-backdrop" onClick={() => setShowExpModal(false)}>
+        <div className="modal-backdrop" onClick={() => { setShowExpModal(false); setEditExpId(null); }}>
           <div className="modal-card p-6 w-full max-w-md relative" onClick={(e) => e.stopPropagation()}>
-            <button type="button" className="modal-close-button" onClick={() => setShowExpModal(false)}>
+            <button type="button" className="modal-close-button" onClick={() => { setShowExpModal(false); setEditExpId(null); }}>
               <AiOutlineClose size={18} />
             </button>
-            <h2 className="text-xl mb-4">{t("AddExpense", { defaultValue: "Add Expense" })}</h2>
+            <h2 className="text-xl mb-4">{editExpId ? t("EditExpense", { defaultValue: "Edit Expense" }) : t("AddExpense", { defaultValue: "Add Expense" })}</h2>
             <InputField placeholder={t("Title", { defaultValue: "Title" })} value={title} onChange={e => setTitle(e.target.value)} className="border p-2 w-full mb-3" />
             <select className="border p-2 w-full mb-3" value={categoryId} onChange={e => setCategoryId(e.target.value)}>
               <option value="">{t("SelectCategory", { defaultValue: "Select Category" })}</option>
@@ -269,8 +290,8 @@ function Expenses() {
             <InputField type="date" value={date} onChange={e => setDate(e.target.value)} className="border p-2 w-full mb-3" />
             <InputField placeholder={t("Note", { defaultValue: "Note" })} value={note} onChange={e => setNote(e.target.value)} className="border p-2 w-full mb-4" />
             <div className="flex justify-end gap-3">
-              <Button onClick={() => setShowExpModal(false)} className="bg-gray-300 text-black">{t("Cancel", { defaultValue: "Cancel" })}</Button>
-              <Button onClick={addExpense}>{t("Save", { defaultValue: "Save" })}</Button>
+              <Button onClick={() => { setShowExpModal(false); setEditExpId(null); }} className="bg-gray-300 text-black">{t("Cancel", { defaultValue: "Cancel" })}</Button>
+              <Button onClick={saveExpense}>{t("Save", { defaultValue: "Save" })}</Button>
             </div>
           </div>
         </div>

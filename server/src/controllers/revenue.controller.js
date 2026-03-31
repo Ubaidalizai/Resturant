@@ -46,8 +46,21 @@ export const getRevenue = asyncHandler(async (req, res) => {
     createdAt: { $gte: start, $lte: end },
   });
 
-  const expenses = await Expense.find({
+  // Find expenses by expensesDate, fallback to createdAt if not found
+  let expenses = await Expense.find({
     expensesDate: { $gte: start, $lte: end },
+  });
+  if (expenses.length === 0) {
+    expenses = await Expense.find({
+      createdAt: { $gte: start, $lte: end },
+    });
+  }
+
+  // Debug: log found expenses and their dates
+  console.log('Revenue calculation:', {
+    start,
+    end,
+    expenses: expenses.map(e => ({ id: e._id, amount: e.amount, expensesDate: e.expensesDate, createdAt: e.createdAt })),
   });
 
   const staffSalaries = await Staff.find({
@@ -62,7 +75,7 @@ export const getRevenue = asyncHandler(async (req, res) => {
 
   res.respond(200, `${type} revenue fetched successfully`, {
     type,
-    revenue: totalRevenue,
+    revenue: totalRevenue - totalExpenses,
     expenses: totalExpenses,
     salaries: totalSalaries,
     profit,
