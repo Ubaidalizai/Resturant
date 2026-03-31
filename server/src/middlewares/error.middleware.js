@@ -1,7 +1,24 @@
 import { ErrorLog } from "../models/ErrorLog.model.js";
 import { getLangFromReq, translate, toMessageCode } from "../utils/localization.util.js";
 
+import multer from "multer";
+
 export const ErrorMiddlware = async (err, req, res, next) => {
+  // Handle Multer file errors (file type/size)
+  if (err instanceof multer.MulterError) {
+    let message = err.message;
+    if (err.code === "LIMIT_FILE_SIZE") {
+      message = "File too large. Maximum allowed size is 5MB.";
+    } else if (err.code === "LIMIT_UNEXPECTED_FILE") {
+      message = err.message || "Only image files are allowed!";
+    }
+    return res.status(400).json({
+      success: false,
+      code: err.code,
+      message,
+    });
+  }
+
   const statusCode = err.statusCode || err.status || 500;
   const lang = getLangFromReq(req);
   const errorCode = err.errorCode || toMessageCode(err.message);

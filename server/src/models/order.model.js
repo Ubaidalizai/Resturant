@@ -26,8 +26,7 @@ const orderSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["Pending", "In Kitchen", "Ready", "Completed"],
-      default: "Pending"
+      default: "new order"
     },
     isPaid: {
       type: Boolean,
