@@ -30,7 +30,7 @@ function AdminDashboard() {
       .catch(error => {
         console.error("Error fetching today's orders:", error);
       });
-      // Fetcht weekly today  
+      // Fetcht weekly today
       axios.get(`${baseURL}/api/v1/orders/count/weekly`)
       .then(response => {
         setWeekOrders(response.data.data.count);
