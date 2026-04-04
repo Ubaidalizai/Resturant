@@ -74,34 +74,38 @@ export const getSalesComparison = asyncHandler(async (req, res) => {
 
 // Top Selling Food Controller
 export const getTopSellingFood = asyncHandler(async (req, res) => {
+    const sixMonthsAgo = new Date(Date.now() - 6 * 30 * 24 * 60 * 60 * 1000);
     const result = await Order.aggregate([
+        { $match: { createdAt: { $gte: sixMonthsAgo }, isDeleted: false } },
         { $unwind: "$items" },
         { $group: { _id: "$items.foodId", totalSold: { $sum: "$items.quantity" } } },
         { $sort: { totalSold: -1 } },
-        { $limit: 1 },
+        { $limit: 5 },
         { $lookup: { from: "foods", localField: "_id", foreignField: "_id", as: "food" } },
         { $unwind: "$food" },
         { $project: { _id: "$food._id", name: "$food.name", image: "$food.image", price: "$food.price", totalSold: 1 } }
     ]);
 
     if (!result.length) return res.respond(404, "No sales data found");
-    res.respond(200, "Top selling food fetched successfully", result[0]);
+    res.respond(200, "Top selling foods fetched successfully", result);
 });
 
 // Worst Selling Food Controller
 export const getWorstSellingFood = asyncHandler(async (req, res) => {
+    const sixMonthsAgo = new Date(Date.now() - 6 * 30 * 24 * 60 * 60 * 1000);
     const result = await Order.aggregate([
+        { $match: { createdAt: { $gte: sixMonthsAgo }, isDeleted: false } },
         { $unwind: "$items" },
         { $group: { _id: "$items.foodId", totalSold: { $sum: "$items.quantity" } } },
         { $sort: { totalSold: 1 } },
-        { $limit: 1 },
+        { $limit: 5 },
         { $lookup: { from: "foods", localField: "_id", foreignField: "_id", as: "food" } },
         { $unwind: "$food" },
         { $project: { _id: "$food._id", name: "$food.name", image: "$food.image", price: "$food.price", totalSold: 1 } }
     ]);
 
     if (!result.length) return res.respond(404, "No sales data found");
-    res.respond(200, "Worst selling food fetched successfully", result[0]);
+    res.respond(200, "Worst selling foods fetched successfully", result);
 });
 
 // Chart Data Controller (Daily / Weekly / Monthly grouped)
