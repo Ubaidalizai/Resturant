@@ -12,6 +12,7 @@ function Tables() {
   const [selectedTable, setSelectedTable] = useState(null);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [selectedTableOrdersLoading, setSelectedTableOrdersLoading] = useState(false);
+  const [generatingInvoiceId, setGeneratingInvoiceId] = useState(null);
 
   const fetchTableOrders = async (tableId) => {
     try {
@@ -120,8 +121,10 @@ function Tables() {
   };
 
   const handleGenerateInvoice = async (order) => {
+    const orderId = order._id ?? order.id;
+    setGeneratingInvoiceId(orderId);
     try {
-      const res = await get(`/api/v1/bill/generate/${order._id ?? order.id}`);
+      const res = await get(`/api/v1/bill/generate/${orderId}`);
       const bill = res.data.data;
       setSelectedInvoice(bill);
       setTables(
@@ -135,6 +138,8 @@ function Tables() {
     } catch (error) {
       console.error(error);
       alert("Unable to generate bill. Please try again.");
+    } finally {
+      setGeneratingInvoiceId(null);
     }
   };
 
@@ -252,8 +257,11 @@ function Tables() {
                 <Button
                   onClick={() => handleGenerateInvoice(o)}
                   className="w-full mt-3"
+                  disabled={generatingInvoiceId === (o._id ?? o.id)}
                 >
-                  {t("GenerateInvoice", { defaultValue: "Generate Invoice" })}
+                  {generatingInvoiceId === (o._id ?? o.id)
+                    ? t("GeneratingInvoice", { defaultValue: "Generating Invoice..." })
+                    : t("GenerateInvoice", { defaultValue: "Generate Invoice" })}
                 </Button>
               </div>
             ))}

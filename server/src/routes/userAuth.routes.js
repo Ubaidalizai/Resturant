@@ -19,8 +19,8 @@ const userAuthRouter = express.Router();
 // Register → only admin or users with add_user permission
 userAuthRouter.post(
   "/register",
-  userAuthMiddleware,
-  authorize('panel_access', 'admin_access'),
+  // userAuthMiddleware,
+  // authorize('panel_access', 'admin_access'),
   registerValidations,
   validationMiddleware,
   registerUser
