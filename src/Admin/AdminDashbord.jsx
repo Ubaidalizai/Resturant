@@ -47,7 +47,7 @@ function AdminDashboard() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Fetch data
+  // Fetch dataa
   useEffect(() => {
     get('/api/v1/orders/count/daily')
       .then(response => setTodayOrders(response.data.data.count))
