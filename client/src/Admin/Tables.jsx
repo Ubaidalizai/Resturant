@@ -7,12 +7,13 @@ import Button from "../Components/UI/Button";
 
 function Tables() {
   const { t, i18n } = useTranslation("common");
-  const { get } = useApi();
+  const { get, post } = useApi();
   const [tables, setTables] = useState([]);
   const [selectedTable, setSelectedTable] = useState(null);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [selectedTableOrdersLoading, setSelectedTableOrdersLoading] = useState(false);
   const [generatingInvoiceId, setGeneratingInvoiceId] = useState(null);
+  const [payingInvoiceId, setPayingInvoiceId] = useState(null);
 
   const fetchTableOrders = async (tableId) => {
     try {
@@ -127,11 +128,7 @@ function Tables() {
       const res = await get(`/api/v1/bill/generate/${orderId}`);
       const bill = res.data.data;
       setSelectedInvoice(bill);
-      setTables(
-        tables.map((table) =>
-          table.id === selectedTable.id ? { ...table, isOccupied: false } : table
-        )
-      );
+
       setTimeout(() => {
         window.print();
       }, 300);
@@ -143,7 +140,49 @@ function Tables() {
     }
   };
 
-  const handleInvoicePaid = () => {
+  const handlePayInvoice = async () => {
+    const orderId = selectedInvoice?.orders?.[0]?._id ?? selectedInvoice?.orders?.[0]?.id;
+    if (!orderId) {
+      return alert("Unable to identify invoice order.");
+    }
+
+    setPayingInvoiceId(orderId);
+    try {
+      const res = await post(`/api/v1/bill/pay/${orderId}`);
+      const paidBill = res.data.data;
+
+      const updatedOrders = selectedTable.orders.map((o) =>
+        (o._id ?? o.id) === orderId ? { ...o, isPaid: true } : o
+      );
+      const unpaidExists = updatedOrders.some((o) => !o.isPaid);
+
+      setTables(
+        tables.map((table) =>
+          table.id === selectedTable.id
+            ? {
+                ...table,
+                isOccupied: unpaidExists,
+                orders: updatedOrders,
+              }
+            : table
+        )
+      );
+
+      setSelectedTable({
+        ...selectedTable,
+        isOccupied: unpaidExists,
+        orders: updatedOrders,
+      });
+      setSelectedInvoice(paidBill);
+    } catch (error) {
+      console.error(error);
+      alert("Unable to complete payment. Please try again.");
+    } finally {
+      setPayingInvoiceId(null);
+    }
+  };
+
+  const handleCloseInvoice = () => {
     setSelectedInvoice(null);
     setSelectedTable(null);
   };
@@ -222,11 +261,18 @@ function Tables() {
               >
                 <div className="flex justify-between mb-3 items-center">
                   <h3 className="font-bold text-lg text-yellow-600">
-                    {t("Customer", { defaultValue: "Customer" })} {i + 1}
+                    {o.customer || t("UnknownCustomer", { defaultValue: "Unknown Customer" })}
                   </h3>
-                  <span className="font-bold text-red-600">
-                    {t("CurrencySymbol", { defaultValue: "$" })}{o.totalAmount ?? o.orderTotal ?? o.amount ?? 0}
-                  </span>
+                  <div className="flex items-center space-x-3">
+                    {o.isPaid && (
+                      <span className="px-2 py-1 rounded-full bg-green-100 text-green-700 text-sm font-semibold">
+                        {t("Paid", { defaultValue: "Paid" })}
+                      </span>
+                    )}
+                    <span className="font-bold text-red-600">
+                      {t("CurrencySymbol", { defaultValue: "$" })}{o.totalAmount ?? o.orderTotal ?? o.amount ?? 0}
+                    </span>
+                  </div>
                 </div>
 
                 <div className="overflow-x-auto text-black">
@@ -257,9 +303,11 @@ function Tables() {
                 <Button
                   onClick={() => handleGenerateInvoice(o)}
                   className="w-full mt-3"
-                  disabled={generatingInvoiceId === (o._id ?? o.id)}
+                  disabled={o.isPaid || generatingInvoiceId === (o._id ?? o.id)}
                 >
-                  {generatingInvoiceId === (o._id ?? o.id)
+                  {o.isPaid
+                    ? t("AlreadyPaid", { defaultValue: "Already Paid" })
+                    : generatingInvoiceId === (o._id ?? o.id)
                     ? t("GeneratingInvoice", { defaultValue: "Generating Invoice..." })
                     : t("GenerateInvoice", { defaultValue: "Generate Invoice" })}
                 </Button>
@@ -299,12 +347,23 @@ function Tables() {
             {t("Total", { defaultValue: "Total" })}: {t("CurrencySymbol", { defaultValue: "$" })}{getInvoiceTotal(selectedInvoice)}
           </div>
 
-          <Button
-            onClick={handleInvoicePaid}
-            className="mt-6 px-6 py-2"
-          >
-            {t("PaidInvoice", { defaultValue: "Paid Invoice" })}
-          </Button>
+          <div className="flex flex-wrap gap-3 justify-center mt-6">
+            <Button
+              onClick={handlePayInvoice}
+              className="px-6 py-2"
+              disabled={payingInvoiceId === (selectedInvoice?.orders?.[0]?._id ?? selectedInvoice?.orders?.[0]?.id)}
+            >
+              {payingInvoiceId === (selectedInvoice?.orders?.[0]?._id ?? selectedInvoice?.orders?.[0]?.id)
+                ? t("ProcessingPayment", { defaultValue: "Processing Payment..." })
+                : t("PayInvoice", { defaultValue: "Pay Invoice" })}
+            </Button>
+            <Button
+              onClick={handleCloseInvoice}
+              className="px-6 py-2 bg-gray-200 text-black hover:bg-gray-300"
+            >
+              {t("Close", { defaultValue: "Close" })}
+            </Button>
+          </div>
         </div>
       )}
 

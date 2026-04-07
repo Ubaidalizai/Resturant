@@ -43,7 +43,7 @@ function OverviewChart() {
       const formattedData = (res.data.data || []).map(item => ({
         ...item,
         revenue: Number(item.revenue),
-        date: new Date(item.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })
+        date: new Date(item.date).toLocaleDateString(i18n.language, { month: "short", day: "numeric" })
       }));
       setChartData(formattedData);
     } catch (err) {
@@ -131,7 +131,7 @@ function OverviewChart() {
       pdf.setFont('helvetica', 'normal');
       pdf.setFontSize(10);
       pdf.setTextColor(100, 100, 100);
-      const currentDate = new Date().toLocaleDateString();
+      const currentDate = new Date().toLocaleDateString(i18n.language);
       pdf.text(`${t('GeneratedOn', 'Generated on')}: ${currentDate}`, pageWidth - margin - 150, 75);
 
       let yPosition = 100;
