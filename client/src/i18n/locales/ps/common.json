@@ -223,7 +223,6 @@
   "DeleteExpense": "لګښت حذف کړئ",
   "ConfirmDeleteExpenseMessage": "ایا تاسو ډاډه یاست چې دا لګښت حذف کړئ؟",
   "Save": "خوندي کول",
-  "CurrencySymbol": "$",
   "all": "ټول",
   "daily": "ورځنی",
   "weekly": "اونیز",
@@ -245,5 +244,8 @@
   "Food": "خواړه",
   "Customer": "پیرودونکی",
   "UnknownFood": "نامعلوم خواړه",
-  "CookerImageAlt": "د پخلي ماشین"
+  "CookerImageAlt": "د پخلي ماشین",
+  "DownloadPDF": "پی‌دی‌اف دانلود کړئ",
+  "Downloading": "دانلود کېږي...",
+  "UnknownCustomer": "نامعلوم پیرودونکی"
 }
