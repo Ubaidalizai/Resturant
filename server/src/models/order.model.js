@@ -26,7 +26,7 @@ const orderSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      default: "new order"
+      default: "New Order"
     },
     isPaid: {
       type: Boolean,

@@ -108,11 +108,6 @@ export const getOrdersByTable = asyncHandler(async (req, res) => {
 export const updateOrderStatus = asyncHandler(async (req, res) => {
     const { orderId } = req.params;
     const { status } = req.body;
-    const validStatuses = ["Pending", "In Kitchen", "Ready", "Completed"];
-
-    if (!status || !validStatuses.includes(status)) {
-        return res.respond(400, "Invalid status. Use Pending, In Kitchen, Ready, or Completed");
-    }
 
     const updatedOrder = await Order.findByIdAndUpdate(
         orderId,
@@ -123,7 +118,6 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
         .populate('items.foodId', 'name price');
 
     if (!updatedOrder) return res.respond(404, "Order not found");
-
     res.respond(200, "Order status updated successfully", updatedOrder);
 });
 
