@@ -1,7 +1,7 @@
 import { useState } from "react";
 import TableSelector from "./TableSelector";
 import { toast } from "react-toastify";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "../../../node_modules/react-i18next";
 import { useApi } from '../../context/ApiContext';
 import { getTranslatedServerMessage } from "../../utils/serverMessageTranslator";
 import InputField from "../UI/InputField";

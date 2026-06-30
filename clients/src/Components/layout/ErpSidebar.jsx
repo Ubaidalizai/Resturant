@@ -18,7 +18,7 @@ import {
   FiLogOut,
   FiLayers,
 } from "react-icons/fi";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "../../../node_modules/react-i18next";
 import Logo from "../../images/logo.jpg";
 import LanguageSwitcher from "../UI/LanguageSwitcher";
 

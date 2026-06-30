@@ -1,5 +1,5 @@
 import React from "react";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "../../../node_modules/react-i18next";
 import { AiOutlineClose } from "react-icons/ai";
 import Button from "./Button";
 

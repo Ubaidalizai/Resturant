@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { AiOutlineEdit } from "react-icons/ai";
 import { toast } from "react-toastify";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "../../node_modules/react-i18next";
 import { useApi } from "../context/ApiContext";
 import { getTranslatedServerMessage } from "../utils/serverMessageTranslator";
 import ConfirmModel from "../Components/UI/ConfirmModel";

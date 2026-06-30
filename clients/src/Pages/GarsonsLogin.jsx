@@ -7,7 +7,7 @@ import RestaurantLoader from "./RestaurantLoader";
 import { useApi } from "../context/ApiContext";
 import InputField from "../Components/UI/InputField";
 import Button from "../Components/UI/Button";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "../../node_modules/react-i18next";
 import { getTranslatedServerMessage } from "../utils/serverMessageTranslator";
 
 function LoginForm() {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useApi } from "../context/ApiContext";
 import { toast } from "react-toastify";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "../../node_modules/react-i18next";
 
 function KitchenOrderHistory() {
   const { get, put } = useApi();

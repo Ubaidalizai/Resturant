@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { AiOutlineDelete } from "react-icons/ai";
 import { toast } from "react-toastify";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "../../node_modules/react-i18next";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from "recharts";

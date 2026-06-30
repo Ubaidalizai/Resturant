@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { AiOutlineDelete, AiOutlineEdit, AiOutlinePlus, AiOutlineClose } from "react-icons/ai";
 import { toast } from "react-toastify";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "../../node_modules/react-i18next";
 import { useApi } from "../context/ApiContext";
 import InputField from "../Components/UI/InputField";
 import { getTranslatedServerMessage } from "../utils/serverMessageTranslator";

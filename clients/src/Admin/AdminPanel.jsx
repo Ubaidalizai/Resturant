@@ -6,7 +6,7 @@ import {
   AiOutlineClose,
 } from "react-icons/ai";
 import { toast } from "react-toastify";
-import { useTranslation } from "react-i18next";
+import { useTranslation } from "../../node_modules/react-i18next";
 import { useApi } from "../context/ApiContext";
 import InputField from "../Components/UI/InputField";
 import Button from "../Components/UI/Button";

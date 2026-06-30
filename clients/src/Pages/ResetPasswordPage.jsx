@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '../../node_modules/react-i18next';
 import RestaurantLoader from './RestaurantLoader';
 import { toast } from 'react-toastify';
 import { useApi } from '../context/ApiContext';
