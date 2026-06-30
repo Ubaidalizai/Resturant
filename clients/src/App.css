@@ -1,0 +1,98 @@
+body {
+  min-height: 100vh;
+  background: var(--erp-bg, #f1f5f9);
+}
+
+.shadow, .shadow-sm, .shadow-md, .shadow-lg, .shadow-xl, .shadow-2xl, .shadow-inner {
+  box-shadow: none !important;
+}
+
+.card, .panel, .modal, .table-wrap, .card-surface {
+  background: var(--erp-surface, #ffffff);
+  border: 1px solid var(--erp-border, #e2e8f0);
+  border-radius: 4px;
+  box-shadow: none;
+}
+
+.card:hover, .panel:hover, .modal:hover, .table-wrap:hover {
+  box-shadow: none;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  background: rgba(15, 23, 42, 0.45);
+  z-index: 50;
+}
+
+.modal-card {
+  background: #ffffff;
+  border: 1px solid var(--erp-border, #e2e8f0);
+  border-radius: 4px;
+  position: relative;
+  box-shadow: none;
+}
+
+.modal-card-sm { max-width: 24rem; }
+.modal-card-md { max-width: 32rem; }
+.modal-card-lg { max-width: 65rem; }
+
+.modal-close-button {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--erp-bg, #f1f5f9);
+  border: 1px solid var(--erp-border, #e2e8f0);
+  color: var(--erp-secondary, #0f172a);
+  cursor: pointer;
+}
+
+.modal-close-button:hover {
+  background: #e2e8f0;
+}
+
+input, textarea {
+  background: #ffffff;
+  border: 1px solid var(--erp-border, #e2e8f0);
+  border-radius: 4px;
+  padding: 0.5rem 0.75rem;
+}
+
+select {
+  background: #ffffff;
+  border: 1px solid var(--erp-border, #e2e8f0);
+  border-radius: 4px;
+  padding: 0.5rem 0.75rem;
+  color: var(--erp-secondary, #0f172a);
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--erp-primary, #1e40af);
+}
+
+.badge, .tag {
+  border-radius: 3px;
+  padding: 0.125rem 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  background: var(--erp-primary-soft, #eff6ff);
+  color: var(--erp-primary, #1e40af);
+  border: 1px solid #bfdbfe;
+}
+
+.card-body, .panel-body {
+  padding: 1.25rem;
+}
