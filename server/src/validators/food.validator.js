@@ -1,0 +1,22 @@
+import { body } from "express-validator";
+
+export const foodValidation = [
+  body("name")
+    .trim()
+    .notEmpty()
+    .withMessage("Title is required")
+    .isString()
+    .withMessage("Food name must be a string"),
+
+  body("catagory")
+    .notEmpty()
+    .withMessage("Food category is required")
+    .isMongoId()
+    .withMessage("Invalid category ID"),
+
+  body("price")
+    .notEmpty()
+    .withMessage("Food price is required")
+    .isFloat({ min: 0.01 })
+    .withMessage("Price must be greater than 0"),
+];

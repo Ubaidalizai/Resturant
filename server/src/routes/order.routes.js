@@ -1,0 +1,91 @@
+import express from 'express';
+import { validationMiddleware } from '../middlewares/validationsHandler.utils.js';
+import { orderValidation } from '../validators/order.validator.js';
+import { addOrder, deleteOrder, getAllOrders, getKitchenOrders, getKitchenOrderHistory, dismissKitchenOrder, hideKitchenHistoryOrder, getOrdersByTable, getOrders, getOrder, orderCounts, updateOrder, updateOrderStatus } from '../controllers/order.controller.js';
+import { userAuthMiddleware } from '../middlewares/userAuth.middleware.js';
+import { authorize } from '../middlewares/authorizeRole.middleware.js';
+
+const OrderRouter = express.Router();
+OrderRouter.use(userAuthMiddleware);
+OrderRouter.use(authorize('admin_access', 'garson_access', 'order_history_access', 'overview_access', 'kitchen_access', 'table_access', 'order_food'));
+// User orders → garson or admin
+OrderRouter.get(
+  '/user', 
+  getOrders
+);
+
+// Add order → order_food or garson or admin
+OrderRouter.post(
+  '/add',
+  orderValidation,
+  validationMiddleware,
+  addOrder
+);
+
+// Delete order → garson or admin
+OrderRouter.delete(
+  '/delete/:orderId', 
+  deleteOrder
+);
+
+// Update order → garson or admin
+OrderRouter.put(
+  '/update/:orderId',
+  updateOrder
+);
+
+// Get all orders → garson or admin
+OrderRouter.get(
+  '/all',  
+  getAllOrders
+);
+
+// Get kitchen orders → kitchen staff, admin, or garson
+OrderRouter.get(
+  '/kitchen',
+  getKitchenOrders
+);
+
+// Get kitchen order history
+OrderRouter.get(
+  '/kitchen/history',
+  getKitchenOrderHistory
+);
+
+// Dismiss from active kitchen view
+OrderRouter.put(
+  '/kitchen/dismiss/:orderId',
+  dismissKitchenOrder
+);
+
+// Remove from kitchen history only
+OrderRouter.put(
+  '/kitchen/history-hide/:orderId',
+  hideKitchenHistoryOrder
+);
+
+// Get active table orders → garson or admin
+OrderRouter.get(
+  '/table/:tableId',
+  getOrdersByTable
+);
+
+// Update order status → kitchen or admin
+OrderRouter.put(
+  '/status/:orderId',
+  updateOrderStatus
+);
+
+// Order counts → garson or admin
+OrderRouter.get(
+  '/count/:type',
+  orderCounts
+);
+
+// Get single order → garson or admin
+OrderRouter.get(
+  '/:orderId',
+  getOrder
+);
+
+export default OrderRouter;
